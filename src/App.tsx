@@ -137,21 +137,6 @@ function locationsMatch(searchLoc: string, rideLoc: string): boolean {
 // ICONS
 // ─────────────────────────────────────────────────────────────────────────────
 
-function MoonIcon() {
-  return (
-    <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M21 12.9A9 9 0 1 1 11.1 3a7 7 0 1 0 9.9 9.9z" />
-    </svg>
-  );
-}
-function SunIcon() {
-  return (
-    <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2m-7.07-14.07 1.41 1.41m12.73 12.73 1.41 1.41M2 12h2m16 0h2m-4.93 7.07-1.41-1.41M6.34 6.34 4.93 4.93" />
-    </svg>
-  );
-}
 function BackArrow() {
   return (
     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -321,11 +306,19 @@ function RideCard({
   );
 }
 function SunIconSmall({ active }: { active: boolean }) {
+  const color = active ? '#f97316' : '#64748b';
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-      style={{ width: 14, height: 14, color: active ? '#f97316' : '#64748b', transition: 'color 200ms ease' }}>
+    <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"
+      style={{ width: 14, height: 14, transition: 'stroke 200ms ease' }}>
       <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2m-7.07-14.07 1.41 1.41m12.73 12.73 1.41 1.41M2 12h2m16 0h2m-4.93 7.07-1.41-1.41M6.34 6.34 4.93 4.93" />
+      <path d="M12 2v2" />
+      <path d="M12 20v2" />
+      <path d="m4.93 4.93 1.41 1.41" />
+      <path d="m17.66 17.66 1.41 1.41" />
+      <path d="M2 12h2" />
+      <path d="M20 12h2" />
+      <path d="m6.34 17.66-1.41 1.41" />
+      <path d="m19.07 4.93-1.41 1.41" />
     </svg>
   );
 }
