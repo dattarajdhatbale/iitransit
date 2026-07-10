@@ -320,6 +320,24 @@ function RideCard({
     </div>
   );
 }
+function SunIconSmall({ active }: { active: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+      style={{ width: 14, height: 14, color: active ? '#f97316' : '#64748b', transition: 'color 200ms ease' }}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2m-7.07-14.07 1.41 1.41m12.73 12.73 1.41 1.41M2 12h2m16 0h2m-4.93 7.07-1.41-1.41M6.34 6.34 4.93 4.93" />
+    </svg>
+  );
+}
+
+function MoonIconSmall({ active }: { active: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+      style={{ width: 14, height: 14, color: active ? '#3b82f6' : '#64748b', transition: 'color 200ms ease' }}>
+      <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />
+    </svg>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN APP COMPONENT
@@ -678,14 +696,43 @@ await signInWithPopup(auth, provider);
           <nav className="mb-12 flex items-center justify-between">
             {/* Theme toggle */}
             <button
-              type="button"
-              aria-label="Toggle theme"
-              onClick={() => setIsDark((p) => !p)}
-              className={cn("rounded-full p-1 transition-transform hover:scale-110",
-                isDark ? "text-[#CBD5E1] hover:text-[#F8FAFC]" : "text-[#5a4f72]")}
-            >
-              {isDark ? <SunIcon /> : <MoonIcon />}
-            </button>
+  type="button"
+  aria-label="Toggle theme"
+  onClick={() => setIsDark(p => !p)}
+  style={{
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    width: 68,
+    height: 34,
+    padding: 3,
+    borderRadius: 999,
+    cursor: 'pointer',
+    background: isDark ? '#0f172a' : '#e2e8f0',
+    border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
+    transition: 'background 200ms ease',
+  }}
+>
+  {/* sliding knob */}
+  <span style={{
+    position: 'absolute',
+    width: 28,
+    height: 28,
+    borderRadius: '50%',
+    background: isDark ? '#1e3a5f' : '#ffffff',
+    transform: `translateX(${isDark ? '34px' : '0px'})`,
+    transition: 'transform 200ms ease, background 200ms ease',
+    boxShadow: isDark ? '0 0 8px rgba(59,130,246,0.35)' : '0 1px 4px rgba(0,0,0,0.15)',
+  }} />
+  {/* sun — left */}
+  <span style={{ position: 'relative', zIndex: 1, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <SunIconSmall active={!isDark} />
+  </span>
+  {/* moon — right */}
+  <span style={{ position: 'relative', zIndex: 1, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <MoonIconSmall active={isDark} />
+  </span>
+</button>
 
             {/* Auth area */}
             {currentUser ? (
