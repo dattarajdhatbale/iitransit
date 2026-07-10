@@ -309,24 +309,21 @@ function SunIconSmall({ active }: { active: boolean }) {
   const color = active ? '#f97316' : '#64748b';
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"
-      style={{ width: 14, height: 14, transition: 'stroke 200ms ease' }}>
+      style={{ width: 15, height: 15, transition: 'stroke 200ms ease', flexShrink: 0 }}>
       <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2" />
-      <path d="M12 20v2" />
-      <path d="m4.93 4.93 1.41 1.41" />
-      <path d="m17.66 17.66 1.41 1.41" />
-      <path d="M2 12h2" />
-      <path d="M20 12h2" />
-      <path d="m6.34 17.66-1.41 1.41" />
-      <path d="m19.07 4.93-1.41 1.41" />
+      <path d="M12 2v2" /><path d="M12 20v2" />
+      <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
+      <path d="M2 12h2" /><path d="M20 12h2" />
+      <path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
     </svg>
   );
 }
 
 function MoonIconSmall({ active }: { active: boolean }) {
+  const color = active ? '#3b82f6' : '#64748b';
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-      style={{ width: 14, height: 14, color: active ? '#3b82f6' : '#64748b', transition: 'color 200ms ease' }}>
+    <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"
+      style={{ width: 15, height: 15, transition: 'stroke 200ms ease', flexShrink: 0 }}>
       <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />
     </svg>
   );
@@ -688,41 +685,54 @@ await signInWithPopup(auth, provider);
         <section className="mx-auto flex w-full max-w-6xl animate-rise flex-col">
           <nav className="mb-12 flex items-center justify-between">
             {/* Theme toggle */}
-            <button
+<button
   type="button"
   aria-label="Toggle theme"
-  onClick={() => setIsDark(p => !p)}
+  onClick={() => setIsDark((p) => !p)}
   style={{
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
-    width: 68,
-    height: 34,
+    width: 74,
+    height: 36,
     padding: 3,
     borderRadius: 999,
     cursor: 'pointer',
+    flexShrink: 0,
     background: isDark ? '#0f172a' : '#e2e8f0',
     border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
-    transition: 'background 200ms ease',
+    transition: 'background 200ms ease, border-color 200ms ease',
   }}
 >
-  {/* sliding knob */}
+  {/* knob — slides left (light) or right (dark) */}
   <span style={{
     position: 'absolute',
-    width: 28,
-    height: 28,
+    left: 3,
+    top: 3,
+    width: 30,
+    height: 30,
     borderRadius: '50%',
     background: isDark ? '#1e3a5f' : '#ffffff',
-    transform: `translateX(${isDark ? '34px' : '0px'})`,
+    transform: `translateX(${isDark ? '38px' : '0px'})`,
     transition: 'transform 200ms ease, background 200ms ease',
-    boxShadow: isDark ? '0 0 8px rgba(59,130,246,0.35)' : '0 1px 4px rgba(0,0,0,0.15)',
+    boxShadow: isDark
+      ? '0 0 8px rgba(59,130,246,0.35)'
+      : '0 1px 4px rgba(0,0,0,0.15)',
   }} />
-  {/* sun — left */}
-  <span style={{ position: 'relative', zIndex: 1, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  {/* sun — left half */}
+  <span style={{
+    position: 'relative', zIndex: 1,
+    width: 34, height: 30,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  }}>
     <SunIconSmall active={!isDark} />
   </span>
-  {/* moon — right */}
-  <span style={{ position: 'relative', zIndex: 1, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  {/* moon — right half */}
+  <span style={{
+    position: 'relative', zIndex: 1,
+    width: 34, height: 30,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  }}>
     <MoonIconSmall active={isDark} />
   </span>
 </button>
