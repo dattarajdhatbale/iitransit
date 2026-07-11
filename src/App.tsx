@@ -197,12 +197,12 @@ function RideCard({
 
   // Availability badge
   const availBadge = isCancelled
-    ? { label: "Cancelled", cls: "bg-red-100 text-red-700" }
-    : isPast
-    ? { label: "Departed",  cls: "bg-slate-100 text-slate-500" }
-    : ride.isAvailable
-    ? { label: "Available", cls: "bg-emerald-100 text-emerald-700" }
-    : { label: "Full",      cls: "bg-amber-100  text-amber-700"  };
+  ? { label: "Cancelled", cls: dark ? "bg-red-900/40 text-red-400"      : "bg-red-100 text-red-700" }
+  : isPast
+  ? { label: "Departed",  cls: dark ? "bg-slate-700/40 text-slate-400"  : "bg-slate-100 text-slate-500" }
+  : ride.isAvailable
+  ? { label: "Available", cls: dark ? "bg-emerald-900/40 text-emerald-400" : "bg-emerald-100 text-emerald-700" }
+  : { label: "Full",      cls: dark ? "bg-amber-900/40 text-amber-400"  : "bg-amber-100 text-amber-700" };
 
   return (
     <div
@@ -446,10 +446,17 @@ function App() {
   }, []);
 
   // 5. Load My Rides whenever the user navigates to /my-rides.html.
+useEffect(() => {
+  if (route !== "/my-rides.html" || !currentUser) return;
+  loadMyRides();
+}, [route, currentUser]);
+
   useEffect(() => {
-    if (route !== "/my-rides.html" || !currentUser) return;
-    loadMyRides();
-  }, [route, currentUser]);
+  if (route === "/search.html") {
+    setSearchResults([]);
+    setSearchMessage("");
+  }
+}, [route]);
 
   // ── Auth handlers ──────────────────────────────────────────────────────────
 
@@ -552,11 +559,11 @@ await signInWithPopup(auth, provider);
 
       setPostMessage("Ride posted! Others can now find and contact you.");
       setPostDate("");
-      setPostFrom(""); 
+      setPostFrom("");
       event.currentTarget.reset();
-    } catch(err){
-        console.error("POST RIDE ERROR:", err);
-      setPostMessage("Failed to post ride. Please check your connection and try again.");
+setTimeout(() => setPostMessage(""), 4000);
+   } catch (err) {
+   setPostMessage("Failed to post ride. Please check your connection and try again.");
     } finally {
       setIsPosting(false);
     }
@@ -770,22 +777,13 @@ await signInWithPopup(auth, provider);
           </nav>
 
           <div className="mb-14 text-center">
-            <h1 className={cn("mb-2 text-5xl font-black tracking-tight md:text-7xl", heading)}>
-              WELCOME TO
-            </h1>
-            <div className={cn("mb-5 text-4xl font-black tracking-tight md:text-6xl", heading)}>
+            <h1 className={cn("mb-5 text-5xl font-black tracking-tight md:text-7xl", heading)}>
               IITransit
-            </div>
+            </h1>
             <p className="mx-auto mb-8 max-w-2xl text-xl md:text-4xl md:leading-tight">
               Why Pay More? Share a ride with your peers!
             </p>
-            <button
-              type="button"
-              onClick={() => guardedNavigate("/post.html")}
-              className={cn("rounded-full px-10 py-4 text-2xl font-bold transition-all hover:-translate-y-0.5", btnMain)}
-            >
-              Hop On!
-            </button>
+            
           </div>
 
           <div className="grid gap-5 pb-5 md:grid-cols-2">
