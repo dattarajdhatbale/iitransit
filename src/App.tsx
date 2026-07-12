@@ -1000,8 +1000,22 @@ setTimeout(() => setPostMessage(""), 4000);
             </form>
 
             {searchMessage && (
-              <p className={cn("mt-6 text-center text-xl", muted)}>{searchMessage}</p>
-            )}
+            <div className="mt-6 text-center space-y-3">
+             <p className={cn("text-xl", muted)}>{searchMessage}</p>
+             {searchResults.length === 0 && !isSearching && searchMessage.startsWith("No rides") && (
+             <div className="space-y-2">
+               <p className={cn("text-sm", muted)}>Be the first to post one.</p>
+                 <button
+          type="button"
+          onClick={() => navigate("/post.html")}
+          className={cn("rounded-full px-6 py-2 text-sm font-semibold transition-all", btnMain)}
+        >
+          Post Ride
+        </button>
+      </div>
+    )}
+  </div>
+)}
 
             {searchResults.length > 0 && (
               <div className="mt-6 space-y-4">
@@ -1044,18 +1058,48 @@ setTimeout(() => setPostMessage(""), 4000);
               </p>
             )}
 
-            <div className="space-y-4">
-              {myRides.map((ride) => (
-                <RideCard
-                  key={ride.id}
-                  ride={ride}
-                  dark={isDark}
-                  showActions
-                  onCancel={handleCancelRide}
-                  onToggleAvailability={handleToggleAvailability}
-                />
-              ))}
-            </div>
+            {(() => {
+  const now = Timestamp.now().seconds;
+  const future = myRides.filter(r => r.departureAt.seconds >= now && r.status !== "cancelled");
+  const past   = myRides.filter(r => r.departureAt.seconds <  now || r.status === "cancelled");
+
+  return (
+    <div className="space-y-6">
+      {future.length > 0 && (
+        <div className="space-y-4">
+          <p className={cn("text-xs font-semibold uppercase tracking-widest", muted)}>
+            Upcoming
+          </p>
+          {future.map((ride) => (
+            <RideCard key={ride.id} ride={ride} dark={isDark} showActions
+              onCancel={handleCancelRide}
+              onToggleAvailability={handleToggleAvailability} />
+          ))}
+        </div>
+      )}
+      {past.length > 0 && (
+        <div className="space-y-4">
+          {future.length > 0 && (
+            <div className={cn("border-t pt-4", isDark ? "border-[rgba(255,255,255,0.06)]" : "border-[#ddd2ea]")} />
+          )}
+          <p className={cn("text-xs font-semibold uppercase tracking-widest", muted)}>
+            Past & Cancelled
+          </p>
+          {past.map((ride) => (
+            <RideCard key={ride.id} ride={ride} dark={isDark} showActions
+              onCancel={handleCancelRide}
+              onToggleAvailability={handleToggleAvailability} />
+          ))}
+        </div>
+      )}
+      {myRides.length === 0 && (
+        <p className={cn("text-center text-lg", muted)}>
+          You haven't posted any rides yet.
+        </p>
+      )}
+    </div>
+  );
+})()}
           </div>
         </section>
       )}
