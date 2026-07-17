@@ -88,6 +88,22 @@ const VEHICLE_LABELS: Record<VehicleType, string> = {
   other: "Other",
 };
 
+const [installPrompt, setInstallPrompt] = useState<any>(null);
+useEffect(() => {
+  const handler = (e: Event) => {
+    e.preventDefault();
+    setInstallPrompt(e);
+  };
+  window.addEventListener("beforeinstallprompt", handler);
+  return () => window.removeEventListener("beforeinstallprompt", handler);
+}, []);
+const handleInstall = async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  const { outcome } = await installPrompt.userChoice;
+  if (outcome === "accepted") setInstallPrompt(null);
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
@@ -376,6 +392,22 @@ function App() {
   );
 
   // ── Navigation helper ──────────────────────────────────────────────────────
+
+  {installPrompt && (
+  <button
+    type="button"
+    onClick={handleInstall}
+    className={cn(
+      "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
+      isDark
+        ? "bg-[#7C3AED] text-white hover:bg-[#8B5CF6]"
+        : "bg-[#aa82bc] text-white hover:bg-[#9d74b2]",
+    )}
+  >
+    Install App
+  </button>
+)}
+
   const navigate = (target: AppRoute, replace = false) => {
     const path   = normalizePath(target);
     const method = replace ? "replaceState" : "pushState";
