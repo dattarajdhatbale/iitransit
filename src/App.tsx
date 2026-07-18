@@ -556,7 +556,7 @@ isPostingRef.current = true;
     setIsPosting(true);
     setPostMessage("");
 
-   /* try {
+    try {
       const departureAt = buildDepartureTimestamp(dateVal, timeVal);
 
       // ── NEW RIDE OBJECT ──────────────────────────────────────────────────
@@ -594,53 +594,7 @@ setTimeout(() => setPostMessage(""), 4000);
       isPostingRef.current = false;
        setIsPosting(false);
     }
-  }; */
-
-  try {
-  const departureAt = buildDepartureTimestamp(dateVal, timeVal);
-  console.log("1 - timestamp built");
-
-  await postRide({
-    postedBy: {
-      uid:   currentUser.uid,
-      email: currentUser.email  || "",
-      name:  currentUser.displayName || "",
-    },
-    from:          fromVal,
-    to:            toVal,
-    date:          dateVal,
-    time:          timeVal,
-    departureAt,
-    vehicleType:   vehicleVal,
-    isAvailable:   isAvailableVal,
-    farePerPerson: fareStr !== "" ? Number(fareStr) : null,
-    contact:       contactVal,
-    notes:         notesVal,
-    status:        "active",
-    createdAt:     Timestamp.now(),
-  });
-  console.log("2 - firestore write done");
-
-  setPostMessage("Ride posted! Others can now find and contact you.");
-  console.log("3 - setPostMessage done");
-
-  setPostDate("");
-  setPostFrom("");
-  console.log("4 - state resets done");
-
-  event.currentTarget.reset();
-  console.log("5 - form reset done");
-
-  setTimeout(() => setPostMessage(""), 4000);
-  console.log("6 - setTimeout done");
-
-} catch (err) {
-  console.error("FAILED AT:", err);
-  setPostMessage("Failed to post ride. Please check your connection and try again.");
-} finally {
-  isPostingRef.current = false;
-  setIsPosting(false);
-}
+  }; 
 
   // ── Search handler ─────────────────────────────────────────────────────────
 
