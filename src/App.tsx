@@ -556,45 +556,42 @@ isPostingRef.current = true;
     setIsPosting(true);
     setPostMessage("");
 
-    try {
-      const departureAt = buildDepartureTimestamp(dateVal, timeVal);
+   try {
+  const departureAt = buildDepartureTimestamp(dateVal, timeVal);
+  await postRide({
+    postedBy: {
+      uid:   currentUser.uid,
+      email: currentUser.email  || "",
+      name:  currentUser.displayName || "",
+    },
+    from:          fromVal,
+    to:            toVal,
+    date:          dateVal,
+    time:          timeVal,
+    departureAt,
+    vehicleType:   vehicleVal,
+    isAvailable:   isAvailableVal,
+    farePerPerson: fareStr !== "" ? Number(fareStr) : null,
+    contact:       contactVal,
+    notes:         notesVal,
+    status:        "active",
+    createdAt:     Timestamp.now(),
+  });
+} catch {
+  setPostMessage("Failed to post ride. Please check your connection and try again.");
+  isPostingRef.current = false;
+  setIsPosting(false);
+  return;
+}
 
-      // ── NEW RIDE OBJECT ──────────────────────────────────────────────────
-      // To add a new field later: add it here AND in the form below AND
-      // in src/types.ts. That's the full checklist.
-      // ────────────────────────────────────────────────────────────────────
-      await postRide({
-        postedBy: {
-          uid:   currentUser.uid,
-          email: currentUser.email  || "",
-          name:  currentUser.displayName || "",
-        },
-        from:          fromVal,
-        to:            toVal,
-        date:          dateVal,
-        time:          timeVal,
-        departureAt,
-        vehicleType:   vehicleVal,
-        isAvailable:   isAvailableVal,
-        farePerPerson: fareStr !== "" ? Number(fareStr) : null,
-        contact:       contactVal,
-        notes:         notesVal,
-        status:        "active",
-        createdAt:     Timestamp.now(),
-      });
-
-      setPostMessage("Ride posted! Others can now find and contact you.");
-      setPostDate("");
-      setPostFrom("");
-      event.currentTarget.reset();
+// Firestore write succeeded — cleanup runs outside catch
+setPostMessage("Ride posted! Others can now find and contact you.");
+setPostDate("");
+setPostFrom("");
+event.currentTarget.reset();
 setTimeout(() => setPostMessage(""), 4000);
-   } catch (err) {
-   setPostMessage("Failed to post ride. Please check your connection and try again.");
-    } finally {
-      isPostingRef.current = false;
-       setIsPosting(false);
-    }
-  }; 
+isPostingRef.current = false;
+setIsPosting(false);
 
   // ── Search handler ─────────────────────────────────────────────────────────
 
