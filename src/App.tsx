@@ -13,7 +13,7 @@
 //   /my-rides.html→ Manage your own posts (requires login)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo,useRef, useState } from "react";
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -88,21 +88,6 @@ const VEHICLE_LABELS: Record<VehicleType, string> = {
   other: "Other",
 };
 
-const [installPrompt, setInstallPrompt] = useState<any>(null);
-useEffect(() => {
-  const handler = (e: Event) => {
-    e.preventDefault();
-    setInstallPrompt(e);
-  };
-  window.addEventListener("beforeinstallprompt", handler);
-  return () => window.removeEventListener("beforeinstallprompt", handler);
-}, []);
-const handleInstall = async () => {
-  if (!installPrompt) return;
-  installPrompt.prompt();
-  const { outcome } = await installPrompt.userChoice;
-  if (outcome === "accepted") setInstallPrompt(null);
-};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -384,6 +369,26 @@ function App() {
   const [myRidesLoading, setMyRidesLoading] = useState(false);
   const [myRidesError,   setMyRidesError]   = useState("");
 
+// Posting : 
+const isPostingRef = useRef(false);
+
+const [installPrompt, setInstallPrompt] = useState<any>(null);
+useEffect(() => {
+  const handler = (e: Event) => {
+    e.preventDefault();
+    setInstallPrompt(e);
+  };
+  window.addEventListener("beforeinstallprompt", handler);
+  return () => window.removeEventListener("beforeinstallprompt", handler);
+}, []);
+
+const handleInstall = async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  const { outcome } = await installPrompt.userChoice;
+  if (outcome === "accepted") setInstallPrompt(null);
+};
+
   const todayISO    = getLocalDateISO();
   const minPostTime = postDate === todayISO ? getLocalTimeHHMM() : undefined;
   const isProtected = useMemo(
@@ -392,21 +397,6 @@ function App() {
   );
 
   // ── Navigation helper ──────────────────────────────────────────────────────
-
-  {installPrompt && (
-  <button
-    type="button"
-    onClick={handleInstall}
-    className={cn(
-      "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
-      isDark
-        ? "bg-[#7C3AED] text-white hover:bg-[#8B5CF6]"
-        : "bg-[#aa82bc] text-white hover:bg-[#9d74b2]",
-    )}
-  >
-    Install App
-  </button>
-)}
 
   const navigate = (target: AppRoute, replace = false) => {
     const path   = normalizePath(target);
@@ -527,6 +517,10 @@ await signInWithPopup(auth, provider);
   // ── Post Ride handler ──────────────────────────────────────────────────────
 
   const handlePostRide = async (event: FormEvent<HTMLFormElement>) => {
+
+    if (isPostingRef.current) return;
+isPostingRef.current = true;
+
     event.preventDefault();
     if (!currentUser) return;
 
@@ -597,7 +591,8 @@ setTimeout(() => setPostMessage(""), 4000);
    } catch (err) {
    setPostMessage("Failed to post ride. Please check your connection and try again.");
     } finally {
-      setIsPosting(false);
+      isPostingRef.current = false;
+       setIsPosting(false);
     }
   };
 
@@ -775,6 +770,22 @@ setTimeout(() => setPostMessage(""), 4000);
     <MoonIconSmall active={isDark} />
   </span>
 </button>
+
+            {/* Install App */}
+            {installPrompt && (
+              <button
+                type="button"
+                onClick={handleInstall}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
+                  isDark
+                    ? "bg-[#7C3AED] text-white hover:bg-[#8B5CF6]"
+                    : "bg-[#aa82bc] text-white hover:bg-[#9d74b2]",
+                )}
+              >
+                Install App
+              </button>
+            )}
 
             {/* Auth area */}
             {currentUser ? (
@@ -969,16 +980,29 @@ setTimeout(() => setPostMessage(""), 4000);
               />
 
               <button
-                type="submit"
-                disabled={isPosting}
-                className={cn(
-                  "w-full rounded-full px-7 py-4 text-xl font-semibold transition-all hover:-translate-y-0.5",
-                  btnMain,
-                  isPosting && "opacity-60 cursor-not-allowed",
-                )}
-              >
-                {isPosting ? "Posting…" : "Post Ride"}
-              </button>
+  type="submit"
+  disabled={isPosting}
+  className={cn(
+    "w-full rounded-full px-7 py-4 text-xl font-semibold transition-all",
+    btnMain,
+    isPosting
+      ? "opacity-60 cursor-not-allowed"
+      : "hover:-translate-y-0.5",
+  )}
+>
+  {isPosting ? (
+    <span className="inline-flex items-center justify-center gap-2">
+      <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+        <circle className="opacity-25" cx="12" cy="12" r="10"
+          stroke="currentColor" strokeWidth="4" />
+        <path className="opacity-75" fill="currentColor"
+          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+      </svg>
+      Posting…
+    </span>
+  ) : "Post Ride"}
+</button>
+
             </form>
 
             {postMessage && (
