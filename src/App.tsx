@@ -545,11 +545,13 @@ isPostingRef.current = true;
       (dateVal === now && timeVal < nowTime)
     ) {
       alert("You cannot post a ride in the past.");
+      isPostingRef.current = false;
       return;
     }
 
     if (fromVal === toVal) {
       alert("From and To locations cannot be the same.");
+      isPostingRef.current = false;
       return;
     }
 
@@ -592,7 +594,7 @@ event.currentTarget.reset();
 setTimeout(() => setPostMessage(""), 4000);
 isPostingRef.current = false;
 setIsPosting(false);
-
+};
   // ── Search handler ─────────────────────────────────────────────────────────
 
   const handleSearchRide = async (event: FormEvent<HTMLFormElement>) => {
@@ -1163,7 +1165,7 @@ setIsPosting(false);
                 You haven't posted any rides yet.
               </p>
             )}
-
+      
             {(() => {
   const now = Timestamp.now().seconds;
   const future = myRides.filter(r => r.departureAt.seconds >= now && r.status !== "cancelled");
@@ -1209,6 +1211,7 @@ setIsPosting(false);
           </div>
         </section>
       )}
+      
     </main>
   );
 }
