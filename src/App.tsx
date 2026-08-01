@@ -881,7 +881,7 @@ setIsPosting(false);
             {/* Right — feedback button */}
             <div className="w-32 flex justify-end">
               
-                href="https://docs.google.com/forms/d/e/1FAIpQLSeet-8iazCjxWW6NFBJbTymvL3Grhx_rHKWJCiddUqWogUhWw/viewform"
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeet-8iazCjxWW6NFBJbTymvL3Grhx_rHKWJCiddUqWogUhWw/viewform"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
