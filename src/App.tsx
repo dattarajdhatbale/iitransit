@@ -849,13 +849,13 @@ setIsPosting(false);
 
           {/* ── Footer ── */}
           <footer className={cn(
-            "mt-8 flex items-center justify-between px-4 py-4 border-t",
+            "mt-8 flex flex-col items-center gap-4 px-4 py-4 border-t sm:flex-row sm:justify-between sm:gap-0",
             isDark
               ? "border-[rgba(255,255,255,0.06)]"
               : "border-[rgba(100,70,130,0.15)]",
           )}>
             {/* Left — empty for balance */}
-            <div className="w-32" />
+            <div className="hidden sm:block sm:w-32" />
 
             {/* Center — social icons */}
             <div className="flex items-center gap-5">
@@ -881,7 +881,7 @@ setIsPosting(false);
             </div>
 
             {/* Right — feedback button */}
-            <div className="w-32 flex justify-end">
+            <div className="flex justify-center sm:w-32 sm:justify-end">
               
                 <a href="https://docs.google.com/forms/d/e/1FAIpQLSeet-8iazCjxWW6NFBJbTymvL3Grhx_rHKWJCiddUqWogUhWw/viewform"
                 target="_blank"
