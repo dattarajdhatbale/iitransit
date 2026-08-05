@@ -849,7 +849,7 @@ setIsPosting(false);
 
           {/* ── Footer ── */}
           <footer className={cn(
-            "mt-8 flex flex-col items-center gap-4 px-4 py-4 border-t sm:flex-row sm:justify-between sm:gap-0",
+            "mt-8 flex flex-row items-center px-4 py-4 border-t sm:justify-between",
             isDark
               ? "border-[rgba(255,255,255,0.06)]"
               : "border-[rgba(100,70,130,0.15)]",
@@ -858,7 +858,7 @@ setIsPosting(false);
             <div className="hidden sm:block sm:w-32" />
 
             {/* Center — social icons */}
-            <div className="flex items-center gap-5">
+            <div className="flex flex-1 items-center justify-center gap-5">
               {/* LinkedIn */}
               <a href="https://www.linkedin.com/in/dattarajdhatbale/" target="_blank" rel="noopener noreferrer"
                 className={cn("transition-opacity hover:opacity-70",
@@ -871,7 +871,7 @@ setIsPosting(false);
               </a>
 
               {/* GitHub */}
-              <a href="https://github.com/dattarajdhatbale" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/dattarajdhatbale/iitransit" target="_blank" rel="noopener noreferrer"
                 className={cn("transition-opacity hover:opacity-70",
                   isDark ? "text-[#8B5CF6]" : "text-[#5a3d7a]")}>
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
@@ -881,7 +881,7 @@ setIsPosting(false);
             </div>
 
             {/* Right — feedback button */}
-            <div className="flex justify-center sm:w-32 sm:justify-end">
+            <div className="flex justify-end sm:w-32">
               
                 <a href="https://docs.google.com/forms/d/e/1FAIpQLSeet-8iazCjxWW6NFBJbTymvL3Grhx_rHKWJCiddUqWogUhWw/viewform"
                 target="_blank"
