@@ -561,9 +561,14 @@ await signInWithPopup(auth, provider);
 isPostingRef.current = true;
 
     event.preventDefault();
-    if (!currentUser) return;
+    if (!currentUser) {
+    isPostingRef.current = false; // Cleanup if returning early
+    return;
+  }
 
-    const fd = new FormData(event.currentTarget);
+    //preventing the NULL error
+  const form = event.currentTarget;
+  const fd = new FormData(form);
 
     const fromVal        = String(fd.get("from")          || "").trim();
     const toVal          = String(fd.get("to")            || "").trim();
@@ -610,35 +615,43 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
     setPostMessage("");
 
    try {
-  const departureAt = buildDepartureTimestamp(dateVal, timeVal);
-  await postRide({
-    postedBy: {
-      uid:   currentUser.uid,
-      email: currentUser.email  || "",
-      name:  currentUser.displayName || "",
-    },
-    from:          fromVal,
-    to:            toVal,
-    date:          dateVal,
-    time:          timeVal,
-    departureAt,
-    vehicleType:   vehicleVal,
-    totalSeats:    totalSeatsVal,
-    availableSeats: availableSeatsVal,
-    farePerPerson: fareStr !== "" ? Number(fareStr) : null,
-    contact:       contactVal,
-    notes:         notesVal,
-    status:        "active",
-    createdAt:     Timestamp.now(),
-  });
-} catch {
-  setPostMessage("Failed to post ride. Please check your connection and try again.");
-  isPostingRef.current = false;
-  setIsPosting(false);
-  return;
-}
+    const departureAt = buildDepartureTimestamp(dateVal, timeVal);
+    await postRide({
+      postedBy: {
+        uid:   currentUser.uid,
+        email: currentUser.email  || "",
+        name:  currentUser.displayName || "",
+      },
+      from:          fromVal,
+      to:            toVal,
+      date:          dateVal,
+      time:          timeVal,
+      departureAt,
+      vehicleType:   vehicleVal,
+      totalSeats:    totalSeatsVal,
+      availableSeats: availableSeatsVal,
+      farePerPerson: fareStr !== "" ? Number(fareStr) : null,
+      contact:       contactVal,
+      notes:         notesVal,
+      status:        "active",
+      createdAt:     Timestamp.now(),
+    });
+    // 3. UI CLEANUP (Safe to run because form is safely stored)
+    setPostMessage("Ride posted! Others can now find and contact you.");
+    setPostDate("");
+    setPostFrom("");
+    form.reset(); 
+    setTimeout(() => setPostMessage(""), 4000);
+  } catch {
+    setPostMessage("Failed to post ride. Please check your connection and try again.");
+  } finally {
+    // 4. GUARANTEED STATE RESET
+    isPostingRef.current = false;
+    setIsPosting(false);
+  }
+};
 
-// Firestore write succeeded — cleanup runs outside catch
+/* // Firestore write succeeded — cleanup runs outside catch
 setPostMessage("Ride posted! Others can now find and contact you.");
 setPostDate("");
 setPostFrom("");
@@ -646,7 +659,7 @@ event.currentTarget.reset();
 setTimeout(() => setPostMessage(""), 4000);
 isPostingRef.current = false;
 setIsPosting(false);
-};
+}; */
   // ── Search handler ─────────────────────────────────────────────────────────
 
   const handleSearchRide = async (event: FormEvent<HTMLFormElement>) => {
