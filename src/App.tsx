@@ -302,7 +302,10 @@ const availBadge = isCancelled
           type="button"
           onClick={() => onUpdateSeats?.(ride.id, Math.max(0, ride.availableSeats! - 1))}
           disabled={ride.availableSeats === 0}
-          className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-700 disabled:opacity-30 hover:bg-slate-300 transition-opacity"
+          className={cn(
+  "flex h-6 w-6 items-center justify-center rounded-full transition-opacity disabled:opacity-30",
+  dark ? "bg-slate-700 text-slate-100 hover:bg-slate-600" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+)}
         >
           -
         </button>
@@ -313,7 +316,10 @@ const availBadge = isCancelled
           type="button"
           onClick={() => onUpdateSeats?.(ride.id, Math.min(ride.totalSeats!, ride.availableSeats! + 1))}
           disabled={ride.availableSeats === ride.totalSeats}
-          className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-700 disabled:opacity-30 hover:bg-slate-300 transition-opacity"
+          className={cn(
+  "flex h-6 w-6 items-center justify-center rounded-full transition-opacity disabled:opacity-30",
+  dark ? "bg-slate-700 text-slate-100 hover:bg-slate-600" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+)}
         >
           +
         </button>
@@ -578,17 +584,16 @@ isPostingRef.current = true;
     const fareStr        = String(fd.get("farePerPerson") || "").trim();
     const contactVal     = String(fd.get("contact")       || "").trim();
     const notesVal       = String(fd.get("notes")         || "").trim();
-    // isAvailable checkbox: "on" if checked, null if not
     const totalSeatsVal     = parseInt(String(fd.get("totalSeats") || "0"), 10);
 const availableSeatsVal = parseInt(String(fd.get("availableSeats") || "0"), 10);
 
 if (isNaN(totalSeatsVal) || totalSeatsVal <= 0) {
-  alert("Total seats must be a valid positive number.");
+  setPostMessage("Total seats must be a valid positive number.");
   isPostingRef.current = false;
   return;
 }
 if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > totalSeatsVal) {
-  alert("Available seats cannot exceed total seats.");
+  setPostMessage("Available seats cannot exceed total seats.");
   isPostingRef.current = false;
   return;
 }
@@ -651,15 +656,6 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
   }
 };
 
-/* // Firestore write succeeded — cleanup runs outside catch
-setPostMessage("Ride posted! Others can now find and contact you.");
-setPostDate("");
-setPostFrom("");
-event.currentTarget.reset();
-setTimeout(() => setPostMessage(""), 4000);
-isPostingRef.current = false;
-setIsPosting(false);
-}; */
   // ── Search handler ─────────────────────────────────────────────────────────
 
   const handleSearchRide = async (event: FormEvent<HTMLFormElement>) => {
