@@ -789,9 +789,14 @@ setIsPosting(false);
             {/* Auth area */}
             {currentUser ? (
               <div className="flex items-center gap-3">
-                <span className={cn("hidden text-sm font-medium sm:block", muted)}>
-                  {currentUser.displayName || currentUser.email}
-                </span>
+                <div className="hidden sm:flex flex-col items-end justify-center max-w-[160px] lg:max-w-[200px]">
+                  <span className={cn("text-sm font-bold uppercase tracking-wider truncate w-full text-right leading-none mb-0.5", heading)}>
+                  {currentUser.displayName || "Student"}
+                  </span>
+                  <span className={cn("text-[11px] font-medium truncate w-full text-right leading-none opacity-80", muted)}>
+                  {currentUser.email}
+                  </span>
+                </div>
                 <button
                   type="button"
                   onClick={() => navigate("/my-rides.html")}
