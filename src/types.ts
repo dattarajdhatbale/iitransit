@@ -71,7 +71,11 @@ export type Ride = {
 
   // Ride details
   vehicleType:   VehicleType;
-  isAvailable:   boolean;    // true = seats open; false = full/closed (sharer controls this)
+  // Inside your Ride and NewRide interfaces:
+  isAvailable?: boolean; // Now optional for legacy support
+  totalSeats?: number;
+  availableSeats?: number;
+  //isAvailable:   boolean;    // true = seats open; false = full/closed (sharer controls this)
   farePerPerson: number | null; // null → "contact to discuss"
   contact:       string;     // WhatsApp / phone number shown to other logged-in users
 

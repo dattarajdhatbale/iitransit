@@ -29,6 +29,7 @@ import {
   getMyRides,
   cancelRide,
   setRideAvailability,
+  updateAvailableSeats,
   buildDepartureTimestamp,
 }                                        from "./db";
 import type { Ride, VehicleType }        from "./types";
@@ -185,25 +186,30 @@ function RideCard({
   showActions = false,
   onCancel,
   onToggleAvailability,
+  onUpdateSeats,
 }: {
   ride:                  Ride;
   dark:                  boolean;
   showActions?:          boolean;
   onCancel?:             (id: string) => void;
   onToggleAvailability?: (id: string, current: boolean) => void;
+  onUpdateSeats?:        (id: string, newSeats: number) => void;
 }) {
   const [showContact, setShowContact] = useState(false);
   const isPast      = ride.departureAt.seconds < Timestamp.now().seconds;
   const isCancelled = ride.status === "cancelled";
 
   // Availability badge
-  const availBadge = isCancelled
-  ? { label: "Cancelled", cls: dark ? "bg-red-900/40 text-red-400"      : "bg-red-100 text-red-700" }
+  const hasSeatData = ride.totalSeats !== undefined && ride.availableSeats !== undefined;
+const derivedIsAvailable = hasSeatData ? ride.availableSeats! > 0 : ride.isAvailable;
+
+const availBadge = isCancelled
+  ? { label: "Cancelled", cls: dark ? "bg-red-900/40 text-red-400" : "bg-red-100 text-red-700" }
   : isPast
-  ? { label: "Departed",  cls: dark ? "bg-slate-700/40 text-slate-400"  : "bg-slate-100 text-slate-500" }
-  : ride.isAvailable
+  ? { label: "Departed",  cls: dark ? "bg-slate-700/40 text-slate-400" : "bg-slate-100 text-slate-500" }
+  : derivedIsAvailable
   ? { label: "Available", cls: dark ? "bg-emerald-900/40 text-emerald-400" : "bg-emerald-100 text-emerald-700" }
-  : { label: "Full",      cls: dark ? "bg-amber-900/40 text-amber-400"  : "bg-amber-100 text-amber-700" };
+  : { label: "Full",      cls: dark ? "bg-amber-900/40 text-amber-400" : "bg-amber-100 text-amber-700" };
 
   return (
     <div
@@ -232,6 +238,13 @@ function RideCard({
       <p className={cn("text-sm", dark ? "text-slate-300" : "text-[#686978]")}>
         Fare: {ride.farePerPerson !== null ? `₹${ride.farePerPerson} per person` : "Contact to discuss"}
       </p>
+
+      {/* Seat Availability */}
+      {hasSeatData && (
+        <p className={cn("text-sm", dark ? "text-slate-300" : "text-[#686978]")}>
+          Seats: <strong className={dark ? "text-slate-100" : "text-slate-900"}>{ride.availableSeats} / {ride.totalSeats}</strong> available
+        </p>
+      )}
 
       {/* Notes (only if non-empty) */}
       {ride.notes && (
@@ -280,29 +293,55 @@ function RideCard({
       )}
 
       {/* Action buttons — only shown on My Rides page */}
-      {showActions && !isCancelled && !isPast && (
-        <div className="flex gap-3 pt-2 flex-wrap">
-          <button
-            type="button"
-            onClick={() => onToggleAvailability?.(ride.id, ride.isAvailable)}
-            className={cn(
-              "rounded-full px-5 py-2 text-sm font-semibold transition-all",
-              ride.isAvailable
-                ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
-                : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200",
-            )}
-          >
-            {ride.isAvailable ? "Mark as Full" : "Mark as Available"}
-          </button>
-          <button
-            type="button"
-            onClick={() => onCancel?.(ride.id)}
-            className="rounded-full px-5 py-2 text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-all"
-          >
-            Cancel Ride
-          </button>
-        </div>
-      )}
+{showActions && !isCancelled && !isPast && (
+  <div className="flex gap-3 pt-2 flex-wrap items-center">
+    {hasSeatData ? (
+      <div className="flex items-center gap-2 rounded-full border px-3 py-1.5" style={{ borderColor: dark ? 'rgba(255,255,255,0.1)' : '#ddd2ea' }}>
+        <span className={cn("text-sm font-medium mr-1", dark ? "text-slate-300" : "text-[#5a4f72]")}>Seats:</span>
+        <button
+          type="button"
+          onClick={() => onUpdateSeats?.(ride.id, Math.max(0, ride.availableSeats! - 1))}
+          disabled={ride.availableSeats === 0}
+          className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-700 disabled:opacity-30 hover:bg-slate-300 transition-opacity"
+        >
+          -
+        </button>
+        <span className={cn("w-4 text-center text-sm font-bold", dark ? "text-slate-100" : "text-slate-900")}>
+          {ride.availableSeats}
+        </span>
+        <button
+          type="button"
+          onClick={() => onUpdateSeats?.(ride.id, Math.min(ride.totalSeats!, ride.availableSeats! + 1))}
+          disabled={ride.availableSeats === ride.totalSeats}
+          className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-700 disabled:opacity-30 hover:bg-slate-300 transition-opacity"
+        >
+          +
+        </button>
+      </div>
+    ) : (
+      <button
+        type="button"
+        onClick={() => onToggleAvailability?.(ride.id, !!ride.isAvailable)}
+        className={cn(
+          "rounded-full px-5 py-2 text-sm font-semibold transition-all",
+          ride.isAvailable
+            ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+            : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200",
+        )}
+      >
+        {ride.isAvailable ? "Mark as Full" : "Mark as Available"}
+      </button>
+    )}
+    
+    <button
+      type="button"
+      onClick={() => onCancel?.(ride.id)}
+      className="rounded-full px-5 py-2 text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-all"
+    >
+      Cancel Ride
+    </button>
+  </div>
+)}
     </div>
   );
 }
@@ -535,7 +574,19 @@ isPostingRef.current = true;
     const contactVal     = String(fd.get("contact")       || "").trim();
     const notesVal       = String(fd.get("notes")         || "").trim();
     // isAvailable checkbox: "on" if checked, null if not
-    const isAvailableVal = fd.get("isAvailable") === "on";
+    const totalSeatsVal     = parseInt(String(fd.get("totalSeats") || "0"), 10);
+const availableSeatsVal = parseInt(String(fd.get("availableSeats") || "0"), 10);
+
+if (isNaN(totalSeatsVal) || totalSeatsVal <= 0) {
+  alert("Total seats must be a valid positive number.");
+  isPostingRef.current = false;
+  return;
+}
+if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > totalSeatsVal) {
+  alert("Available seats cannot exceed total seats.");
+  isPostingRef.current = false;
+  return;
+}
 
     // Validate departure is in the future
     const now       = getLocalDateISO();
@@ -572,7 +623,8 @@ isPostingRef.current = true;
     time:          timeVal,
     departureAt,
     vehicleType:   vehicleVal,
-    isAvailable:   isAvailableVal,
+    totalSeats:    totalSeatsVal,
+    availableSeats: availableSeatsVal,
     farePerPerson: fareStr !== "" ? Number(fareStr) : null,
     contact:       contactVal,
     notes:         notesVal,
@@ -693,6 +745,17 @@ setIsPosting(false);
       alert("Could not update. Please try again.");
     }
   };
+
+  const handleUpdateSeats = async (rideId: string, newSeats: number) => {
+  try {
+    await updateAvailableSeats(rideId, newSeats);
+    setMyRides((prev) =>
+      prev.map((r) => (r.id === rideId ? { ...r, availableSeats: newSeats } : r)),
+    );
+  } catch {
+    alert("Could not update seats. Please try again."); // Replace with showToast if you implemented it
+  }
+};
 
   // ── Shared style tokens ────────────────────────────────────────────────────
   const cardBg  = isDark ?"bg-[#121A2E] border border-[rgba(255,255,255,0.06)] shadow-[0_8px_32px_rgba(0,0,0,0.5)]" : "bg-[#f7f4fb]/95 shadow-[#8f75a9]/25";
@@ -994,17 +1057,19 @@ setIsPosting(false);
               </select>
 
               {/* ── Is Available checkbox ── */}
-              <label className={cn("flex items-center gap-3 rounded-xl px-4 py-3 cursor-pointer select-none",
-                isDark ? "bg-slate-800 text-slate-200" : "bg-white/80 text-[#303247]")}>
+              {/* ── Seats ── */}
+            <div className="flex gap-4">
                 <input
-                  type="checkbox"
-                  name="isAvailable"
-                  defaultChecked
-                  className="h-5 w-5 accent-purple-500"
-                />
-                <span className="text-base font-medium">Seats still available</span>
-                <span className={cn("ml-auto text-sm", muted)}>(uncheck if full)</span>
-              </label>
+                     name="totalSeats" type="number" min="1" required
+                      placeholder="Total seats offered"
+                     className="field-input w-1/2"
+                    />
+          <input
+              name="availableSeats" type="number" min="0" required
+              placeholder="Available seats"
+              className="field-input w-1/2"
+               />
+              </div>
 
               {/* ── Fare per person ── */}
               <input
@@ -1133,7 +1198,11 @@ setIsPosting(false);
             {searchResults.length > 0 && (
               <div className="mt-6 space-y-4">
                 {searchResults.map((ride) => (
-                  <RideCard key={ride.id} ride={ride} dark={isDark} />
+                  <RideCard 
+                    key={ride.id} 
+                    ride={ride} 
+                    dark={isDark} 
+/>
                 ))}
               </div>
             )}
@@ -1184,9 +1253,15 @@ setIsPosting(false);
             Upcoming
           </p>
           {future.map((ride) => (
-            <RideCard key={ride.id} ride={ride} dark={isDark} showActions
-              onCancel={handleCancelRide}
-              onToggleAvailability={handleToggleAvailability} />
+<RideCard 
+  key={ride.id} 
+  ride={ride} 
+  dark={isDark} 
+  showActions
+  onCancel={handleCancelRide}
+  onToggleAvailability={handleToggleAvailability}
+  onUpdateSeats={handleUpdateSeats} 
+/>
           ))}
         </div>
       )}
@@ -1199,9 +1274,15 @@ setIsPosting(false);
             Past & Cancelled
           </p>
           {past.map((ride) => (
-            <RideCard key={ride.id} ride={ride} dark={isDark} showActions
-              onCancel={handleCancelRide}
-              onToggleAvailability={handleToggleAvailability} />
+            <RideCard 
+  key={ride.id} 
+  ride={ride} 
+  dark={isDark} 
+  showActions
+  onCancel={handleCancelRide}
+  onToggleAvailability={handleToggleAvailability}
+  onUpdateSeats={handleUpdateSeats} 
+/>
           ))}
         </div>
       )}

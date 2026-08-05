@@ -148,3 +148,7 @@ export async function setRideAvailability(
 ): Promise<void> {
   await updateDoc(doc(db, RIDES_COLLECTION, rideId), { isAvailable });
 }
+export async function updateAvailableSeats(rideId: string, availableSeats: number): Promise<void> {
+  const rideRef = doc(db, RIDES_COLLECTION, rideId);
+  await updateDoc(rideRef, { availableSeats });
+}
