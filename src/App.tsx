@@ -911,7 +911,7 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
               { label: "Search Rides",   sub: "Find available rides",    target: "/search.html" as AppRoute, accent: btnMain },
             ].map(({ label, sub, target, accent }) => (
               <div key={target} className={cn("rounded-3xl p-8 text-center shadow-lg hover:shadow-2xl transition-shadow", cardBg)}>
-                <p className={cn("mx-auto mb-7 text-xl md:text-2xl font-medium", isDark ? "text-[#F8FAFC]" : "text-slate-800")}>{sub}</p>
+                <p className={cn("mx-auto mb-7 text-xl md:text-3xl font-semibold", isDark ? "text-[#F8FAFC]" : "text-slate-800")}>{sub}</p>
                 <button
                   type="button"
                   onClick={() => guardedNavigate(target)}
