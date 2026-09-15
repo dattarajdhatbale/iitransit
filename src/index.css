@@ -7,44 +7,47 @@
 ═══════════════════════════════════════════════════════════════════════════ */
 :root {
   /* Backgrounds */
-  --bg-base:      #0B1020;
-  --bg-surface:   #121A2E;
+  --bg-base: #0B1020;
+  --bg-surface: #121A2E;
   --bg-surface-2: #1A2540;
   --bg-surface-3: #1E2D4A;
 
   /* Accent — purple for identity */
-  --accent:       #8B5CF6;
-  --accent-dark:  #7C3AED;
-  --accent-glow:  rgba(139, 92, 246, 0.14);
+  --accent: #8B5CF6;
+  --accent-dark: #7C3AED;
+  --accent-glow: rgba(139, 92, 246, 0.14);
 
   /* Interactive — blue for actions */
-  --blue:         #3B82F6;
-  --blue-dark:    #2563EB;
-  --blue-glow:    rgba(59, 130, 246, 0.12);
+  --blue: #3B82F6;
+  --blue-dark: #2563EB;
+  --blue-glow: rgba(59, 130, 246, 0.12);
 
   /* Text hierarchy */
-  --text-1: #F8FAFC;   /* primary */
-  --text-2: #CBD5E1;   /* secondary */
-  --text-3: #94A3B8;   /* muted / placeholder */
+  --text-1: #F8FAFC;
+  /* primary */
+  --text-2: #CBD5E1;
+  /* secondary */
+  --text-3: #94A3B8;
+  /* muted / placeholder */
 
   /* Borders */
-  --border:       rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.06);
   --border-hover: rgba(255, 255, 255, 0.10);
   --border-focus: rgba(139, 92, 246, 0.45);
 
   /* Shadows */
-  --shadow-sm: 0 1px 4px  rgba(0, 0, 0, 0.40);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.40);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.50);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.60);
 
   /* Radii */
-  --r-sm:   8px;
-  --r-md:   12px;
-  --r-lg:   16px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
   --r-full: 9999px;
 
   /* Transitions */
-  --t:    150ms ease;
+  --t: 150ms ease;
   --t-md: 200ms ease;
 }
 
@@ -67,17 +70,29 @@ body {
   background-color: var(--bg-base);
   color: var(--text-1);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-               'Helvetica Neue', Arial, sans-serif;
+    'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SCROLLBAR
 ═══════════════════════════════════════════════════════════════════════════ */
-::-webkit-scrollbar         { width: 5px; }
-::-webkit-scrollbar-track   { background: var(--bg-base); }
-::-webkit-scrollbar-thumb   { background: var(--bg-surface-3); border-radius: var(--r-full); }
-::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface-3);
+  border-radius: var(--r-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SELECTION
@@ -112,6 +127,7 @@ input[type="checkbox"] {
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -138,49 +154,51 @@ input[type="checkbox"] {
   .field-input {
     @apply w-full px-4 py-3 outline-none;
 
-    background:    var(--bg-surface-2);
-    color:         var(--text-1);
-    border:        1px solid var(--border);
+    background: var(--bg-surface-2);
+    color: var(--text-1);
+    color-scheme: light;
+    border: 1px solid var(--border);
     border-radius: var(--r-md);
-    font-size:     0.9375rem;   /* 15px — readable without being oversized */
-    line-height:   1.5;
+    font-size: 0.9375rem;
+    /* 15px — readable without being oversized */
+    line-height: 1.5;
 
     transition:
-      border-color    var(--t),
-      box-shadow      var(--t),
-      background      var(--t);
+      border-color var(--t),
+      box-shadow var(--t),
+      background var(--t);
   }
 
   .field-input::placeholder {
-    color:     var(--text-3);
+    color: var(--text-3);
     font-size: 0.9rem;
   }
 
   .field-input:hover:not(:focus) {
     border-color: var(--border-hover);
-    background:   var(--bg-surface-3);
+    background: var(--bg-surface-3);
   }
 
   .field-input:focus {
     border-color: var(--border-focus);
-    box-shadow:   0 0 0 3px var(--accent-glow);
-    background:   var(--bg-surface-3);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    background: var(--bg-surface-3);
   }
 
   /* Dropdown option styling — affects Chrome/Edge; Firefox ignores most of it */
   .field-input option {
     background-color: var(--bg-surface);
-    color:            var(--text-1);
-    padding:          6px 12px;
+    color: var(--text-1);
+    padding: 6px 12px;
   }
 
   .field-input optgroup {
     background-color: var(--bg-surface);
-    color:            var(--text-3);
-    font-size:        0.75rem;
-    font-weight:      600;
-    letter-spacing:   0.06em;
-    text-transform:   uppercase;
+    color: var(--text-3);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 }
 
@@ -190,8 +208,8 @@ input[type="checkbox"] {
    These override Tailwind's light-mode field-input defaults reliably.
 ═══════════════════════════════════════════════════════════════════════════ */
 .dark-mode .field-input {
-  background:   var(--bg-surface-2);
-  color:        var(--text-1);
+  background: var(--bg-surface-2);
+  color: var(--text-1);
   border-color: var(--border);
 }
 
@@ -201,11 +219,11 @@ input[type="checkbox"] {
 
 .dark-mode .field-input:hover:not(:focus) {
   border-color: var(--border-hover);
-  background:   var(--bg-surface-3);
+  background: var(--bg-surface-3);
 }
 
 .dark-mode .field-input:focus {
   border-color: var(--border-focus);
-  box-shadow:   0 0 0 3px var(--accent-glow);
-  background:   var(--bg-surface-3);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  background: var(--bg-surface-3);
 }

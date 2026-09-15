@@ -13,7 +13,7 @@
 //   /my-rides.html→ Manage your own posts (requires login)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { FormEvent, useEffect, useMemo,useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -22,7 +22,7 @@ import {
   type User,
 } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
-import { auth }                          from "./firebase";
+import { auth } from "./firebase";
 import {
   postRide,
   getActiveFutureRides,
@@ -31,9 +31,9 @@ import {
   setRideAvailability,
   updateAvailableSeats,
   buildDepartureTimestamp,
-}                                        from "./db";
-import type { Ride, VehicleType }        from "./types";
-import { cn }                            from "./utils/cn";
+} from "./db";
+import type { Ride, VehicleType } from "./types";
+import { cn } from "./utils/cn";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS
@@ -83,9 +83,9 @@ const TRANSIT_LOCATIONS = [
 const ALL_LOCATIONS = [...COLLEGE_LOCATIONS, ...TRANSIT_LOCATIONS];
 // Vehicle label map — keeps display names in one place.
 const VEHICLE_LABELS: Record<VehicleType, string> = {
-  cab:   "Cab (OLA / Uber / etc.)",
-  auto:  "Auto-rickshaw",
-  car:   "Personal Car",
+  cab: "Cab (OLA / Uber / etc.)",
+  auto: "Auto-rickshaw",
+  car: "Personal Car",
   other: "Other",
 };
 
@@ -114,7 +114,7 @@ function normalizePath(pathname: string): AppRoute {
 // Resolve where to send the user after sign-in.
 function resolvePostAuthRoute(): AppRoute {
   const stored = localStorage.getItem(AUTH_REDIRECT_KEY);
-  const next   = normalizePath(stored || "/index.html");
+  const next = normalizePath(stored || "/index.html");
   localStorage.removeItem(AUTH_REDIRECT_KEY);
   return next;
 }
@@ -188,34 +188,34 @@ function RideCard({
   onToggleAvailability,
   onUpdateSeats,
 }: {
-  ride:                  Ride;
-  dark:                  boolean;
-  showActions?:          boolean;
-  onCancel?:             (id: string) => void;
+  ride: Ride;
+  dark: boolean;
+  showActions?: boolean;
+  onCancel?: (id: string) => void;
   onToggleAvailability?: (id: string, current: boolean) => void;
-  onUpdateSeats?:        (id: string, newSeats: number) => void;
+  onUpdateSeats?: (id: string, newSeats: number) => void;
 }) {
   const [showContact, setShowContact] = useState(false);
-  const isPast      = ride.departureAt.seconds < Timestamp.now().seconds;
+  const isPast = ride.departureAt.seconds < Timestamp.now().seconds;
   const isCancelled = ride.status === "cancelled";
 
   // Availability badge
   const hasSeatData = ride.totalSeats !== undefined && ride.availableSeats !== undefined;
-const derivedIsAvailable = hasSeatData ? ride.availableSeats! > 0 : ride.isAvailable;
+  const derivedIsAvailable = hasSeatData ? ride.availableSeats! > 0 : ride.isAvailable;
 
-const availBadge = isCancelled
-  ? { label: "Cancelled", cls: dark ? "bg-red-900/40 text-red-400" : "bg-red-100 text-red-700" }
-  : isPast
-  ? { label: "Departed",  cls: dark ? "bg-slate-700/40 text-slate-400" : "bg-slate-100 text-slate-500" }
-  : derivedIsAvailable
-  ? { label: "Available", cls: dark ? "bg-emerald-900/40 text-emerald-400" : "bg-emerald-100 text-emerald-700" }
-  : { label: "Full",      cls: dark ? "bg-amber-900/40 text-amber-400" : "bg-amber-100 text-amber-700" };
+  const availBadge = isCancelled
+    ? { label: "Cancelled", cls: dark ? "bg-red-900/40 text-red-400" : "bg-red-100 text-red-700" }
+    : isPast
+      ? { label: "Departed", cls: dark ? "bg-slate-700/40 text-slate-400" : "bg-slate-100 text-slate-500" }
+      : derivedIsAvailable
+        ? { label: "Available", cls: dark ? "bg-emerald-900/40 text-emerald-400" : "bg-emerald-100 text-emerald-700" }
+        : { label: "Full", cls: dark ? "bg-amber-900/40 text-amber-400" : "bg-amber-100 text-amber-700" };
 
   return (
     <div
       className={cn(
         "rounded-2xl border p-5 space-y-2 transition-opacity",
-        dark ?  "border-[rgba(255,255,255,0.06)] bg-[#121A2E]" : "border-[#ddd2ea] bg-white/90",
+        dark ? "border-[rgba(255,255,255,0.06)] bg-[#121A2E]" : "border-[#ddd2ea] bg-white/90",
         (isCancelled || isPast) && "opacity-60",
       )}
     >
@@ -236,7 +236,7 @@ const availBadge = isCancelled
 
       {/* Fare */}
       <p className={cn("text-sm", dark ? "text-slate-300" : "text-[#686978]")}>
-        Fare: {ride.farePerPerson !== null ? `₹${ride.farePerPerson} per person` : "Contact to discuss"}
+        Fare: {ride.farePerPerson !== null ? `₹${ride.farePerPerson} total` : "Contact to discuss"}
       </p>
 
       {/* Seat Availability */}
@@ -254,36 +254,36 @@ const availBadge = isCancelled
       )}
       {/* Contact — visible to all logged-in users */}
       {showActions ? (
-  <p className={cn("text-sm font-medium", dark ? "text-[#CBD5E1]" : "text-[#5a4f72]")}>
-    Contact: {ride.contact}
-  </p>
-) : !showContact ? (
-  <button
-    type="button"
-    onClick={() => setShowContact(true)}
-    className={cn(
-      "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
-      dark
-        ? "bg-[#1A2540] text-[#CBD5E1] border border-[rgba(255,255,255,0.06)] hover:bg-[#1E2D4A] hover:text-[#F8FAFC]"
-        : "bg-[#eee6f5] text-[#5a4f72] hover:bg-[#e0d4f0]",
-    )}
-  >
-    Show Contact
-  </button>
-) : (
-  <a
-        href={`https://wa.me/91${ride.contact}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-flex items-center gap-2 rounded-full bg-green-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-green-500 transition-all"
-  >
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.543 4.067 1.496 5.779L0 24l6.389-1.673A11.954 11.954 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.006-1.372l-.36-.214-3.724.976.999-3.648-.235-.374A9.818 9.818 0 0 1 2.182 12C2.182 6.58 6.58 2.182 12 2.182c5.42 0 9.818 4.398 9.818 9.818 0 5.42-4.398 9.818-9.818 9.818z"/>
-    </svg>
-    WhatsApp
-  </a>
-)}
+        <p className={cn("text-sm font-medium", dark ? "text-[#CBD5E1]" : "text-[#5a4f72]")}>
+          Contact: {ride.contact}
+        </p>
+      ) : !showContact ? (
+        <button
+          type="button"
+          onClick={() => setShowContact(true)}
+          className={cn(
+            "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
+            dark
+              ? "bg-[#1A2540] text-[#CBD5E1] border border-[rgba(255,255,255,0.06)] hover:bg-[#1E2D4A] hover:text-[#F8FAFC]"
+              : "bg-[#eee6f5] text-[#5a4f72] hover:bg-[#e0d4f0]",
+          )}
+        >
+          Show Contact
+        </button>
+      ) : (
+        <a
+          href={`https://wa.me/91${ride.contact}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-full bg-green-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-green-500 transition-all"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.543 4.067 1.496 5.779L0 24l6.389-1.673A11.954 11.954 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.006-1.372l-.36-.214-3.724.976.999-3.648-.235-.374A9.818 9.818 0 0 1 2.182 12C2.182 6.58 6.58 2.182 12 2.182c5.42 0 9.818 4.398 9.818 9.818 0 5.42-4.398 9.818-9.818 9.818z" />
+          </svg>
+          WhatsApp
+        </a>
+      )}
 
       {/* Posted by — useful in search results */}
       {!showActions && (
@@ -293,61 +293,61 @@ const availBadge = isCancelled
       )}
 
       {/* Action buttons — only shown on My Rides page */}
-{showActions && !isCancelled && !isPast && (
-  <div className="flex gap-3 pt-2 flex-wrap items-center">
-    {hasSeatData ? (
-      <div className="flex items-center gap-2 rounded-full border px-3 py-1.5" style={{ borderColor: dark ? 'rgba(255,255,255,0.1)' : '#ddd2ea' }}>
-        <span className={cn("text-sm font-medium mr-1", dark ? "text-slate-300" : "text-[#5a4f72]")}>Seats:</span>
-        <button
-          type="button"
-          onClick={() => onUpdateSeats?.(ride.id, Math.max(0, ride.availableSeats! - 1))}
-          disabled={ride.availableSeats === 0}
-          className={cn(
-  "flex h-6 w-6 items-center justify-center rounded-full transition-opacity disabled:opacity-30",
-  dark ? "bg-slate-700 text-slate-100 hover:bg-slate-600" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-)}
-        >
-          -
-        </button>
-        <span className={cn("w-4 text-center text-sm font-bold", dark ? "text-slate-100" : "text-slate-900")}>
-          {ride.availableSeats}
-        </span>
-        <button
-          type="button"
-          onClick={() => onUpdateSeats?.(ride.id, Math.min(ride.totalSeats!, ride.availableSeats! + 1))}
-          disabled={ride.availableSeats === ride.totalSeats}
-          className={cn(
-  "flex h-6 w-6 items-center justify-center rounded-full transition-opacity disabled:opacity-30",
-  dark ? "bg-slate-700 text-slate-100 hover:bg-slate-600" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-)}
-        >
-          +
-        </button>
-      </div>
-    ) : (
-      <button
-        type="button"
-        onClick={() => onToggleAvailability?.(ride.id, !!ride.isAvailable)}
-        className={cn(
-          "rounded-full px-5 py-2 text-sm font-semibold transition-all",
-          ride.isAvailable
-            ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
-            : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200",
-        )}
-      >
-        {ride.isAvailable ? "Mark as Full" : "Mark as Available"}
-      </button>
-    )}
-    
-    <button
-      type="button"
-      onClick={() => onCancel?.(ride.id)}
-      className="rounded-full px-5 py-2 text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-all"
-    >
-      Cancel Ride
-    </button>
-  </div>
-)}
+      {showActions && !isCancelled && !isPast && (
+        <div className="flex gap-3 pt-2 flex-wrap items-center">
+          {hasSeatData ? (
+            <div className="flex items-center gap-2 rounded-full border px-3 py-1.5" style={{ borderColor: dark ? 'rgba(255,255,255,0.1)' : '#ddd2ea' }}>
+              <span className={cn("text-sm font-medium mr-1", dark ? "text-slate-300" : "text-[#5a4f72]")}>Seats:</span>
+              <button
+                type="button"
+                onClick={() => onUpdateSeats?.(ride.id, Math.max(0, ride.availableSeats! - 1))}
+                disabled={ride.availableSeats === 0}
+                className={cn(
+                  "flex h-6 w-6 items-center justify-center rounded-full transition-opacity disabled:opacity-30",
+                  dark ? "bg-slate-700 text-slate-100 hover:bg-slate-600" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                )}
+              >
+                -
+              </button>
+              <span className={cn("w-4 text-center text-sm font-bold", dark ? "text-slate-100" : "text-slate-900")}>
+                {ride.availableSeats}
+              </span>
+              <button
+                type="button"
+                onClick={() => onUpdateSeats?.(ride.id, Math.min(ride.totalSeats!, ride.availableSeats! + 1))}
+                disabled={ride.availableSeats === ride.totalSeats}
+                className={cn(
+                  "flex h-6 w-6 items-center justify-center rounded-full transition-opacity disabled:opacity-30",
+                  dark ? "bg-slate-700 text-slate-100 hover:bg-slate-600" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                )}
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onToggleAvailability?.(ride.id, !!ride.isAvailable)}
+              className={cn(
+                "rounded-full px-5 py-2 text-sm font-semibold transition-all",
+                ride.isAvailable
+                  ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                  : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200",
+              )}
+            >
+              {ride.isAvailable ? "Mark as Full" : "Mark as Available"}
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => onCancel?.(ride.id)}
+            className="rounded-full px-5 py-2 text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-all"
+          >
+            Cancel Ride
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -394,47 +394,47 @@ function App() {
   // currentUser is null when logged out, a Firebase User object when logged in.
   // We don't read from localStorage for auth — Firebase handles persistence
   // internally. onAuthStateChanged (below) is the single source of truth.
-  const [currentUser,     setCurrentUser]     = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [authLoading,      setAuthLoading]      = useState(true);  
+  const [authLoading, setAuthLoading] = useState(true);
 
   // ── Post Ride form state ───────────────────────────────────────────────────
   const [postMessage, setPostMessage] = useState("");
-  const [isPosting,   setIsPosting]   = useState(false);
-  const [postDate,    setPostDate]    = useState("");
-  const [postFrom,    setPostFrom]    = useState(""); 
+  const [isPosting, setIsPosting] = useState(false);
+  const [postDate, setPostDate] = useState("");
+  const [postFrom, setPostFrom] = useState("");
 
   // ── Search state ───────────────────────────────────────────────────────────
-  const [searchResults,  setSearchResults]  = useState<Ride[]>([]);
-  const [searchMessage,  setSearchMessage]  = useState("");
-  const [isSearching,    setIsSearching]    = useState(false);
+  const [searchResults, setSearchResults] = useState<Ride[]>([]);
+  const [searchMessage, setSearchMessage] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   // ── My Rides state ─────────────────────────────────────────────────────────
-  const [myRides,        setMyRides]        = useState<Ride[]>([]);
+  const [myRides, setMyRides] = useState<Ride[]>([]);
   const [myRidesLoading, setMyRidesLoading] = useState(false);
-  const [myRidesError,   setMyRidesError]   = useState("");
+  const [myRidesError, setMyRidesError] = useState("");
 
-// Posting : 
-const isPostingRef = useRef(false);
+  // Posting : 
+  const isPostingRef = useRef(false);
 
-const [installPrompt, setInstallPrompt] = useState<any>(null);
-useEffect(() => {
-  const handler = (e: Event) => {
-    e.preventDefault();
-    setInstallPrompt(e);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === "accepted") setInstallPrompt(null);
   };
-  window.addEventListener("beforeinstallprompt", handler);
-  return () => window.removeEventListener("beforeinstallprompt", handler);
-}, []);
 
-const handleInstall = async () => {
-  if (!installPrompt) return;
-  installPrompt.prompt();
-  const { outcome } = await installPrompt.userChoice;
-  if (outcome === "accepted") setInstallPrompt(null);
-};
-
-  const todayISO    = getLocalDateISO();
+  const todayISO = getLocalDateISO();
   const minPostTime = postDate === todayISO ? getLocalTimeHHMM() : undefined;
   const isProtected = useMemo(
     () => ["/post.html", "/search.html", "/my-rides.html"].includes(route),
@@ -444,7 +444,7 @@ const handleInstall = async () => {
   // ── Navigation helper ──────────────────────────────────────────────────────
 
   const navigate = (target: AppRoute, replace = false) => {
-    const path   = normalizePath(target);
+    const path = normalizePath(target);
     const method = replace ? "replaceState" : "pushState";
     window.history[method](null, "", path);
     setRoute(path);
@@ -471,12 +471,12 @@ const handleInstall = async () => {
 
   // 2. If an unauthenticated user somehow lands on a protected route, redirect.
   useEffect(() => {
-  if (authLoading) return;  // wait for Firebase to resolve session first
-  if (isProtected && !currentUser) {
-    localStorage.setItem(AUTH_REDIRECT_KEY, route);
-    navigate("/auth.html", true);
-  }
-}, [isProtected, currentUser, route, authLoading]);
+    if (authLoading) return;  // wait for Firebase to resolve session first
+    if (isProtected && !currentUser) {
+      localStorage.setItem(AUTH_REDIRECT_KEY, route);
+      navigate("/auth.html", true);
+    }
+  }, [isProtected, currentUser, route, authLoading]);
 
   // 3. Dark-mode class on <html>.
   useEffect(() => {
@@ -505,7 +505,7 @@ const handleInstall = async () => {
       }
       // Stop the "Waiting…" spinner once we know the auth state.
       setIsAuthenticating(false);
-      setAuthLoading(false);  
+      setAuthLoading(false);
     });
 
     // Clean up the listener when the component unmounts.
@@ -513,17 +513,17 @@ const handleInstall = async () => {
   }, []);
 
   // 5. Load My Rides whenever the user navigates to /my-rides.html.
-useEffect(() => {
-  if (route !== "/my-rides.html" || !currentUser) return;
-  loadMyRides();
-}, [route, currentUser]);
+  useEffect(() => {
+    if (route !== "/my-rides.html" || !currentUser) return;
+    loadMyRides();
+  }, [route, currentUser]);
 
   useEffect(() => {
-  if (route === "/search.html") {
-    setSearchResults([]);
-    setSearchMessage("");
-  }
-}, [route]);
+    if (route === "/search.html") {
+      setSearchResults([]);
+      setSearchMessage("");
+    }
+  }, [route]);
 
   // ── Auth handlers ──────────────────────────────────────────────────────────
 
@@ -539,7 +539,7 @@ useEffect(() => {
     provider.setCustomParameters({ hd: ALLOWED_EMAIL_DOMAIN });
 
     try {
-await signInWithPopup(auth, provider);
+      await signInWithPopup(auth, provider);
       // onAuthStateChanged fires next and setCurrentUser is called there.
       // We navigate after auth state settles.
       navigate(resolvePostAuthRoute());
@@ -564,43 +564,43 @@ await signInWithPopup(auth, provider);
   const handlePostRide = async (event: FormEvent<HTMLFormElement>) => {
 
     if (isPostingRef.current) return;
-isPostingRef.current = true;
+    isPostingRef.current = true;
 
     event.preventDefault();
     if (!currentUser) {
-    isPostingRef.current = false; // Cleanup if returning early
-    return;
-  }
+      isPostingRef.current = false; // Cleanup if returning early
+      return;
+    }
 
     //preventing the NULL error
-  const form = event.currentTarget;
-  const fd = new FormData(form);
+    const form = event.currentTarget;
+    const fd = new FormData(form);
 
-    const fromVal        = String(fd.get("from")          || "").trim();
-    const toVal          = String(fd.get("to")            || "").trim();
-    const dateVal        = String(fd.get("date")          || "").trim();
-    const timeVal        = String(fd.get("time")          || "").trim();
-    const vehicleVal     = String(fd.get("vehicleType")   || "cab") as VehicleType;
-    const fareStr        = String(fd.get("farePerPerson") || "").trim();
-    const contactVal     = String(fd.get("contact")       || "").trim();
-    const notesVal       = String(fd.get("notes")         || "").trim();
-    const totalSeatsVal     = parseInt(String(fd.get("totalSeats") || "0"), 10);
-const availableSeatsVal = parseInt(String(fd.get("availableSeats") || "0"), 10);
+    const fromVal = String(fd.get("from") || "").trim();
+    const toVal = String(fd.get("to") || "").trim();
+    const dateVal = String(fd.get("date") || "").trim();
+    const timeVal = String(fd.get("time") || "").trim();
+    const vehicleVal = String(fd.get("vehicleType") || "cab") as VehicleType;
+    const fareStr = String(fd.get("farePerPerson") || "").trim();
+    const contactVal = String(fd.get("contact") || "").trim();
+    const notesVal = String(fd.get("notes") || "").trim();
+    const totalSeatsVal = parseInt(String(fd.get("totalSeats") || "0"), 10);
+    const availableSeatsVal = parseInt(String(fd.get("availableSeats") || "0"), 10);
 
-if (isNaN(totalSeatsVal) || totalSeatsVal <= 0) {
-  setPostMessage("Total seats must be a valid positive number.");
-  isPostingRef.current = false;
-  return;
-}
-if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > totalSeatsVal) {
-  setPostMessage("Available seats cannot exceed total seats.");
-  isPostingRef.current = false;
-  return;
-}
+    if (isNaN(totalSeatsVal) || totalSeatsVal <= 0) {
+      setPostMessage("Total seats must be a valid positive number.");
+      isPostingRef.current = false;
+      return;
+    }
+    if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > totalSeatsVal) {
+      setPostMessage("Available seats cannot exceed total seats.");
+      isPostingRef.current = false;
+      return;
+    }
 
     // Validate departure is in the future
-    const now       = getLocalDateISO();
-    const nowTime   = getLocalTimeHHMM();
+    const now = getLocalDateISO();
+    const nowTime = getLocalTimeHHMM();
     if (
       dateVal < now ||
       (dateVal === now && timeVal < nowTime)
@@ -619,42 +619,42 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
     setIsPosting(true);
     setPostMessage("");
 
-   try {
-    const departureAt = buildDepartureTimestamp(dateVal, timeVal);
-    await postRide({
-      postedBy: {
-        uid:   currentUser.uid,
-        email: currentUser.email  || "",
-        name:  currentUser.displayName || "",
-      },
-      from:          fromVal,
-      to:            toVal,
-      date:          dateVal,
-      time:          timeVal,
-      departureAt,
-      vehicleType:   vehicleVal,
-      totalSeats:    totalSeatsVal,
-      availableSeats: availableSeatsVal,
-      farePerPerson: fareStr !== "" ? Number(fareStr) : null,
-      contact:       contactVal,
-      notes:         notesVal,
-      status:        "active",
-      createdAt:     Timestamp.now(),
-    });
-    // 3. UI CLEANUP (Safe to run because form is safely stored)
-    setPostMessage("Ride posted! Others can now find and contact you.");
-    setPostDate("");
-    setPostFrom("");
-    form.reset(); 
-    setTimeout(() => setPostMessage(""), 4000);
-  } catch {
-    setPostMessage("Failed to post ride. Please check your connection and try again.");
-  } finally {
-    // 4. GUARANTEED STATE RESET
-    isPostingRef.current = false;
-    setIsPosting(false);
-  }
-};
+    try {
+      const departureAt = buildDepartureTimestamp(dateVal, timeVal);
+      await postRide({
+        postedBy: {
+          uid: currentUser.uid,
+          email: currentUser.email || "",
+          name: currentUser.displayName || "",
+        },
+        from: fromVal,
+        to: toVal,
+        date: dateVal,
+        time: timeVal,
+        departureAt,
+        vehicleType: vehicleVal,
+        totalSeats: totalSeatsVal,
+        availableSeats: availableSeatsVal,
+        farePerPerson: fareStr !== "" ? Number(fareStr) : null,
+        contact: contactVal,
+        notes: notesVal,
+        status: "active",
+        createdAt: Timestamp.now(),
+      });
+      // 3. UI CLEANUP (Safe to run because form is safely stored)
+      setPostMessage("Ride posted! Others can now find and contact you.");
+      setPostDate("");
+      setPostFrom("");
+      form.reset();
+      setTimeout(() => setPostMessage(""), 4000);
+    } catch {
+      setPostMessage("Failed to post ride. Please check your connection and try again.");
+    } finally {
+      // 4. GUARANTEED STATE RESET
+      isPostingRef.current = false;
+      setIsPosting(false);
+    }
+  };
 
   // ── Search handler ─────────────────────────────────────────────────────────
 
@@ -663,7 +663,7 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
     const fd = new FormData(event.currentTarget);
 
     const from = String(fd.get("from") || "").trim();
-    const to   = String(fd.get("to")   || "").trim();
+    const to = String(fd.get("to") || "").trim();
     const date = String(fd.get("date") || "").trim();
 
     if (date && date < getLocalDateISO()) {
@@ -673,16 +673,16 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
     }
 
     if (!date) {
-  setSearchMessage("Please select a date to search rides.");
-  setSearchResults([]);
-  return;
-}
+      setSearchMessage("Please select a date to search rides.");
+      setSearchResults([]);
+      return;
+    }
 
     const transitSet = new Set(TRANSIT_LOCATIONS as readonly string[]);
     if (!transitSet.has(from) && !transitSet.has(to)) {
-  setSearchMessage("Please select at least one transit hub — railway station, airport, or bus terminal.");
-  setSearchResults([]);
-  return;
+      setSearchMessage("Please select at least one transit hub — railway station, airport, or bus terminal.");
+      setSearchResults([]);
+      return;
     }
 
     setIsSearching(true);
@@ -697,7 +697,7 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
       const matches = all.filter((r) => {
         if (r.status !== "active") return false;  // skip cancelled
         if (from && !locationsMatch(from, r.from)) return false;
-        if (to   && !locationsMatch(to,   r.to))   return false;
+        if (to && !locationsMatch(to, r.to)) return false;
         if (date && r.date !== date) return false;
         return true;
       });
@@ -756,22 +756,22 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
   };
 
   const handleUpdateSeats = async (rideId: string, newSeats: number) => {
-  try {
-    await updateAvailableSeats(rideId, newSeats);
-    setMyRides((prev) =>
-      prev.map((r) => (r.id === rideId ? { ...r, availableSeats: newSeats } : r)),
-    );
-  } catch {
-    alert("Could not update seats. Please try again."); // Replace with showToast if you implemented it
-  }
-};
+    try {
+      await updateAvailableSeats(rideId, newSeats);
+      setMyRides((prev) =>
+        prev.map((r) => (r.id === rideId ? { ...r, availableSeats: newSeats } : r)),
+      );
+    } catch {
+      alert("Could not update seats. Please try again."); // Replace with showToast if you implemented it
+    }
+  };
 
   // ── Shared style tokens ────────────────────────────────────────────────────
-  const cardBg  = isDark ?"bg-[#121A2E] border border-[rgba(255,255,255,0.06)] shadow-[0_8px_32px_rgba(0,0,0,0.5)]" : "bg-[#f7f4fb]/95 shadow-[#8f75a9]/25";
+  const cardBg = isDark ? "bg-[#121A2E] border border-[rgba(255,255,255,0.06)] shadow-[0_8px_32px_rgba(0,0,0,0.5)]" : "bg-[#f7f4fb]/95 shadow-[#8f75a9]/25";
   const heading = isDark ? "text-[#F8FAFC]" : "text-slate-900";
   const btnMain = isDark ? "bg-[#7C3AED] text-white hover:bg-[#8B5CF6]" : "bg-[#aa82bc] text-white hover:bg-[#9d74b2]";
   const btnCyan = isDark ? "bg-[#2563EB] text-white hover:bg-[#3B82F6]" : "bg-[#a8deef] text-[#1f3145] hover:bg-[#96d5ea]";
-  const muted   = isDark ? "text-[#CBD5E1]" : "text-[#5f6170]";
+  const muted = isDark ? "text-[#CBD5E1]" : "text-[#5f6170]";
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -790,57 +790,57 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
         <section className="mx-auto flex w-full max-w-6xl animate-rise flex-col">
           <nav className="mb-12 flex items-center justify-between">
             {/* Theme toggle */}
-<button
-  type="button"
-  aria-label="Toggle theme"
-  onClick={() => setIsDark((p) => !p)}
-  style={{
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    width: 74,
-    height: 36,
-    padding: 3,
-    borderRadius: 999,
-    cursor: 'pointer',
-    flexShrink: 0,
-    background: isDark ? '#0f172a' : '#e2e8f0',
-    border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
-    transition: 'background 200ms ease, border-color 200ms ease',
-  }}
->
-  {/* knob — slides left (light) or right (dark) */}
-  <span style={{
-    position: 'absolute',
-    left: 3,
-    top: 3,
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    background: isDark ? '#1e3a5f' : '#ffffff',
-    transform: `translateX(${isDark ? '38px' : '0px'})`,
-    transition: 'transform 200ms ease, background 200ms ease',
-    boxShadow: isDark
-      ? '0 0 8px rgba(59,130,246,0.35)'
-      : '0 1px 4px rgba(0,0,0,0.15)',
-  }} />
-  {/* sun — left half */}
-  <span style={{
-    position: 'relative', zIndex: 1,
-    width: 34, height: 30,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  }}>
-    <SunIconSmall active={!isDark} />
-  </span>
-  {/* moon — right half */}
-  <span style={{
-    position: 'relative', zIndex: 1,
-    width: 34, height: 30,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  }}>
-    <MoonIconSmall active={isDark} />
-  </span>
-</button>
+            <button
+              type="button"
+              aria-label="Toggle theme"
+              onClick={() => setIsDark((p) => !p)}
+              style={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                width: 74,
+                height: 36,
+                padding: 3,
+                borderRadius: 999,
+                cursor: 'pointer',
+                flexShrink: 0,
+                background: isDark ? '#0f172a' : '#e2e8f0',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
+                transition: 'background 200ms ease, border-color 200ms ease',
+              }}
+            >
+              {/* knob — slides left (light) or right (dark) */}
+              <span style={{
+                position: 'absolute',
+                left: 3,
+                top: 3,
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                background: isDark ? '#1e3a5f' : '#ffffff',
+                transform: `translateX(${isDark ? '38px' : '0px'})`,
+                transition: 'transform 200ms ease, background 200ms ease',
+                boxShadow: isDark
+                  ? '0 0 8px rgba(59,130,246,0.35)'
+                  : '0 1px 4px rgba(0,0,0,0.15)',
+              }} />
+              {/* sun — left half */}
+              <span style={{
+                position: 'relative', zIndex: 1,
+                width: 34, height: 30,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <SunIconSmall active={!isDark} />
+              </span>
+              {/* moon — right half */}
+              <span style={{
+                position: 'relative', zIndex: 1,
+                width: 34, height: 30,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <MoonIconSmall active={isDark} />
+              </span>
+            </button>
 
             {/* Install App */}
             {installPrompt && (
@@ -863,10 +863,10 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
               <div className="flex items-center gap-3">
                 <div className="hidden sm:flex flex-col items-end justify-center max-w-[160px] lg:max-w-[200px]">
                   <span className={cn("text-sm font-bold uppercase tracking-wider truncate w-full text-right leading-none mb-0.5", heading)}>
-                  {currentUser.displayName || "Student"}
+                    {currentUser.displayName || "Student"}
                   </span>
                   <span className={cn("text-[11px] font-medium truncate w-full text-right leading-none opacity-80", muted)}>
-                  {currentUser.email}
+                    {currentUser.email}
                   </span>
                 </div>
                 <button
@@ -902,13 +902,13 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
             <p className="mx-auto mb-8 max-w-2xl text-xl md:text-4xl md:leading-tight">
               Why Pay More? Share a ride with your peers!
             </p>
-            
+
           </div>
 
           <div className="grid gap-5 pb-5 md:grid-cols-2">
             {[
-              { label: "Post a Ride",    sub: "Offer a ride to others",  target: "/post.html"   as AppRoute, accent: btnMain },
-              { label: "Search Rides",   sub: "Find available rides",    target: "/search.html" as AppRoute, accent: btnMain },
+              { label: "Post a Ride", sub: "Offer a ride to others", target: "/post.html" as AppRoute, accent: btnMain },
+              { label: "Search Rides", sub: "Find available rides", target: "/search.html" as AppRoute, accent: btnMain },
             ].map(({ label, sub, target, accent }) => (
               <div key={target} className={cn("rounded-3xl p-8 text-center shadow-lg hover:shadow-2xl transition-shadow", cardBg)}>
                 <p className={cn("mx-auto mb-7 text-xl md:text-3xl font-semibold", isDark ? "text-[#F8FAFC]" : "text-slate-800")}>{sub}</p>
@@ -921,7 +921,7 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
                 </button>
               </div>
             ))}
-         </div>
+          </div>
 
           {/* ── Footer ── */}
           <footer className={cn(
@@ -940,9 +940,9 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
                 className={cn("transition-opacity hover:opacity-70",
                   isDark ? "text-[#8B5CF6]" : "text-[#5a3d7a]")}>
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-                  <rect x="2" y="9" width="4" height="12"/>
-                  <circle cx="4" cy="4" r="2"/>
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                  <rect x="2" y="9" width="4" height="12" />
+                  <circle cx="4" cy="4" r="2" />
                 </svg>
               </a>
 
@@ -951,15 +951,15 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
                 className={cn("transition-opacity hover:opacity-70",
                   isDark ? "text-[#8B5CF6]" : "text-[#5a3d7a]")}>
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+                  <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" />
                 </svg>
               </a>
             </div>
 
             {/* Right — feedback button */}
             <div className="flex justify-end sm:w-32">
-              
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeet-8iazCjxWW6NFBJbTymvL3Grhx_rHKWJCiddUqWogUhWw/viewform"
+
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLSeet-8iazCjxWW6NFBJbTymvL3Grhx_rHKWJCiddUqWogUhWw/viewform"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
@@ -970,7 +970,7 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
                 )}
               >
                 <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                  <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
                 </svg>
                 Send Feedback
               </a>
@@ -1019,27 +1019,27 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
 
             <form className="space-y-4" onSubmit={handlePostRide}>
               {/* ── From ── */}
-           <select name="from" required defaultValue="" className="field-input"
-  onChange={e => { setPostFrom(e.target.value); }}>
-  <option value="" disabled>Select departure location</option>
-  <optgroup label="Campus">
-    {COLLEGE_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-  </optgroup>
-  <optgroup label="Transit Hubs">
-    {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-  </optgroup>
-</select>
+              <select name="from" required defaultValue="" className="field-input"
+                onChange={e => { setPostFrom(e.target.value); }}>
+                <option value="" disabled>Select departure location</option>
+                <optgroup label="Campus">
+                  {COLLEGE_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                </optgroup>
+                <optgroup label="Transit Hubs">
+                  {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                </optgroup>
+              </select>
 
               {/* ── To ── */}
               <select name="to" required defaultValue="" className="field-input">
-  <option value="" disabled>Select destination</option>
-  {(COLLEGE_LOCATIONS.includes(postFrom as any)
-    ? TRANSIT_LOCATIONS
-    : postFrom !== ""
-    ? COLLEGE_LOCATIONS
-    : ALL_LOCATIONS
-  ).map(l => <option key={l} value={l}>{l}</option>)}
-</select>
+                <option value="" disabled>Select destination</option>
+                {(COLLEGE_LOCATIONS.includes(postFrom as any)
+                  ? TRANSIT_LOCATIONS
+                  : postFrom !== ""
+                    ? COLLEGE_LOCATIONS
+                    : ALL_LOCATIONS
+                ).map(l => <option key={l} value={l}>{l}</option>)}
+              </select>
 
               {/* ── Date ── */}
               <input
@@ -1053,7 +1053,7 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
                 name="time" type="time" min={minPostTime} required
                 className="field-input"
                 placeholder="Departure time"
-                 defaultValue={getLocalTimeHHMM()}
+                defaultValue={getLocalTimeHHMM()}
               />
 
               {/* ── Vehicle type ── */}
@@ -1066,39 +1066,39 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
 
               {/* ── Is Available checkbox ── */}
               {/* ── Seats ── */}
-            <div className="flex gap-4">
+              <div className="flex gap-4">
                 <input
-                     name="totalSeats" type="number" min="1" required
-                      placeholder="Total seats offered"
-                     className="field-input w-1/2"
-                    />
-          <input
-              name="availableSeats" type="number" min="0" required
-              placeholder="Available seats"
-              className="field-input w-1/2"
-               />
+                  name="totalSeats" type="number" min="1" required
+                  placeholder="Total seats offered"
+                  className="field-input w-1/2"
+                />
+                <input
+                  name="availableSeats" type="number" min="0" required
+                  placeholder="Available seats"
+                  className="field-input w-1/2"
+                />
               </div>
 
               {/* ── Fare per person ── */}
               <input
                 name="farePerPerson" type="number" min="0"
-                placeholder="Fare per person (₹) — leave blank to discuss"
+                placeholder="Total fare (₹)"
                 className="field-input"
               />
 
               {/* ── Contact ── */}
               <input
                 name="contact" type="tel" required
-                  placeholder="WhatsApp / phone number"
-                   className="field-input"
-                   pattern="[6-9][0-9]{9}"
-                   title="Enter a valid 10-digit Indian mobile number"
-                     maxLength={10}
-                       onKeyDown={(e) => {
-                    if (!/[0-9]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) {
+                placeholder="WhatsApp / phone number"
+                className="field-input"
+                pattern="[6-9][0-9]{9}"
+                title="Enter a valid 10-digit Indian mobile number"
+                maxLength={10}
+                onKeyDown={(e) => {
+                  if (!/[0-9]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) {
                     e.preventDefault();
-                     }
-                    }}
+                  }
+                }}
               />
 
               {/* ── Notes ── */}
@@ -1110,28 +1110,28 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
               />
 
               <button
-  type="submit"
-  disabled={isPosting}
-  className={cn(
-    "w-full rounded-full px-7 py-4 text-xl font-semibold transition-all",
-    btnMain,
-    isPosting
-      ? "opacity-60 cursor-not-allowed"
-      : "hover:-translate-y-0.5",
-  )}
->
-  {isPosting ? (
-    <span className="inline-flex items-center justify-center gap-2">
-      <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
-        <circle className="opacity-25" cx="12" cy="12" r="10"
-          stroke="currentColor" strokeWidth="4" />
-        <path className="opacity-75" fill="currentColor"
-          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-      </svg>
-      Posting…
-    </span>
-  ) : "Post Ride"}
-</button>
+                type="submit"
+                disabled={isPosting}
+                className={cn(
+                  "w-full rounded-full px-7 py-4 text-xl font-semibold transition-all",
+                  btnMain,
+                  isPosting
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:-translate-y-0.5",
+                )}
+              >
+                {isPosting ? (
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10"
+                        stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                    Posting…
+                  </span>
+                ) : "Post Ride"}
+              </button>
 
             </form>
 
@@ -1173,7 +1173,7 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
                   {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
                 </optgroup>
               </select>
-              <input name="date" type="date" min={todayISO} required  className="field-input" />
+              <input name="date" type="date" min={todayISO} required className="field-input" />
 
               <button
                 type="submit"
@@ -1186,31 +1186,31 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
             </form>
 
             {searchMessage && (
-            <div className="mt-6 text-center space-y-3">
-             <p className={cn("text-xl", muted)}>{searchMessage}</p>
-             {searchResults.length === 0 && !isSearching && searchMessage.startsWith("No rides") && (
-             <div className="space-y-2">
-               <p className={cn("text-sm", muted)}>Be the first to post one.</p>
-                 <button
-          type="button"
-          onClick={() => navigate("/post.html")}
-          className={cn("rounded-full px-6 py-2 text-sm font-semibold transition-all", btnMain)}
-        >
-          Post Ride
-        </button>
-      </div>
-    )}
-  </div>
-)}
+              <div className="mt-6 text-center space-y-3">
+                <p className={cn("text-xl", muted)}>{searchMessage}</p>
+                {searchResults.length === 0 && !isSearching && searchMessage.startsWith("No rides") && (
+                  <div className="space-y-2">
+                    <p className={cn("text-sm", muted)}>Be the first to post one.</p>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/post.html")}
+                      className={cn("rounded-full px-6 py-2 text-sm font-semibold transition-all", btnMain)}
+                    >
+                      Post Ride
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {searchResults.length > 0 && (
               <div className="mt-6 space-y-4">
                 {searchResults.map((ride) => (
-                  <RideCard 
-                    key={ride.id} 
-                    ride={ride} 
-                    dark={isDark} 
-/>
+                  <RideCard
+                    key={ride.id}
+                    ride={ride}
+                    dark={isDark}
+                  />
                 ))}
               </div>
             )}
@@ -1247,65 +1247,65 @@ if (isNaN(availableSeatsVal) || availableSeatsVal < 0 || availableSeatsVal > tot
                 You haven't posted any rides yet.
               </p>
             )}
-      
-            {(() => {
-  const now = Timestamp.now().seconds;
-  const future = myRides.filter(r => r.departureAt.seconds >= now && r.status !== "cancelled");
-  const past   = myRides.filter(r => r.departureAt.seconds <  now || r.status === "cancelled");
 
-  return (
-    <div className="space-y-6">
-      {future.length > 0 && (
-        <div className="space-y-4">
-          <p className={cn("text-xs font-semibold uppercase tracking-widest", muted)}>
-            Upcoming
-          </p>
-          {future.map((ride) => (
-<RideCard 
-  key={ride.id} 
-  ride={ride} 
-  dark={isDark} 
-  showActions
-  onCancel={handleCancelRide}
-  onToggleAvailability={handleToggleAvailability}
-  onUpdateSeats={handleUpdateSeats} 
-/>
-          ))}
-        </div>
-      )}
-      {past.length > 0 && (
-        <div className="space-y-4">
-          {future.length > 0 && (
-            <div className={cn("border-t pt-4", isDark ? "border-[rgba(255,255,255,0.06)]" : "border-[#ddd2ea]")} />
-          )}
-          <p className={cn("text-xs font-semibold uppercase tracking-widest", muted)}>
-            Past & Cancelled
-          </p>
-          {past.map((ride) => (
-            <RideCard 
-  key={ride.id} 
-  ride={ride} 
-  dark={isDark} 
-  showActions
-  onCancel={handleCancelRide}
-  onToggleAvailability={handleToggleAvailability}
-  onUpdateSeats={handleUpdateSeats} 
-/>
-          ))}
-        </div>
-      )}
-      {myRides.length === 0 && (
-        <p className={cn("text-center text-lg", muted)}>
-          You haven't posted any rides yet.
-        </p>
-      )}
-    </div>
-  );
-})()}
+            {(() => {
+              const now = Timestamp.now().seconds;
+              const future = myRides.filter(r => r.departureAt.seconds >= now && r.status !== "cancelled");
+              const past = myRides.filter(r => r.departureAt.seconds < now || r.status === "cancelled");
+
+              return (
+                <div className="space-y-6">
+                  {future.length > 0 && (
+                    <div className="space-y-4">
+                      <p className={cn("text-xs font-semibold uppercase tracking-widest", muted)}>
+                        Upcoming
+                      </p>
+                      {future.map((ride) => (
+                        <RideCard
+                          key={ride.id}
+                          ride={ride}
+                          dark={isDark}
+                          showActions
+                          onCancel={handleCancelRide}
+                          onToggleAvailability={handleToggleAvailability}
+                          onUpdateSeats={handleUpdateSeats}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {past.length > 0 && (
+                    <div className="space-y-4">
+                      {future.length > 0 && (
+                        <div className={cn("border-t pt-4", isDark ? "border-[rgba(255,255,255,0.06)]" : "border-[#ddd2ea]")} />
+                      )}
+                      <p className={cn("text-xs font-semibold uppercase tracking-widest", muted)}>
+                        Past & Cancelled
+                      </p>
+                      {past.map((ride) => (
+                        <RideCard
+                          key={ride.id}
+                          ride={ride}
+                          dark={isDark}
+                          showActions
+                          onCancel={handleCancelRide}
+                          onToggleAvailability={handleToggleAvailability}
+                          onUpdateSeats={handleUpdateSeats}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {myRides.length === 0 && (
+                    <p className={cn("text-center text-lg", muted)}>
+                      You haven't posted any rides yet.
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </section>
       )}
-      
+
     </main>
   );
 }
