@@ -272,7 +272,7 @@ function RideCard({
         </button>
       ) : (
         <a
-          href={`https://wa.me/91${ride.contact}`}
+          href={`https://wa.me/91${ride.contact}?text=${encodeURIComponent(`Hi, I saw your ride on IITransit from ${ride.from} to ${ride.to} on ${ride.date}. Is it still available?`)}`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-full bg-green-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-green-500 transition-all"
