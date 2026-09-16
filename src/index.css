@@ -156,7 +156,7 @@ input[type="checkbox"] {
 
     background: var(--bg-surface-2);
     color: var(--text-1);
-    color-scheme: light;
+    color-scheme: dark;
     border: 1px solid var(--border);
     border-radius: var(--r-md);
     font-size: 0.9375rem;
