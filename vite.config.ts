@@ -46,15 +46,5 @@ export default defineConfig({
   resolve: {
     alias: { "@": path.resolve(__dirname, "src") },
   },
-  build: {
-    rollupOptions: {
-      input: {
-        index:   path.resolve(__dirname, "index.html"),
-        auth:    path.resolve(__dirname, "auth.html"),
-        post:    path.resolve(__dirname, "post.html"),
-        search:  path.resolve(__dirname, "search.html"),
-        myRides: path.resolve(__dirname, "my-rides.html"),
-      },
-    },
-  },
 });
+
