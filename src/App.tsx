@@ -14,7 +14,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -32,9 +32,12 @@ import {
   setRideAvailability,
   updateAvailableSeats,
   buildDepartureTimestamp,
+  getSharedRide,
 } from "./db";
 import type { Ride, VehicleType } from "./types";
 import { cn } from "./utils/cn";
+
+declare const showToast: any;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS
@@ -155,6 +158,8 @@ function RideCard({
   onCancel,
   onToggleAvailability,
   onUpdateSeats,
+  onShare,
+  highlight,
 }: {
   ride: Ride;
   dark: boolean;
@@ -162,8 +167,16 @@ function RideCard({
   onCancel?: (id: string) => void;
   onToggleAvailability?: (id: string, current: boolean) => void;
   onUpdateSeats?: (id: string, newSeats: number) => void;
+  onShare?: (ride: Ride) => void;
+  highlight?: boolean;
 }) {
   const [showContact, setShowContact] = useState(false);
+  const [isHighlighted, setIsHighlighted] = useState(false);
+
+  useEffect(() => {
+    if (highlight) setIsHighlighted(true);
+  }, [highlight]);
+
   const isPast = ride.departureAt.seconds < Timestamp.now().seconds;
   const isCancelled = ride.status === "cancelled";
 
@@ -181,11 +194,15 @@ function RideCard({
 
   return (
     <div
+      id={`ride-${ride.id}`}
       className={cn(
         "rounded-2xl border p-5 space-y-2 transition-opacity",
-        dark ? "border-[rgba(255,255,255,0.06)] bg-[#121A2E]" : "border-[#ddd2ea] bg-white/90",
+        dark ? "border-[rgba(255,255,255,0.06)] bg-[#121A2E]"
+          : "border-[#ddd2ea] bg-white/90",
         (isCancelled || isPast) && "opacity-60",
+        isHighlighted && "ride-highlight",
       )}
+      onAnimationEnd={() => setIsHighlighted(false)}
     >
       {/* Route + badge */}
       <div className="flex items-start justify-between gap-2 flex-wrap">
@@ -220,45 +237,74 @@ function RideCard({
           "{ride.notes}"
         </p>
       )}
-      {/* Contact — visible to all logged-in users */}
-      {showActions ? (
-        <p className={cn("text-sm font-medium", dark ? "text-[#CBD5E1]" : "text-[#5a4f72]")}>
-          Contact: {ride.contact}
-        </p>
-      ) : !showContact ? (
-        <button
-          type="button"
-          onClick={() => setShowContact(true)}
-          className={cn(
-            "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
-            dark
-              ? "bg-[#1A2540] text-[#CBD5E1] border border-[rgba(255,255,255,0.06)] hover:bg-[#1E2D4A] hover:text-[#F8FAFC]"
-              : "bg-[#eee6f5] text-[#5a4f72] hover:bg-[#e0d4f0]",
-          )}
-        >
-          Show Contact
-        </button>
-      ) : (
-        <a
-          href={`https://wa.me/91${ride.contact}?text=${encodeURIComponent(`Hi, I saw your ride on IITransit from ${ride.from} to ${ride.to} on ${ride.date}. Is it still available?`)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full bg-green-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-green-500 transition-all"
-        >
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
-            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.543 4.067 1.496 5.779L0 24l6.389-1.673A11.954 11.954 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.006-1.372l-.36-.214-3.724.976.999-3.648-.235-.374A9.818 9.818 0 0 1 2.182 12C2.182 6.58 6.58 2.182 12 2.182c5.42 0 9.818 4.398 9.818 9.818 0 5.42-4.398 9.818-9.818 9.818z" />
-          </svg>
-          WhatsApp
-        </a>
-      )}
 
-      {/* Posted by — useful in search results */}
-      {!showActions && (
-        <p className={cn("text-xs", dark ? "text-slate-500" : "text-slate-400")}>
-          Posted by {ride.postedBy.name || ride.postedBy.email}
-        </p>
-      )}
+      {/* Bottom section: Contact block on left, Share button on right */}
+      <div className="flex items-center justify-between gap-2 mt-2 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap">
+          {showActions ? (
+            <p className={cn("text-sm font-medium", dark ? "text-[#CBD5E1]" : "text-[#5a4f72]")}>
+              Contact: {ride.contact}
+            </p>
+          ) : !showContact ? (
+            <button
+              type="button"
+              onClick={() => setShowContact(true)}
+              className={cn(
+                "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
+                dark
+                  ? "bg-[#1A2540] text-[#CBD5E1] border border-[rgba(255,255,255,0.06)] hover:bg-[#1E2D4A] hover:text-[#F8FAFC]"
+                  : "bg-[#eee6f5] text-[#5a4f72] hover:bg-[#e0d4f0]",
+              )}
+            >
+              Show Contact
+            </button>
+          ) : (
+            <a
+              href={`https://wa.me/91${ride.contact}?text=${encodeURIComponent(`Hi, I saw your ride on IITransit from ${ride.from} to ${ride.to} on ${ride.date}. Is it still available?`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-green-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-green-500 transition-all"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.543 4.067 1.496 5.779L0 24l6.389-1.673A11.954 11.954 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.006-1.372l-.36-.214-3.724.976.999-3.648-.235-.374A9.818 9.818 0 0 1 2.182 12C2.182 6.58 6.58 2.182 12 2.182c5.42 0 9.818 4.398 9.818 9.818 0 5.42-4.398 9.818-9.818 9.818z" />
+              </svg>
+              WhatsApp
+            </a>
+          )}
+
+          {!showActions && (
+            <p className={cn("text-xs", dark ? "text-slate-500" : "text-slate-400")}>
+              Posted by {ride.postedBy.name || ride.postedBy.email}
+            </p>
+          )}
+        </div>
+
+        {onShare && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onShare(ride);
+            }}
+            aria-label="Share ride"
+            className={cn(
+              "rounded-full p-1.5 transition-all hover:opacity-80",
+              dark ? "text-slate-400 hover:text-slate-200"
+                : "text-slate-500 hover:text-slate-700",
+            )}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+          </button>
+        )}
+      </div>
 
       {/* Action buttons — only shown on My Rides page */}
       {showActions && !isCancelled && !isPast && (
@@ -397,6 +443,9 @@ function App() {
   const [searchResults, setSearchResults] = useState<Ride[]>([]);
   const [searchMessage, setSearchMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [sharedRide, setSharedRide] = useState<Ride | null>(null);
+  const [sharedRideError, setSharedRideError] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // ── My Rides state ─────────────────────────────────────────────────────────
   const [myRides, setMyRides] = useState<Ride[]>([]);
@@ -474,6 +523,48 @@ function App() {
       setSearchMessage("");
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+    const rideId = searchParams.get("id");
+    if (!rideId) {
+      setSharedRide(null);
+      // NOTE: Do NOT call setSharedRideError("") here.
+      // If an invalid ride clears the query param below, clearing the error
+      // here would wipe out the error message before the user can read it.
+      return;
+    }
+
+    setSharedRideError("");
+
+    (async () => {
+      try {
+        const ride = await getSharedRide(rideId);
+
+        if (!ride) {
+          setSharedRide(null);
+          setSharedRideError("The shared ride could not be found.");
+          setSearchParams({}, { replace: true });
+          return;
+        }
+
+        const isCancelled = ride.status === "cancelled";
+        const isDeparted = ride.departureAt.seconds < Timestamp.now().seconds;
+
+        if (isCancelled || isDeparted) {
+          setSharedRide(null);
+          setSharedRideError("The shared ride has departed or been cancelled.");
+          setSearchParams({}, { replace: true });
+          return;
+        }
+
+        setSharedRide(ride);
+        setSharedRideError("");
+      } catch {
+        setSharedRide(null);
+        setSharedRideError("Could not load the shared ride.");
+      }
+    })();
+  }, [searchParams]);
 
   // ── Auth handlers ──────────────────────────────────────────────────────────
 
@@ -610,6 +701,7 @@ function App() {
 
   const handleSearchRide = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setSharedRideError("");
     const fd = new FormData(event.currentTarget);
 
     const from = String(fd.get("from") || "").trim();
@@ -713,6 +805,34 @@ function App() {
       );
     } catch {
       alert("Could not update seats. Please try again.");
+    }
+  };
+
+  const handleShareRide = async (ride: Ride) => {
+    const shareUrl = `${window.location.origin}/search?id=${ride.id}`;
+    const title = "IITransit — Ride Share";
+    const text = `Ride from ${ride.from} → ${ride.to} on ${ride.date}. Seats available.`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, text, url: shareUrl });
+      } else {
+        await navigator.clipboard.writeText(`${text} ${shareUrl}`);
+        if (typeof showToast === "function") {
+          showToast("Link copied to clipboard!", "success");
+        } else {
+          alert("Link copied to clipboard!");
+        }
+      }
+    } catch (err) {
+      const code = (err as { name?: string }).name;
+      if (code !== "AbortError") {
+        if (typeof showToast === "function") {
+          showToast("Could not share. Try copying the link manually.", "error");
+        } else {
+          alert("Could not share. Try copying the link manually.");
+        }
+      }
     }
   };
 
@@ -883,7 +1003,7 @@ function App() {
                   : "border-[rgba(100,70,130,0.15)]",
               )}>
                 {/* Left — empty for balance */}
-                <div className="hidden sm:block sm:w-32" />
+                <div className="hidden sm:block sm:w-48" />
 
                 {/* Center — social icons */}
                 <div className="flex flex-1 items-center justify-center gap-5">
@@ -909,12 +1029,12 @@ function App() {
                 </div>
 
                 {/* Right — feedback button */}
-                <div className="flex justify-end sm:w-32">
+                <div className="flex justify-end sm:w-48">
                   <a href="https://docs.google.com/forms/d/e/1FAIpQLSeet-8iazCjxWW6NFBJbTymvL3Grhx_rHKWJCiddUqWogUhWw/viewform"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all hover:opacity-90",
+                      "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all hover:opacity-90 whitespace-nowrap",
                       isDark
                         ? "bg-[#7C3AED] text-white"
                         : "bg-[#5a3d7a] text-white",
@@ -1114,6 +1234,31 @@ function App() {
             <ProtectedRoute currentUser={currentUser} authLoading={authLoading}>
               <section className="mx-auto flex min-h-[85vh] w-full max-w-4xl animate-rise flex-col">
                 <BackButton onClick={() => navigate("/")} dark={isDark} />
+
+                {/* ── Shared ride deep link result ── */}
+                {sharedRideError && (
+                  <div className={cn("mx-auto w-full max-w-2xl mb-4 rounded-xl px-4 py-3 text-sm font-medium",
+                    isDark
+                      ? "bg-red-900/40 text-red-300 border border-red-700/40"
+                      : "bg-red-50 text-red-700 border border-red-200")}>
+                    {sharedRideError}
+                  </div>
+                )}
+
+                {sharedRide && (
+                  <div className={cn("mx-auto w-full max-w-2xl mb-6 rounded-3xl p-6 shadow-xl", cardBg)}>
+                    <p className={cn("mb-3 text-xs font-semibold uppercase tracking-widest", muted)}>
+                      Shared Ride
+                    </p>
+                    <RideCard
+                      ride={sharedRide}
+                      dark={isDark}
+                      highlight={true}
+                      onShare={handleShareRide}
+                    />
+                  </div>
+                )}
+
                 <div className={cn("mx-auto w-full max-w-2xl rounded-3xl p-8 shadow-xl md:p-10", cardBg)}>
                   <h2 className={cn("mb-7 text-center text-5xl font-bold", heading)}>Search Rides</h2>
 
@@ -1173,6 +1318,7 @@ function App() {
                           key={ride.id}
                           ride={ride}
                           dark={isDark}
+                          onShare={handleShareRide}
                         />
                       ))}
                     </div>
@@ -1237,6 +1383,7 @@ function App() {
                                 onCancel={handleCancelRide}
                                 onToggleAvailability={handleToggleAvailability}
                                 onUpdateSeats={handleUpdateSeats}
+                                onShare={handleShareRide}
                               />
                             ))}
                           </div>
@@ -1258,6 +1405,7 @@ function App() {
                                 onCancel={handleCancelRide}
                                 onToggleAvailability={handleToggleAvailability}
                                 onUpdateSeats={handleUpdateSeats}
+                                onShare={handleShareRide}
                               />
                             ))}
                           </div>

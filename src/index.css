@@ -227,3 +227,12 @@ input[type="checkbox"] {
   box-shadow: 0 0 0 3px var(--accent-glow);
   background: var(--bg-surface-3);
 }
+
+@keyframes highlight-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+  50%       { box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.4); }
+}
+
+.ride-highlight {
+  animation: highlight-pulse 800ms ease 3;
+}

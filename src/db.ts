@@ -25,6 +25,7 @@ import {
   addDoc,
   updateDoc,
   doc,
+  getDoc,
   query,
   where,
   orderBy,
@@ -151,4 +152,10 @@ export async function setRideAvailability(
 export async function updateAvailableSeats(rideId: string, availableSeats: number): Promise<void> {
   const rideRef = doc(db, RIDES_COLLECTION, rideId);
   await updateDoc(rideRef, { availableSeats });
+}
+
+export async function getSharedRide(rideId: string): Promise<Ride | null> {
+  const snap = await getDoc(doc(db, "rides", rideId));
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...(snap.data() as Omit<Ride, "id">) };
 }
