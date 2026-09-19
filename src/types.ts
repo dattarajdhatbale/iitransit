@@ -78,6 +78,7 @@ export type Ride = {
   //isAvailable:   boolean;    // true = seats open; false = full/closed (sharer controls this)
   farePerPerson: number | null; // null → "contact to discuss"
   contact:       string;     // WhatsApp / phone number shown to other logged-in users
+  contactClicks?: number;
 
   // Optional free-text note from the sharer
   notes: string;             // "" when empty; never null

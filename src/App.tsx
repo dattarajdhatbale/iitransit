@@ -33,6 +33,7 @@ import {
   updateAvailableSeats,
   buildDepartureTimestamp,
   getSharedRide,
+  incrementContactClicks,
 } from "./db";
 import type { Ride, VehicleType } from "./types";
 import { cn } from "./utils/cn";
@@ -160,6 +161,7 @@ function RideCard({
   onUpdateSeats,
   onShare,
   highlight,
+  onContactReveal,
 }: {
   ride: Ride;
   dark: boolean;
@@ -169,6 +171,7 @@ function RideCard({
   onUpdateSeats?: (id: string, newSeats: number) => void;
   onShare?: (ride: Ride) => void;
   highlight?: boolean;
+  onContactReveal?: (rideId: string) => void;
 }) {
   const [showContact, setShowContact] = useState(false);
   const [isHighlighted, setIsHighlighted] = useState(false);
@@ -248,7 +251,12 @@ function RideCard({
           ) : !showContact ? (
             <button
               type="button"
-              onClick={() => setShowContact(true)}
+              onClick={() => {
+                setShowContact(true);
+                if (!showActions) {
+                  onContactReveal?.(ride.id);
+                }
+              }}
               className={cn(
                 "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
                 dark
@@ -451,6 +459,9 @@ function App() {
   const [myRides, setMyRides] = useState<Ride[]>([]);
   const [myRidesLoading, setMyRidesLoading] = useState(false);
   const [myRidesError, setMyRidesError] = useState("");
+  const [dismissedNudgeIds, setDismissedNudgeIds] = useState<Set<string>>(
+    new Set()
+  );
 
   // Posting : 
   const isPostingRef = useRef(false);
@@ -834,6 +845,12 @@ function App() {
         }
       }
     }
+  };
+
+  const handleContactReveal = (rideId: string) => {
+    incrementContactClicks(rideId).catch(() => {
+      // Silently fail — this is an analytics signal, not a critical op
+    });
   };
 
   // ── Shared style tokens ────────────────────────────────────────────────────
@@ -1255,6 +1272,7 @@ function App() {
                       dark={isDark}
                       highlight={true}
                       onShare={handleShareRide}
+                      onContactReveal={handleContactReveal}
                     />
                   </div>
                 )}
@@ -1319,6 +1337,7 @@ function App() {
                           ride={ride}
                           dark={isDark}
                           onShare={handleShareRide}
+                          onContactReveal={handleContactReveal}
                         />
                       ))}
                     </div>
@@ -1375,16 +1394,46 @@ function App() {
                               Upcoming
                             </p>
                             {future.map((ride) => (
-                              <RideCard
-                                key={ride.id}
-                                ride={ride}
-                                dark={isDark}
-                                showActions
-                                onCancel={handleCancelRide}
-                                onToggleAvailability={handleToggleAvailability}
-                                onUpdateSeats={handleUpdateSeats}
-                                onShare={handleShareRide}
-                              />
+                              <div key={ride.id}>
+                                {/* Nudge Banner */}
+                                {(ride.contactClicks ?? 0) >= 1 &&
+                                 ride.status === "active" &&
+                                 !dismissedNudgeIds.has(ride.id) && (
+                                  <div className={cn(
+                                    "mb-3 flex items-start justify-between gap-3 rounded-xl px-4 py-3 text-sm",
+                                    isDark
+                                      ? "bg-[#1A2540] text-[#CBD5E1] border border-[rgba(255,255,255,0.06)]"
+                                      : "bg-[#f0ebf8] text-[#5a3d7a] border border-[#ddd2ea]",
+                                  )}>
+                                    <span>
+                                      Your contact info was revealed to a student. If your ride
+                                      is now full, update it to stop receiving messages.
+                                    </span>
+                                    <button
+                                      type="button"
+                                      aria-label="Dismiss"
+                                      onClick={() =>
+                                        setDismissedNudgeIds(prev => new Set(prev).add(ride.id))
+                                      }
+                                      className="shrink-0 opacity-60 hover:opacity-100 transition-opacity px-1 leading-none text-lg"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                )}
+
+                                {/* Existing RideCard */}
+                                <RideCard
+                                  ride={ride}
+                                  dark={isDark}
+                                  showActions
+                                  onCancel={handleCancelRide}
+                                  onToggleAvailability={handleToggleAvailability}
+                                  onUpdateSeats={handleUpdateSeats}
+                                  onShare={handleShareRide}
+                                  onContactReveal={handleContactReveal}
+                                />
+                              </div>
                             ))}
                           </div>
                         )}

@@ -31,6 +31,7 @@ import {
   orderBy,
   getDocs,
   Timestamp,
+  increment,
 } from "firebase/firestore";
 
 import { db }             from "./firebase";
@@ -158,4 +159,10 @@ export async function getSharedRide(rideId: string): Promise<Ride | null> {
   const snap = await getDoc(doc(db, "rides", rideId));
   if (!snap.exists()) return null;
   return { id: snap.id, ...(snap.data() as Omit<Ride, "id">) };
+}
+
+export async function incrementContactClicks(rideId: string): Promise<void> {
+  await updateDoc(doc(db, RIDES_COLLECTION, rideId), {
+    contactClicks: increment(1),
+  });
 }
