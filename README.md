@@ -21,11 +21,13 @@ IITransit provides a simple, focused interface: post a ride you are offering, or
 ## Key Features
 
 - **Institute-only access** — Sign-in is restricted to `@iitbbs.ac.in` Google accounts. No manual verification required; the OAuth domain check is enforced at the authentication layer.
-- **Post a ride** — Share departure location, destination, date, time, vehicle type, available seats, fare per person, and an optional note (e.g. flexible timing, luggage space).
+- **Post a ride** — Share departure location, destination, date, time, vehicle type, available seats, total fare, and an optional note (e.g. flexible timing, luggage space).
 - **Search rides** — Filter by route and date. A transit hub must be specified in every search to prevent bulk contact exposure.
 - **Privacy-first contact reveal** — Phone numbers are hidden by default. A "Show Contact" button reveals a WhatsApp deep link, reducing unsolicited exposure.
 - **My Rides** — Manage posted rides: cancel a ride, or adjust available seats as people join. Rides are grouped into upcoming and past.
 - **Campus fuzzy matching** — Searching from any campus location (RHR, BHR, MHR, L-Gate, Main Gate) returns rides departing from any campus location to the same transit hub, since the walking distance between hostels is negligible.
+- **Shareable ride links** — Every ride card has a share button that opens the device's native share sheet. Generates a deep link (`/search?id=...`) that opens the app focused on that specific ride, with a highlight animation.
+- **Smart nudge** — When a seeker reveals a poster's contact info, the poster sees a dismissible banner on My Rides reminding them to update availability if their ride is now full.
 - **Progressive Web App** — Installable on Android and desktop via Chrome with offline shell caching.
 - **Dark / light mode** — Persisted across sessions via localStorage.
 - **Feedback form** — Linked in the footer for collecting user feedback post-launch.
@@ -112,7 +114,7 @@ src/
 
 - **Multi-college support** — Domain detection at sign-in to load college-specific location data from Firestore, enabling the same codebase to serve multiple institutions.
 - **Ride editing** — Allow the poster to update departure time, vehicle type, or notes after posting without cancelling and reposting.
-- **React Router migration** — Replace the current multi-HTML file routing with a proper SPA router.
+- ~~React Router migration — Replace the current multi-HTML file routing with a proper SPA router.~~
 - **In-app notifications** — Replace `alert()` calls with a toast notification system.
 - **AI-assisted location validation** — When onboarding a new college, use an LLM to verify that submitted campus and transit locations are geographically accurate before they go live.
 

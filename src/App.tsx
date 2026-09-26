@@ -986,11 +986,19 @@ function App() {
               </nav>
 
               <div className="mb-14 text-center">
-                <h1 className={cn("mb-5 text-5xl font-black tracking-tight md:text-7xl", heading)}>
+                <h1 className={cn(
+                  "mb-0 font-['Space_Grotesk'] font-bold tracking-tighter text-6xl md:text-8xl",
+                  isDark
+                    ? "bg-gradient-to-br from-[#a78bfa] via-[#8B5CF6] to-[#7C3AED] bg-clip-text text-transparent"
+                    : "text-indigo-950"
+                )}>
                   IITransit
                 </h1>
-                <p className="mx-auto mb-8 max-w-2xl text-xl md:text-4xl md:leading-tight">
-                  Why Pay More? Share a ride with your peers!
+                <p className={cn(
+                  "mb-10 font-['Inter'] text-base md:text-xl font-normal tracking-normal",
+                  isDark ? "text-slate-400" : "text-slate-600"
+                )}>
+                  Split the ride. Save the fare
                 </p>
               </div>
 
