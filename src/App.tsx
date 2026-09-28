@@ -444,7 +444,7 @@ function App() {
   // ── Post Ride form state ───────────────────────────────────────────────────
   const [postMessage, setPostMessage] = useState("");
   const [isPosting, setIsPosting] = useState(false);
-  const [postDate, setPostDate] = useState("");
+  const [postDate, setPostDate] = useState(todayISO);
   const [postFrom, setPostFrom] = useState("");
 
   // ── Search state ───────────────────────────────────────────────────────────
@@ -1149,6 +1149,7 @@ function App() {
                     <input
                       name="date" type="date" min={todayISO} required
                       className="field-input"
+                      value={postDate}
                       onChange={(e) => setPostDate(e.target.value)}
                     />
 
@@ -1307,7 +1308,7 @@ function App() {
                         {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
                       </optgroup>
                     </select>
-                    <input name="date" type="date" min={todayISO} required className="field-input" />
+                    <input name="date" type="date" min={todayISO} required className="field-input" defaultValue={todayISO} />
 
                     <button
                       type="submit"
