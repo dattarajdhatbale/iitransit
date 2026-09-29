@@ -444,7 +444,7 @@ function App() {
   // ── Post Ride form state ───────────────────────────────────────────────────
   const [postMessage, setPostMessage] = useState("");
   const [isPosting, setIsPosting] = useState(false);
-  const [postDate, setPostDate] = useState(todayISO);
+  const [postDate, setPostDate] = useState(() => getLocalDateISO());
   const [postFrom, setPostFrom] = useState("");
 
   // ── Search state ───────────────────────────────────────────────────────────
