@@ -1147,18 +1147,31 @@ function App() {
 
                     {/* ── Date ── */}
                     <input
-                      name="date" type="date" min={todayISO} required
+                      name="date"
+                      type="text"
+                      placeholder="Departure Date"
+                      min={todayISO}
                       className="field-input"
-                      value={postDate}
+                      onFocus={(e) => (e.target.type = "date")}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = "text";
+                      }}
                       onChange={(e) => setPostDate(e.target.value)}
+                      required
                     />
 
                     {/* ── Time — specific departure time ── */}
                     <input
-                      name="time" type="time" min={minPostTime} required
+                      name="time"
+                      type="text"
+                      placeholder="Departure Time"
+                      min={minPostTime}
                       className="field-input"
-                      placeholder="Departure time"
-                      defaultValue={getLocalTimeHHMM()}
+                      onFocus={(e) => (e.target.type = "time")}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = "text";
+                      }}
+                      required
                     />
 
                     {/* ── Vehicle type ── */}
@@ -1308,7 +1321,18 @@ function App() {
                         {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
                       </optgroup>
                     </select>
-                    <input name="date" type="date" min={todayISO} required className="field-input" defaultValue={todayISO} />
+                    <input
+                      name="date"
+                      type="text"
+                      placeholder="Departure Date"
+                      min={todayISO}
+                      className="field-input"
+                      onFocus={(e) => (e.target.type = "date")}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = "text";
+                      }}
+                      required
+                    />
 
                     <button
                       type="submit"
