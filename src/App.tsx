@@ -444,13 +444,15 @@ function App() {
   // ── Post Ride form state ───────────────────────────────────────────────────
   const [postMessage, setPostMessage] = useState("");
   const [isPosting, setIsPosting] = useState(false);
-  const [postDate, setPostDate] = useState(() => getLocalDateISO());
+  const [postDate, setPostDate] = useState("");
+  const [postTime, setPostTime] = useState("");
   const [postFrom, setPostFrom] = useState("");
 
   // ── Search state ───────────────────────────────────────────────────────────
   const [searchResults, setSearchResults] = useState<Ride[]>([]);
   const [searchMessage, setSearchMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [searchDate, setSearchDate] = useState("");
   const [sharedRide, setSharedRide] = useState<Ride | null>(null);
   const [sharedRideError, setSharedRideError] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
@@ -532,6 +534,7 @@ function App() {
     if (location.pathname === "/search") {
       setSearchResults([]);
       setSearchMessage("");
+      setSearchDate("");
     }
   }, [location.pathname]);
 
@@ -696,6 +699,7 @@ function App() {
       // 3. UI CLEANUP (Safe to run because form is safely stored)
       setPostMessage("Ride posted! Others can now find and contact you.");
       setPostDate("");
+      setPostTime("");
       setPostFrom("");
       form.reset();
       setTimeout(() => setPostMessage(""), 4000);
@@ -1146,33 +1150,43 @@ function App() {
                     </select>
 
                     {/* ── Date ── */}
-                    <input
-                      name="date"
-                      type="text"
-                      placeholder="Departure Date"
-                      min={todayISO}
-                      className="field-input"
-                      onFocus={(e) => (e.target.type = "date")}
-                      onBlur={(e) => {
-                        if (!e.target.value) e.target.type = "text";
-                      }}
-                      onChange={(e) => setPostDate(e.target.value)}
-                      required
-                    />
+                    <div className="relative w-full">
+                      <input
+                        name="date"
+                        type="date"
+                        min={todayISO}
+                        className={cn(
+                          "field-input w-full",
+                          !postDate && "text-transparent" 
+                        )}
+                        onChange={(e) => setPostDate(e.target.value)}
+                        required
+                      />
+                      {!postDate && (
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                          Departure Date
+                        </span>
+                      )}
+                    </div>
 
                     {/* ── Time — specific departure time ── */}
-                    <input
-                      name="time"
-                      type="text"
-                      placeholder="Departure Time"
-                      min={minPostTime}
-                      className="field-input"
-                      onFocus={(e) => (e.target.type = "time")}
-                      onBlur={(e) => {
-                        if (!e.target.value) e.target.type = "text";
-                      }}
-                      required
-                    />
+                    <div className="relative w-full">
+                      <input
+                        name="time"
+                        type="time"
+                        className={cn(
+                          "field-input w-full",
+                          !postTime && "text-transparent" 
+                        )}
+                        onChange={(e) => setPostTime(e.target.value)}
+                        required
+                      />
+                      {!postTime && (
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                          Departure Time
+                        </span>
+                      )}
+                    </div>
 
                     {/* ── Vehicle type ── */}
                     <select name="vehicleType" required defaultValue="" className="field-input">
@@ -1321,18 +1335,24 @@ function App() {
                         {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
                       </optgroup>
                     </select>
-                    <input
-                      name="date"
-                      type="text"
-                      placeholder="Departure Date"
-                      min={todayISO}
-                      className="field-input"
-                      onFocus={(e) => (e.target.type = "date")}
-                      onBlur={(e) => {
-                        if (!e.target.value) e.target.type = "text";
-                      }}
-                      required
-                    />
+                    <div className="relative w-full">
+                      <input
+                        name="date"
+                        type="date"
+                        min={todayISO}
+                        className={cn(
+                          "field-input w-full",
+                          !searchDate && "text-transparent" 
+                        )}
+                        onChange={(e) => setSearchDate(e.target.value)}
+                        required
+                      />
+                      {!searchDate && (
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                          Travel Date
+                        </span>
+                      )}
+                    </div>
 
                     <button
                       type="submit"

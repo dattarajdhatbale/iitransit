@@ -185,6 +185,10 @@ input[type="checkbox"] {
     background: var(--bg-surface-3);
   }
 
+  select.field-input {
+    padding-right: 2.5rem;
+  }
+
   /* Dropdown option styling — affects Chrome/Edge; Firefox ignores most of it */
   .field-input option {
     background-color: var(--bg-surface);
