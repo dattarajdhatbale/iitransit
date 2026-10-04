@@ -737,7 +737,7 @@ function App() {
 
     const transitSet = new Set(TRANSIT_LOCATIONS as readonly string[]);
     if (!transitSet.has(from) && !transitSet.has(to)) {
-      setSearchMessage("Please select at least one transit hub — railway station, airport, or bus terminal.");
+      setSearchMessage("Please select at least one transit hub : railway station, airport, or bus terminal.");
       setSearchResults([]);
       return;
     }
@@ -1127,74 +1127,93 @@ function App() {
 
                   <form className="space-y-4" onSubmit={handlePostRide}>
                     {/* ── From ── */}
-                    <select name="from" required defaultValue="" className="field-input"
-                      onChange={e => { setPostFrom(e.target.value); }}>
-                      <option value="" disabled>Select departure location</option>
-                      <optgroup label="Campus">
-                        {COLLEGE_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-                      </optgroup>
-                      <optgroup label="Transit Hubs">
-                        {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-                      </optgroup>
-                    </select>
+                    <div className="relative w-full">
+                      <select name="from" required defaultValue="" className="field-input !pr-12 appearance-none w-full"
+                        onChange={e => { setPostFrom(e.target.value); }}>
+                        <option value="" disabled>Select departure location</option>
+                        <optgroup label="Campus">
+                          {COLLEGE_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                        </optgroup>
+                        <optgroup label="Transit Hubs">
+                          {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                        </optgroup>
+                      </select>
+                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
 
                     {/* ── To ── */}
-                    <select name="to" required defaultValue="" className="field-input">
-                      <option value="" disabled>Select destination</option>
-                      {(COLLEGE_LOCATIONS.includes(postFrom as any)
-                        ? TRANSIT_LOCATIONS
-                        : postFrom !== ""
-                          ? COLLEGE_LOCATIONS
-                          : ALL_LOCATIONS
-                      ).map(l => <option key={l} value={l}>{l}</option>)}
-                    </select>
+                    <div className="relative w-full">
+                      <select name="to" required defaultValue="" className="field-input !pr-12 appearance-none w-full">
+                        <option value="" disabled>Select destination</option>
+                        {(COLLEGE_LOCATIONS.includes(postFrom as any)
+                          ? TRANSIT_LOCATIONS
+                          : postFrom !== ""
+                            ? COLLEGE_LOCATIONS
+                            : ALL_LOCATIONS
+                        ).map(l => <option key={l} value={l}>{l}</option>)}
+                      </select>
+                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
 
                     {/* ── Date ── */}
-                    <div className="relative w-full">
+                    <div className="relative w-full field-input flex items-center justify-start overflow-hidden focus-within:ring-2 focus-within:ring-[#8B5CF6]/50">
+                      <span className={postDate ? "text-current" : "text-slate-400 pointer-events-none"}>
+                        {postDate || "Departure Date"}
+                      </span>
                       <input
                         name="date"
                         type="date"
                         min={todayISO}
-                        className={cn(
-                          "field-input w-full",
-                          !postDate && "text-transparent" 
-                        )}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onClick={(e) => {
+                          try {
+                            e.currentTarget.showPicker();
+                          } catch {
+                            // Ignore unsupported browsers
+                          }
+                        }}
                         onChange={(e) => setPostDate(e.target.value)}
                         required
                       />
-                      {!postDate && (
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                          Departure Date
-                        </span>
-                      )}
                     </div>
 
                     {/* ── Time — specific departure time ── */}
-                    <div className="relative w-full">
+                    <div className="relative w-full field-input flex items-center justify-start overflow-hidden focus-within:ring-2 focus-within:ring-[#8B5CF6]/50">
+                      <span className={postTime ? "text-current" : "text-slate-400 pointer-events-none"}>
+                        {postTime || "Departure Time"}
+                      </span>
                       <input
                         name="time"
                         type="time"
-                        className={cn(
-                          "field-input w-full",
-                          !postTime && "text-transparent" 
-                        )}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onClick={(e) => {
+                          try {
+                            e.currentTarget.showPicker();
+                          } catch {
+                            // Ignore unsupported browsers
+                          }
+                        }}
                         onChange={(e) => setPostTime(e.target.value)}
                         required
                       />
-                      {!postTime && (
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                          Departure Time
-                        </span>
-                      )}
                     </div>
 
                     {/* ── Vehicle type ── */}
-                    <select name="vehicleType" required defaultValue="" className="field-input">
-                      <option value="" disabled>Select vehicle type</option>
-                      {(Object.entries(VEHICLE_LABELS) as [VehicleType, string][]).map(
-                        ([val, label]) => <option key={val} value={val}>{label}</option>
-                      )}
-                    </select>
+                    <div className="relative w-full">
+                      <select name="vehicleType" required defaultValue="" className="field-input !pr-12 appearance-none w-full">
+                        <option value="" disabled>Select vehicle type</option>
+                        {(Object.entries(VEHICLE_LABELS) as [VehicleType, string][]).map(
+                          ([val, label]) => <option key={val} value={val}>{label}</option>
+                        )}
+                      </select>
+                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
 
                     {/* ── Seats ── */}
                     <div className="flex gap-4">
@@ -1236,7 +1255,7 @@ function App() {
                     <textarea
                       name="notes"
                       rows={3}
-                      placeholder="Any notes? e.g. 'Flexible by 15 min', 'Have luggage', 'Only for female students', 'Train details'..."
+                      placeholder="Any notes? e.g. Flexible by 15 min, Have luggage, Only for female students, Train details..."
                       className="field-input resize-none"
                     />
 
@@ -1317,41 +1336,53 @@ function App() {
                   <h2 className={cn("mb-7 text-center text-5xl font-bold", heading)}>Search Rides</h2>
 
                   <form className="space-y-4" onSubmit={handleSearchRide}>
-                    <select name="from" defaultValue="" className="field-input">
-                      <option value="">Any departure location</option>
-                      <optgroup label="Campus">
-                        {COLLEGE_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-                      </optgroup>
-                      <optgroup label="Transit Hubs">
-                        {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-                      </optgroup>
-                    </select>
-                    <select name="to" defaultValue="" className="field-input">
-                      <option value="">Any destination</option>
-                      <optgroup label="Campus">
-                        {COLLEGE_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-                      </optgroup>
-                      <optgroup label="Transit Hubs">
-                        {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-                      </optgroup>
-                    </select>
                     <div className="relative w-full">
+                      <select name="from" defaultValue="" className="field-input !pr-12 appearance-none w-full">
+                        <option value="">Any departure location</option>
+                        <optgroup label="Campus">
+                          {COLLEGE_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                        </optgroup>
+                        <optgroup label="Transit Hubs">
+                          {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                        </optgroup>
+                      </select>
+                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                    <div className="relative w-full">
+                      <select name="to" defaultValue="" className="field-input !pr-12 appearance-none w-full">
+                        <option value="">Any destination</option>
+                        <optgroup label="Campus">
+                          {COLLEGE_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                        </optgroup>
+                        <optgroup label="Transit Hubs">
+                          {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                        </optgroup>
+                      </select>
+                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                    <div className="relative w-full field-input flex items-center justify-start overflow-hidden focus-within:ring-2 focus-within:ring-[#8B5CF6]/50">
+                      <span className={searchDate ? "text-current" : "text-slate-400 pointer-events-none"}>
+                        {searchDate || "Travel Date"}
+                      </span>
                       <input
                         name="date"
                         type="date"
                         min={todayISO}
-                        className={cn(
-                          "field-input w-full",
-                          !searchDate && "text-transparent" 
-                        )}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onClick={(e) => {
+                          try {
+                            e.currentTarget.showPicker();
+                          } catch {
+                            // Ignore unsupported browsers
+                          }
+                        }}
                         onChange={(e) => setSearchDate(e.target.value)}
                         required
                       />
-                      {!searchDate && (
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                          Travel Date
-                        </span>
-                      )}
                     </div>
 
                     <button
@@ -1450,30 +1481,30 @@ function App() {
                               <div key={ride.id}>
                                 {/* Nudge Banner */}
                                 {(ride.contactClicks ?? 0) >= 1 &&
-                                 ride.status === "active" &&
-                                 !dismissedNudgeIds.has(ride.id) && (
-                                  <div className={cn(
-                                    "mb-3 flex items-start justify-between gap-3 rounded-xl px-4 py-3 text-sm",
-                                    isDark
-                                      ? "bg-[#1A2540] text-[#CBD5E1] border border-[rgba(255,255,255,0.06)]"
-                                      : "bg-[#f0ebf8] text-[#5a3d7a] border border-[#ddd2ea]",
-                                  )}>
-                                    <span>
-                                      Your contact info was revealed to a student. If your ride
-                                      is now full, update it to stop receiving messages.
-                                    </span>
-                                    <button
-                                      type="button"
-                                      aria-label="Dismiss"
-                                      onClick={() =>
-                                        setDismissedNudgeIds(prev => new Set(prev).add(ride.id))
-                                      }
-                                      className="shrink-0 opacity-60 hover:opacity-100 transition-opacity px-1 leading-none text-lg"
-                                    >
-                                      ×
-                                    </button>
-                                  </div>
-                                )}
+                                  ride.status === "active" &&
+                                  !dismissedNudgeIds.has(ride.id) && (
+                                    <div className={cn(
+                                      "mb-3 flex items-start justify-between gap-3 rounded-xl px-4 py-3 text-sm",
+                                      isDark
+                                        ? "bg-[#1A2540] text-[#CBD5E1] border border-[rgba(255,255,255,0.06)]"
+                                        : "bg-[#f0ebf8] text-[#5a3d7a] border border-[#ddd2ea]",
+                                    )}>
+                                      <span>
+                                        Your contact info was revealed to a student. If your ride
+                                        is now full, update it to stop receiving messages.
+                                      </span>
+                                      <button
+                                        type="button"
+                                        aria-label="Dismiss"
+                                        onClick={() =>
+                                          setDismissedNudgeIds(prev => new Set(prev).add(ride.id))
+                                        }
+                                        className="shrink-0 opacity-60 hover:opacity-100 transition-opacity px-1 leading-none text-lg"
+                                      >
+                                        ×
+                                      </button>
+                                    </div>
+                                  )}
 
                                 {/* Existing RideCard */}
                                 <RideCard
