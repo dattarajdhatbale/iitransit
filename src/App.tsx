@@ -139,14 +139,15 @@ function BackButton({ onClick, dark }: { onClick: () => void; dark: boolean }) {
     <button
       type="button"
       onClick={onClick}
+      aria-label="Back"
       className={cn(
-        "mb-8 inline-flex w-fit items-center gap-2 rounded-xl px-6 py-3 text-xl font-medium shadow-md transition-all duration-300",
+        "mb-8 inline-flex w-fit items-center justify-center rounded-xl p-3 text-xl font-medium shadow-md transition-all duration-300",
         dark
           ? "bg-[#1A2540] text-[#F8FAFC] border border-[rgba(255,255,255,0.08)] hover:bg-[#1E2D4A] hover:border-[rgba(139,92,246,0.3)]"
           : "bg-[#a8deef] text-[#1f3145] hover:bg-[#96d5ea]",
       )}
     >
-      <BackArrow /> Back
+      <BackArrow />
     </button>
   );
 }
@@ -1123,7 +1124,7 @@ function App() {
               <section className="mx-auto flex min-h-[85vh] w-full max-w-4xl animate-rise flex-col">
                 <BackButton onClick={() => navigate("/")} dark={isDark} />
                 <div className={cn("mx-auto w-full max-w-2xl rounded-3xl p-8 shadow-xl md:p-10", cardBg)}>
-                  <h2 className={cn("mb-7 text-center text-5xl font-bold", heading)}>Post a Ride</h2>
+                  <h2 className={cn("mb-7 text-center text-3xl md:text-4xl font-bold", heading)}>Post a Ride</h2>
 
                   <form className="space-y-4" onSubmit={handlePostRide}>
                     {/* ── From ── */}
@@ -1219,7 +1220,7 @@ function App() {
                     <div className="flex gap-4">
                       <input
                         name="totalSeats" type="number" min="1" required
-                        placeholder="Total seats offered"
+                        placeholder="Total seats"
                         className="field-input w-1/2"
                       />
                       <input
@@ -1231,7 +1232,7 @@ function App() {
 
                     {/* ── Fare per person ── */}
                     <input
-                      name="farePerPerson" type="number" min="0"
+                      name="farePerPerson" type="number" min="0" required
                       placeholder="Total fare (₹)"
                       className="field-input"
                     />
@@ -1333,7 +1334,7 @@ function App() {
                 )}
 
                 <div className={cn("mx-auto w-full max-w-2xl rounded-3xl p-8 shadow-xl md:p-10", cardBg)}>
-                  <h2 className={cn("mb-7 text-center text-5xl font-bold", heading)}>Search Rides</h2>
+                  <h2 className={cn("mb-7 text-center text-3xl md:text-4xl font-bold", heading)}>Search Rides</h2>
 
                   <form className="space-y-4" onSubmit={handleSearchRide}>
                     <div className="relative w-full">
@@ -1443,15 +1444,18 @@ function App() {
                 <BackButton onClick={() => navigate("/")} dark={isDark} />
                 <div className={cn("mx-auto w-full max-w-2xl rounded-3xl p-8 shadow-xl md:p-10", cardBg)}>
                   <div className="mb-7 flex items-center justify-between gap-4">
-                    <h2 className={cn("text-4xl font-bold", heading)}>My Rides</h2>
+                    <h2 className={cn("text-3xl md:text-4xl font-bold", heading)}>My Rides</h2>
                     <button
                       type="button"
                       onClick={loadMyRides}
                       disabled={myRidesLoading}
-                      className={cn("rounded-full px-5 py-2 text-sm font-semibold transition-all", btnCyan,
+                      aria-label="Refresh rides"
+                      className={cn("rounded-full p-2.5 text-sm font-semibold transition-all", btnCyan,
                         myRidesLoading && "opacity-60 cursor-not-allowed")}
                     >
-                      {myRidesLoading ? "Loading…" : "Refresh"}
+                      <svg className={cn("h-5 w-5", myRidesLoading && "animate-spin")} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
                     </button>
                   </div>
 
