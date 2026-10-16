@@ -77,6 +77,24 @@ export async function postRide(ride: NewRide): Promise<string> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// GET RIDES BY DATE (used by the Search page)
+//
+// Fetches rides for a specific date using a single-field equality filter.
+// This requires zero manual composite indexes in Firebase Console and minimizes read quota.
+//
+// Called from: App.tsx → handleSearchRide()
+// ─────────────────────────────────────────────────────────────────────────────
+export async function getRidesByDate(date: string): Promise<Ride[]> {
+  const q = query(
+    collection(db, RIDES_COLLECTION),
+    where("date", "==", date)
+  );
+  const snapshot = await getDocs(q);
+  return ridesFromSnapshot(snapshot);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // GET ALL ACTIVE FUTURE RIDES  (used by the Search page)
 //
 // Fetches every ride where departureAt >= right now, ordered soonest first.
@@ -85,6 +103,9 @@ export async function postRide(ride: NewRide): Promise<string> {
 //
 // Called from: App.tsx → handleSearchRide()
 // ─────────────────────────────────────────────────────────────────────────────
+/**
+ * @deprecated Use getRidesByDate(date) instead to avoid full collection scans and excessive read quotas.
+ */
 export async function getActiveFutureRides(): Promise<Ride[]> {
   // Only inequality filter here (">=") → no composite index needed.
   // We order by the same field we filter on, also safe without an index.

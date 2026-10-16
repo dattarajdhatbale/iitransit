@@ -26,7 +26,7 @@ import { Timestamp } from "firebase/firestore";
 import { auth } from "./firebase";
 import {
   postRide,
-  getActiveFutureRides,
+  getRidesByDate,
   getMyRides,
   cancelRide,
   setRideAvailability,
@@ -35,6 +35,20 @@ import {
   getSharedRide,
   incrementContactClicks,
 } from "./db";
+import {
+  BackArrow,
+  GoogleIcon,
+  SunIconSmall,
+  MoonIconSmall,
+  WhatsAppIcon,
+  ShareIcon,
+  ChevronDownIcon,
+  RefreshIcon,
+  SpinnerIcon,
+  LinkedInIcon,
+  GitHubIcon,
+  FeedbackIcon,
+} from "./components/icons";
 import type { Ride, VehicleType } from "./types";
 import { cn } from "./utils/cn";
 
@@ -106,28 +120,7 @@ function locationsMatch(searchLoc: string, rideLoc: string): boolean {
   return false;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ICONS
-// ─────────────────────────────────────────────────────────────────────────────
 
-function BackArrow() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-      <path d="M19 12H5m7 7-7-7 7-7" />
-    </svg>
-  );
-}
-
-function GoogleIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
-      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.6 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
-      <path fill="#FF3D00" d="M6.3 14.7 12.9 19c1.8-4.2 6-7 11.1-7 3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4c-7.7 0-14.3 4.4-17.7 10.7z" />
-      <path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.3l-6.3-5.3c-2.1 1.6-4.8 2.6-7.3 2.6-5.2 0-9.6-3.3-11.2-8l-6.5 5C9.7 39.5 16.3 44 24 44z" />
-      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.9-3.1 4.7-4 5.4l6.3 5.3C37.2 39 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
-    </svg>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARED SUB-COMPONENTS
@@ -274,10 +267,7 @@ function RideCard({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-green-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-green-500 transition-all"
             >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
-                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.543 4.067 1.496 5.779L0 24l6.389-1.673A11.954 11.954 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.006-1.372l-.36-.214-3.724.976.999-3.648-.235-.374A9.818 9.818 0 0 1 2.182 12C2.182 6.58 6.58 2.182 12 2.182c5.42 0 9.818 4.398 9.818 9.818 0 5.42-4.398 9.818-9.818 9.818z" />
-              </svg>
+              <WhatsAppIcon />
               WhatsApp
             </a>
           )}
@@ -303,14 +293,7 @@ function RideCard({
                 : "text-slate-500 hover:text-slate-700",
             )}
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2">
-              <circle cx="18" cy="5" r="3" />
-              <circle cx="6" cy="12" r="3" />
-              <circle cx="18" cy="19" r="3" />
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-            </svg>
+            <ShareIcon />
           </button>
         )}
       </div>
@@ -375,29 +358,7 @@ function RideCard({
   );
 }
 
-function SunIconSmall({ active }: { active: boolean }) {
-  const color = active ? '#f97316' : '#64748b';
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"
-      style={{ width: 15, height: 15, transition: 'stroke 200ms ease', flexShrink: 0 }}>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2" /><path d="M12 20v2" />
-      <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
-      <path d="M2 12h2" /><path d="M20 12h2" />
-      <path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
-    </svg>
-  );
-}
 
-function MoonIconSmall({ active }: { active: boolean }) {
-  const color = active ? '#3b82f6' : '#64748b';
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"
-      style={{ width: 15, height: 15, transition: 'stroke 200ms ease', flexShrink: 0 }}>
-      <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />
-    </svg>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PROTECTED ROUTE
@@ -748,17 +709,18 @@ function App() {
     setSearchResults([]);
 
     try {
-      // Fetch all active future rides from Firestore, then filter client-side.
-      // This avoids needing composite Firestore indexes.
-      const all = await getActiveFutureRides();
+      const ridesOnDate = await getRidesByDate(date);
+      const nowSeconds = Timestamp.now().seconds;
 
-      const matches = all.filter((r) => {
-        if (r.status !== "active") return false;  // skip cancelled
-        if (from && !locationsMatch(from, r.from)) return false;
-        if (to && !locationsMatch(to, r.to)) return false;
-        if (date && r.date !== date) return false;
-        return true;
-      });
+      const matches = ridesOnDate
+        .filter((r) => {
+          if (r.status !== "active") return false;
+          if (r.departureAt.seconds < nowSeconds) return false; // Exclude already departed rides for today
+          if (from && !locationsMatch(from, r.from)) return false;
+          if (to && !locationsMatch(to, r.to)) return false;
+          return true;
+        })
+        .sort((a, b) => a.departureAt.seconds - b.departureAt.seconds); // In-memory sort by departure time
 
       setSearchResults(matches);
       setSearchMessage(
@@ -1041,20 +1003,14 @@ function App() {
                   <a href="https://www.linkedin.com/in/dattarajdhatbale/" target="_blank" rel="noopener noreferrer"
                     className={cn("transition-opacity hover:opacity-70",
                       isDark ? "text-[#8B5CF6]" : "text-[#5a3d7a]")}>
-                    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                      <rect x="2" y="9" width="4" height="12" />
-                      <circle cx="4" cy="4" r="2" />
-                    </svg>
+                    <LinkedInIcon />
                   </a>
 
                   {/* GitHub */}
                   <a href="https://github.com/dattarajdhatbale/iitransit" target="_blank" rel="noopener noreferrer"
                     className={cn("transition-opacity hover:opacity-70",
                       isDark ? "text-[#8B5CF6]" : "text-[#5a3d7a]")}>
-                    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" />
-                    </svg>
+                    <GitHubIcon />
                   </a>
                 </div>
 
@@ -1070,9 +1026,7 @@ function App() {
                         : "bg-[#5a3d7a] text-white",
                     )}
                   >
-                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
-                    </svg>
+                    <FeedbackIcon />
                     Send Feedback
                   </a>
                 </div>
@@ -1139,9 +1093,7 @@ function App() {
                           {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
                         </optgroup>
                       </select>
-                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
+                      <ChevronDownIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                     </div>
 
                     {/* ── To ── */}
@@ -1155,9 +1107,7 @@ function App() {
                             : ALL_LOCATIONS
                         ).map(l => <option key={l} value={l}>{l}</option>)}
                       </select>
-                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
+                      <ChevronDownIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                     </div>
 
                     {/* ── Date ── */}
@@ -1190,6 +1140,7 @@ function App() {
                       <input
                         name="time"
                         type="time"
+                        min={minPostTime}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         onClick={(e) => {
                           try {
@@ -1211,9 +1162,7 @@ function App() {
                           ([val, label]) => <option key={val} value={val}>{label}</option>
                         )}
                       </select>
-                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
+                      <ChevronDownIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                     </div>
 
                     {/* ── Seats ── */}
@@ -1273,12 +1222,7 @@ function App() {
                     >
                       {isPosting ? (
                         <span className="inline-flex items-center justify-center gap-2">
-                          <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10"
-                              stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor"
-                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                          </svg>
+                          <SpinnerIcon className="h-5 w-5 animate-spin" />
                           Posting…
                         </span>
                       ) : "Post Ride"}
@@ -1347,9 +1291,7 @@ function App() {
                           {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
                         </optgroup>
                       </select>
-                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
+                      <ChevronDownIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                     </div>
                     <div className="relative w-full">
                       <select name="to" defaultValue="" className="field-input !pr-12 appearance-none w-full">
@@ -1361,9 +1303,7 @@ function App() {
                           {TRANSIT_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
                         </optgroup>
                       </select>
-                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
+                      <ChevronDownIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
                     </div>
                     <div className="relative w-full field-input flex items-center justify-start overflow-hidden focus-within:ring-2 focus-within:ring-[#8B5CF6]/50">
                       <span className={searchDate ? "text-current" : "text-slate-400 pointer-events-none"}>
@@ -1453,9 +1393,7 @@ function App() {
                       className={cn("rounded-full p-2.5 text-sm font-semibold transition-all", btnCyan,
                         myRidesLoading && "opacity-60 cursor-not-allowed")}
                     >
-                      <svg className={cn("h-5 w-5", myRidesLoading && "animate-spin")} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
+                      <RefreshIcon className={cn("h-5 w-5", myRidesLoading && "animate-spin")} />
                     </button>
                   </div>
 
