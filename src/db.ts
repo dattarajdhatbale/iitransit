@@ -26,6 +26,9 @@ import {
   updateDoc,
   doc,
   getDoc,
+  setDoc,
+  serverTimestamp,
+  deleteField,
   query,
   where,
   orderBy,
@@ -35,10 +38,12 @@ import {
 } from "firebase/firestore";
 
 import { db }             from "./firebase";
-import type { Ride, NewRide } from "./types";
+import type { Ride, NewRide, UserProfile } from "./types";
+export type { UserProfile } from "./types";
 
 // The Firestore collection name. All rides live at /rides/{auto-id}
 const RIDES_COLLECTION = "rides";
+const USERS_COLLECTION = "users";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPER: convert an array of Firestore QueryDocumentSnapshots → Ride[]
@@ -186,4 +191,27 @@ export async function incrementContactClicks(rideId: string): Promise<void> {
   await updateDoc(doc(db, RIDES_COLLECTION, rideId), {
     contactClicks: increment(1),
   });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// USER PROFILE
+// ─────────────────────────────────────────────────────────────────────────────
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  const snap = await getDoc(doc(db, USERS_COLLECTION, uid));
+  if (!snap.exists()) return null;
+  const data = snap.data();
+  return {
+    ...(typeof data?.contact === "string" ? { contact: data.contact } : {}),
+  };
+}
+
+export async function saveUserContact(uid: string, contact: string | null): Promise<void> {
+  await setDoc(
+    doc(db, USERS_COLLECTION, uid),
+    {
+      contact: contact ?? deleteField(),
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true },
+  );
 }
