@@ -10,7 +10,8 @@
 //   /auth     → Sign-in page
 //   /post     → Post a ride (requires login)
 //   /search   → Search rides (requires login)
-//   /my-rides → Manage your own posts (requires login)
+//   /profile  → User profile and rides (requires login)
+//   /my-rides → Redirects to /profile
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -34,7 +35,10 @@ import {
   buildDepartureTimestamp,
   getSharedRide,
   incrementContactClicks,
+  getUserProfile,
+  type UserProfile,
 } from "./db";
+import { Avatar } from "./components/Avatar";
 import {
   BackArrow,
   GoogleIcon,
@@ -427,6 +431,12 @@ function App() {
     new Set()
   );
 
+  // ── Profile state ──────────────────────────────────────────────────────────
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileStatus, setProfileStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  void userProfile;
+  void profileStatus;
+
   // Posting : 
   const isPostingRef = useRef(false);
 
@@ -485,9 +495,35 @@ function App() {
     return unsubscribe;
   }, []);
 
-  // Load My Rides whenever the user navigates to /my-rides.
+  const loadUserProfile = async (uid: string) => {
+    setProfileStatus("loading");
+    try {
+      const data = await getUserProfile(uid);
+      if (auth.currentUser?.uid !== uid) return;
+      setUserProfile(data ?? {});
+      setProfileStatus("ready");
+    } catch {
+      if (auth.currentUser?.uid !== uid) return;
+      setProfileStatus("error");
+    }
+  };
+
   useEffect(() => {
-    if (location.pathname !== "/my-rides" || !currentUser) return;
+    setUserProfile(null);
+    setMyRides([]);
+    setMyRidesError("");
+    setDismissedNudgeIds(new Set());
+
+    if (currentUser?.uid) {
+      loadUserProfile(currentUser.uid);
+    } else {
+      setProfileStatus("idle");
+    }
+  }, [currentUser?.uid]);
+
+  // Load My Rides whenever the user navigates to /profile.
+  useEffect(() => {
+    if (location.pathname !== "/profile" || !currentUser) return;
     loadMyRides();
   }, [location.pathname, currentUser]);
 
@@ -572,9 +608,9 @@ function App() {
   };
 
   const handleLogout = async () => {
+    navigate("/");
     await signOut(auth);
     // onAuthStateChanged fires and sets currentUser to null.
-    navigate("/");
   };
 
   // ── Post Ride handler ──────────────────────────────────────────────────────
@@ -918,21 +954,20 @@ function App() {
                 {/* Auth area */}
                 {currentUser ? (
                   <div className="flex items-center gap-3">
-                    <div className="hidden sm:flex flex-col items-end justify-center max-w-[160px] lg:max-w-[200px]">
-                      <span className={cn("text-sm font-bold uppercase tracking-wider truncate w-full text-right leading-none mb-0.5", heading)}>
-                        {currentUser.displayName || "Student"}
-                      </span>
-                      <span className={cn("text-[11px] font-medium truncate w-full text-right leading-none opacity-80", muted)}>
-                        {currentUser.email}
-                      </span>
-                    </div>
                     <button
                       type="button"
-                      onClick={() => navigate("/my-rides")}
-                      className={cn("rounded-full px-4 py-1.5 text-sm font-semibold transition-all", btnMain)}
+                      aria-label="Open profile"
+                      onClick={() => navigate("/profile")}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50"
                     >
-                      My Rides
+                      <Avatar
+                        photoURL={currentUser.photoURL}
+                        name={currentUser.displayName}
+                        email={currentUser.email}
+                        className="h-9 w-9"
+                      />
                     </button>
+                    {/* TEMP: removed in Step 4 once Sign Out lives on /profile */}
                     <button
                       type="button"
                       onClick={handleLogout}
@@ -1374,10 +1409,10 @@ function App() {
         />
 
         {/* ════════════════════════════════════════════════════════════════════
-            MY RIDES
+            USER PROFILE & RIDES
         ════════════════════════════════════════════════════════════════════ */}
         <Route
-          path="/my-rides"
+          path="/profile"
           element={
             <ProtectedRoute currentUser={currentUser} authLoading={authLoading}>
               <section className="mx-auto flex min-h-[85vh] w-full max-w-4xl animate-rise flex-col">
@@ -1498,6 +1533,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/my-rides" element={<Navigate to="/profile" replace />} />
 
         {/* ════════════════════════════════════════════════════════════════════
             CATCH-ALL WILDCARD ROUTE
