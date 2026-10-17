@@ -36,6 +36,7 @@ import {
   getSharedRide,
   incrementContactClicks,
   getUserProfile,
+  saveUserContact,
   type UserProfile,
 } from "./db";
 import { Avatar } from "./components/Avatar";
@@ -55,6 +56,7 @@ import {
 } from "./components/icons";
 import type { Ride, VehicleType } from "./types";
 import { cn } from "./utils/cn";
+import { CONTACT_REGEX, sanitizeDigits } from "./utils/profileUtils";
 
 declare const showToast: any;
 
@@ -534,6 +536,9 @@ function App() {
       setSearchMessage("");
       setSearchDate("");
     }
+    if (location.pathname !== "/post") {
+      setPostMessage("");
+    }
   }, [location.pathname]);
 
   useEffect(() => {
@@ -636,6 +641,7 @@ function App() {
     const vehicleVal = String(fd.get("vehicleType") || "cab") as VehicleType;
     const fareStr = String(fd.get("farePerPerson") || "").trim();
     const contactVal = String(fd.get("contact") || "").trim();
+    const saveContactVal = fd.get("saveContact") === "on";
     const notesVal = String(fd.get("notes") || "").trim();
     const totalSeatsVal = parseInt(String(fd.get("totalSeats") || "0"), 10);
     const availableSeatsVal = parseInt(String(fd.get("availableSeats") || "0"), 10);
@@ -694,13 +700,25 @@ function App() {
         status: "active",
         createdAt: Timestamp.now(),
       });
+
+      if (saveContactVal && profileStatus === "ready" && !userProfile?.contact && CONTACT_REGEX.test(contactVal)) {
+        const uid = currentUser.uid;
+        saveUserContact(uid, contactVal)
+          .then(() => {
+            if (auth.currentUser?.uid === uid) {
+              setUserProfile((prev) => ({ ...(prev ?? {}), contact: contactVal }));
+            }
+          })
+          .catch(() => {});
+      }
+
       // 3. UI CLEANUP (Safe to run because form is safely stored)
       setPostMessage("Ride posted! Others can now find and contact you.");
       setPostDate("");
       setPostTime("");
       setPostFrom("");
       form.reset();
-      setTimeout(() => setPostMessage(""), 4000);
+      setTimeout(() => setPostMessage(""), 10000);
     } catch {
       setPostMessage("Failed to post ride. Please check your connection and try again.");
     } finally {
@@ -1223,18 +1241,32 @@ function App() {
 
                     {/* ── Contact ── */}
                     <input
-                      name="contact" type="tel" required
+                      key={userProfile?.contact ?? "no-contact"}
+                      name="contact"
+                      type="tel"
+                      inputMode="numeric"
+                      required
+                      defaultValue={userProfile?.contact ?? ""}
                       placeholder="WhatsApp / phone number"
                       className="field-input"
                       pattern="[6-9][0-9]{9}"
                       title="Enter a valid 10-digit Indian mobile number"
-                      maxLength={10}
-                      onKeyDown={(e) => {
-                        if (!/[0-9]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) {
-                          e.preventDefault();
-                        }
+                      onInput={(e) => {
+                        e.currentTarget.value = sanitizeDigits(e.currentTarget.value);
                       }}
                     />
+
+                    {profileStatus === "ready" && !userProfile?.contact && (
+                      <label className={cn("flex items-center gap-2 text-sm cursor-pointer select-none", muted)}>
+                        <input
+                          type="checkbox"
+                          name="saveContact"
+                          defaultChecked
+                          className="rounded accent-[#8B5CF6]"
+                        />
+                        <span>Save this number for next time</span>
+                      </label>
+                    )}
 
                     {/* ── Notes ── */}
                     <textarea
@@ -1266,10 +1298,27 @@ function App() {
                   </form>
 
                   {postMessage && (
-                    <p className={cn("mt-5 text-center text-lg font-medium",
-                      postMessage.startsWith("Failed") ? "text-red-500" : "text-emerald-500")}>
-                      {postMessage}
-                    </p>
+                    <div className="mt-5 text-center">
+                      <p
+                        className={cn(
+                          "text-lg font-medium",
+                          postMessage.startsWith("Ride posted")
+                            ? "text-emerald-500"
+                            : "text-red-500"
+                        )}
+                      >
+                        {postMessage}
+                      </p>
+                      {postMessage.startsWith("Ride posted") && (
+                        <button
+                          type="button"
+                          onClick={() => navigate("/profile")}
+                          className="mt-2 inline-block text-sm font-semibold underline hover:opacity-80 transition-opacity"
+                        >
+                          View in your profile
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               </section>
