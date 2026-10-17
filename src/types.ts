@@ -91,3 +91,7 @@ export type Ride = {
 // NewRide is what we send TO Firestore when posting.
 // We omit `id` because Firestore auto-generates the document key.
 export type NewRide = Omit<Ride, "id">;
+
+export type UserProfile = {
+  contact?: string;
+};

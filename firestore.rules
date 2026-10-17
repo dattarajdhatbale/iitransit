@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+      function isStudent() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('.*@iitbbs\\.ac\\.in');
+    }
+
+    match /users/{uid} {
+      allow read, delete: if isStudent() && request.auth.uid == uid;
+      allow create, update: if isStudent()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['contact', 'updatedAt'])
+        && (!('contact' in request.resource.data)
+            || (request.resource.data.contact is string
+                && request.resource.data.contact.matches('[6-9][0-9]{9}')));
+    }
+    match /rides/{rideId} {
+      allow read: if request.auth != null
+                  && request.auth.token.email.matches('.*@iitbbs\\.ac\\.in');
+      allow create: if request.auth != null
+                    && request.auth.token.email.matches('.*@iitbbs\\.ac\\.in')
+                    && request.resource.data.postedBy.uid == request.auth.uid;
+      allow update: if request.auth != null 
+  && request.auth.token.email.matches('.*@iitbbs\\.ac\\.in')
+  && (
+    // The original poster can update the full document
+    resource.data.postedBy.uid == request.auth.uid
+    ||
+    // Any verified student can ONLY increment contactClicks by exactly 1.
+    // get() with default 0 handles rides posted before this field existed.
+    (
+      request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['contactClicks'])
+      && request.resource.data.contactClicks == 
+         (resource.data.get('contactClicks', 0) + 1)
+    )
+  );
+
+      allow delete: if false;
+    }
+  }
+}
