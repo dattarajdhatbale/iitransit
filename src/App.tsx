@@ -14,7 +14,7 @@
 //   /my-rides → Redirects to /profile
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import {
   onAuthStateChanged,
@@ -56,7 +56,13 @@ import {
 } from "./components/icons";
 import type { Ride, VehicleType } from "./types";
 import { cn } from "./utils/cn";
-import { CONTACT_REGEX, sanitizeDigits } from "./utils/profileUtils";
+import {
+  CONTACT_REGEX,
+  sanitizeDigits,
+  partitionRides,
+  paginate,
+  PAGE_SIZE,
+} from "./utils/profileUtils";
 
 declare const showToast: any;
 
@@ -171,7 +177,7 @@ function RideCard({
   onUpdateSeats?: (id: string, newSeats: number) => void;
   onShare?: (ride: Ride) => void;
   highlight?: boolean;
-  onContactReveal?: (rideId: string) => void;
+  onContactReveal?: (ride: Ride) => void;
 }) {
   const [showContact, setShowContact] = useState(false);
   const [isHighlighted, setIsHighlighted] = useState(false);
@@ -254,7 +260,7 @@ function RideCard({
               onClick={() => {
                 setShowContact(true);
                 if (!showActions) {
-                  onContactReveal?.(ride.id);
+                  onContactReveal?.(ride);
                 }
               }}
               className={cn(
@@ -436,8 +442,9 @@ function App() {
   // ── Profile state ──────────────────────────────────────────────────────────
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileStatus, setProfileStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
-  void userProfile;
-  void profileStatus;
+  const [historyPage, setHistoryPage] = useState(1);
+  const [isSavingContact, setIsSavingContact] = useState(false);
+  const [contactStatusMessage, setContactStatusMessage] = useState("");
 
   // Posting : 
   const isPostingRef = useRef(false);
@@ -515,6 +522,9 @@ function App() {
     setMyRides([]);
     setMyRidesError("");
     setDismissedNudgeIds(new Set());
+    setHistoryPage(1);
+    setContactStatusMessage("");
+    setIsSavingContact(false);
 
     if (currentUser?.uid) {
       loadUserProfile(currentUser.uid);
@@ -868,10 +878,117 @@ function App() {
     }
   };
 
-  const handleContactReveal = (rideId: string) => {
-    incrementContactClicks(rideId).catch(() => {
+  const handleContactReveal = (ride: Ride) => {
+    if (ride.postedBy.uid === currentUser?.uid) return;
+    incrementContactClicks(ride.id).catch(() => {
       // Silently fail — this is an analytics signal, not a critical op
     });
+  };
+
+  const { nextRide, upcoming, history } = useMemo(
+    () => partitionRides(myRides, Timestamp.now().seconds),
+    [myRides]
+  );
+
+  const { pageItems: historyPageItems, page: currentHistoryPage, totalPages: historyTotalPages } = useMemo(
+    () => paginate(history, historyPage),
+    [history, historyPage]
+  );
+
+  const handleSaveContact = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!currentUser || profileStatus !== "ready" || isSavingContact) return;
+    const uid = currentUser.uid;
+    const fd = new FormData(event.currentTarget);
+    const value = String(fd.get("contact") || "").trim();
+
+    if (!CONTACT_REGEX.test(value)) {
+      setContactStatusMessage("Could not save. Please try again.");
+      return;
+    }
+
+    setIsSavingContact(true);
+    setContactStatusMessage("");
+    try {
+      await saveUserContact(uid, value);
+      if (auth.currentUser?.uid === uid) {
+        setUserProfile((prev) => ({ ...(prev ?? {}), contact: value }));
+        setContactStatusMessage("Number saved.");
+      }
+    } catch {
+      setContactStatusMessage("Could not save. Please try again.");
+    } finally {
+      setIsSavingContact(false);
+    }
+  };
+
+  const handleRemoveContact = async () => {
+    if (!currentUser || profileStatus !== "ready" || isSavingContact) return;
+    const uid = currentUser.uid;
+    setIsSavingContact(true);
+    setContactStatusMessage("");
+    try {
+      await saveUserContact(uid, null);
+      if (auth.currentUser?.uid === uid) {
+        setUserProfile((prev) => {
+          if (!prev) return null;
+          const next = { ...prev };
+          delete next.contact;
+          return next;
+        });
+        setContactStatusMessage("Number removed.");
+      }
+    } catch {
+      setContactStatusMessage("Could not save. Please try again.");
+    } finally {
+      setIsSavingContact(false);
+    }
+  };
+
+  const renderUpcomingRide = (ride: Ride) => {
+    const n = ride.contactClicks ?? 0;
+    return (
+      <div key={ride.id}>
+        {/* Nudge Banner */}
+        {n >= 1 &&
+          ride.status === "active" &&
+          !dismissedNudgeIds.has(ride.id) && (
+            <div
+              className={cn(
+                "mb-3 flex items-start justify-between gap-3 rounded-xl px-4 py-3 text-sm",
+                isDark
+                  ? "bg-[#1A2540] text-[#CBD5E1] border border-[rgba(255,255,255,0.06)]"
+                  : "bg-[#f0ebf8] text-[#5a3d7a] border border-[#ddd2ea]"
+              )}
+            >
+              <span>
+                Your contact info was revealed {n} {n === 1 ? "time" : "times"}. If your ride is now full, update it to stop receiving messages.
+              </span>
+              <button
+                type="button"
+                aria-label="Dismiss"
+                onClick={() =>
+                  setDismissedNudgeIds((prev) => new Set(prev).add(ride.id))
+                }
+                className="shrink-0 opacity-60 hover:opacity-100 transition-opacity px-1 leading-none text-lg"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+        <RideCard
+          ride={ride}
+          dark={isDark}
+          showActions
+          onCancel={handleCancelRide}
+          onToggleAvailability={handleToggleAvailability}
+          onUpdateSeats={handleUpdateSeats}
+          onShare={handleShareRide}
+          onContactReveal={handleContactReveal}
+        />
+      </div>
+    );
   };
 
   // ── Shared style tokens ────────────────────────────────────────────────────
@@ -984,14 +1101,6 @@ function App() {
                         email={currentUser.email}
                         className="h-9 w-9"
                       />
-                    </button>
-                    {/* TEMP: removed in Step 4 once Sign Out lives on /profile */}
-                    <button
-                      type="button"
-                      onClick={handleLogout}
-                      className="rounded-full px-4 py-1.5 text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-all"
-                    >
-                      Sign Out
                     </button>
                   </div>
                 ) : (
@@ -1466,74 +1575,192 @@ function App() {
             <ProtectedRoute currentUser={currentUser} authLoading={authLoading}>
               <section className="mx-auto flex min-h-[85vh] w-full max-w-4xl animate-rise flex-col">
                 <BackButton onClick={() => navigate("/")} dark={isDark} />
-                <div className={cn("mx-auto w-full max-w-2xl rounded-3xl p-8 shadow-xl md:p-10", cardBg)}>
-                  <div className="mb-7 flex items-center justify-between gap-4">
-                    <h2 className={cn("text-3xl md:text-4xl font-bold", heading)}>My Rides</h2>
-                    <button
-                      type="button"
-                      onClick={loadMyRides}
-                      disabled={myRidesLoading}
-                      aria-label="Refresh rides"
-                      className={cn("rounded-full p-2.5 text-sm font-semibold transition-all", btnCyan,
-                        myRidesLoading && "opacity-60 cursor-not-allowed")}
-                    >
-                      <RefreshIcon className={cn("h-5 w-5", myRidesLoading && "animate-spin")} />
-                    </button>
+                <div className="mx-auto w-full max-w-2xl space-y-6">
+                  {/* a) Account card */}
+                  <div className={cn("rounded-3xl p-6 md:p-8 shadow-xl", cardBg)}>
+                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                      <div className="flex items-center gap-4">
+                        <Avatar
+                          photoURL={currentUser?.photoURL}
+                          name={currentUser?.displayName}
+                          email={currentUser?.email}
+                          className="h-16 w-16"
+                        />
+                        <div>
+                          <h2 className={cn("text-xl font-bold", heading)}>
+                            {currentUser?.displayName || "Student"}
+                          </h2>
+                          {currentUser?.email && (
+                            <p className={cn("text-sm", muted)}>{currentUser.email}</p>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="rounded-full px-4 py-1.5 text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-all"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
                   </div>
 
-                  {myRidesError && (
-                    <p className="text-red-500 text-center mb-4">{myRidesError}</p>
-                  )}
+                  {/* b) Contact manager card */}
+                  <div className={cn("rounded-3xl p-6 md:p-8 shadow-xl space-y-4", cardBg)}>
+                    <h3 className={cn("text-xl font-bold", heading)}>WhatsApp number</h3>
 
-                  {!myRidesLoading && myRides.length === 0 && !myRidesError && (
-                    <p className={cn("text-center text-lg", muted)}>
-                      You haven't posted any rides yet.
-                    </p>
-                  )}
+                    {profileStatus === "loading" && (
+                      <p className={cn("text-sm", muted)}>Loading…</p>
+                    )}
 
-                  {(() => {
-                    const now = Timestamp.now().seconds;
-                    const future = myRides.filter(r => r.departureAt.seconds >= now && r.status !== "cancelled");
-                    const past = myRides.filter(r => r.departureAt.seconds < now || r.status === "cancelled");
+                    {profileStatus === "error" && (
+                      <div className="flex items-center gap-3">
+                        <p className="text-sm text-red-500">Could not load your saved number.</p>
+                        <button
+                          type="button"
+                          onClick={() => currentUser?.uid && loadUserProfile(currentUser.uid)}
+                          className="text-sm font-semibold underline hover:opacity-80 transition-opacity"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    )}
 
-                    return (
+                    <form onSubmit={handleSaveContact} className="space-y-3">
+                      <div className="flex gap-2 items-center flex-wrap sm:flex-nowrap">
+                        <input
+                          key={userProfile?.contact ?? "none"}
+                          name="contact"
+                          type="tel"
+                          inputMode="numeric"
+                          pattern="[6-9][0-9]{9}"
+                          title="Enter a valid 10-digit Indian mobile number"
+                          required
+                          disabled={profileStatus !== "ready" || isSavingContact}
+                          defaultValue={userProfile?.contact ?? ""}
+                          onInput={(e) => {
+                            e.currentTarget.value = sanitizeDigits(e.currentTarget.value);
+                          }}
+                          placeholder="WhatsApp / phone number"
+                          className="field-input flex-1"
+                        />
+                        <button
+                          type="submit"
+                          disabled={profileStatus !== "ready" || isSavingContact}
+                          className={cn(
+                            "rounded-full px-5 py-2 text-sm font-semibold transition-all shrink-0",
+                            btnMain,
+                            (profileStatus !== "ready" || isSavingContact) && "opacity-60 cursor-not-allowed"
+                          )}
+                        >
+                          {isSavingContact ? "Saving…" : "Save"}
+                        </button>
+                        {Boolean(userProfile?.contact) && (
+                          <button
+                            type="button"
+                            onClick={handleRemoveContact}
+                            disabled={profileStatus !== "ready" || isSavingContact}
+                            className={cn(
+                              "rounded-full px-4 py-2 text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-all shrink-0",
+                              (profileStatus !== "ready" || isSavingContact) && "opacity-60 cursor-not-allowed"
+                            )}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+
+                      {contactStatusMessage && (
+                        <p
+                          aria-live="polite"
+                          className={cn(
+                            "text-sm font-medium",
+                            contactStatusMessage === "Could not save. Please try again."
+                              ? "text-red-500"
+                              : "text-emerald-500"
+                          )}
+                        >
+                          {contactStatusMessage}
+                        </p>
+                      )}
+
+                      <p className={cn("text-xs leading-relaxed", muted)}>
+                        Used to pre-fill the Post a Ride form. Rides you've already posted keep the number they were posted with.
+                      </p>
+                    </form>
+                  </div>
+
+                  {/* c) My Rides card */}
+                  <div className={cn("rounded-3xl p-6 md:p-8 shadow-xl", cardBg)}>
+                    <div className="mb-7 flex items-center justify-between gap-4">
+                      <h2 className={cn("text-xl font-bold", heading)}>My Rides</h2>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          loadMyRides();
+                          setHistoryPage(1);
+                        }}
+                        disabled={myRidesLoading}
+                        aria-label="Refresh rides"
+                        className={cn(
+                          "rounded-full p-2.5 text-sm font-semibold transition-all",
+                          btnCyan,
+                          myRidesLoading && "opacity-60 cursor-not-allowed"
+                        )}
+                      >
+                        <RefreshIcon className={cn("h-5 w-5", myRidesLoading && "animate-spin")} />
+                      </button>
+                    </div>
+
+                    {myRidesError && (
+                      <p className="text-red-500 text-center mb-4">{myRidesError}</p>
+                    )}
+
+                    {myRidesLoading && myRides.length === 0 ? (
+                      <p className={cn("text-center text-lg", muted)}>Loading rides…</p>
+                    ) : myRides.length === 0 && !myRidesError ? (
+                      <div className="text-center space-y-4 py-4">
+                        <p className={cn("text-lg", muted)}>You haven't posted any rides yet.</p>
+                        <button
+                          type="button"
+                          onClick={() => navigate("/post")}
+                          className={cn("rounded-full px-6 py-2.5 text-sm font-semibold transition-all", btnMain)}
+                        >
+                          Post a ride
+                        </button>
+                      </div>
+                    ) : (
                       <div className="space-y-6">
-                        {future.length > 0 && (
+                        {nextRide && (
                           <div className="space-y-4">
                             <p className={cn("text-xs font-semibold uppercase tracking-widest", muted)}>
-                              Upcoming
+                              Next ride
                             </p>
-                            {future.map((ride) => (
-                              <div key={ride.id}>
-                                {/* Nudge Banner */}
-                                {(ride.contactClicks ?? 0) >= 1 &&
-                                  ride.status === "active" &&
-                                  !dismissedNudgeIds.has(ride.id) && (
-                                    <div className={cn(
-                                      "mb-3 flex items-start justify-between gap-3 rounded-xl px-4 py-3 text-sm",
-                                      isDark
-                                        ? "bg-[#1A2540] text-[#CBD5E1] border border-[rgba(255,255,255,0.06)]"
-                                        : "bg-[#f0ebf8] text-[#5a3d7a] border border-[#ddd2ea]",
-                                    )}>
-                                      <span>
-                                        Your contact info was revealed to a student. If your ride
-                                        is now full, update it to stop receiving messages.
-                                      </span>
-                                      <button
-                                        type="button"
-                                        aria-label="Dismiss"
-                                        onClick={() =>
-                                          setDismissedNudgeIds(prev => new Set(prev).add(ride.id))
-                                        }
-                                        className="shrink-0 opacity-60 hover:opacity-100 transition-opacity px-1 leading-none text-lg"
-                                      >
-                                        ×
-                                      </button>
-                                    </div>
-                                  )}
+                            {renderUpcomingRide(nextRide)}
+                          </div>
+                        )}
 
-                                {/* Existing RideCard */}
+                        {upcoming.length > 0 && (
+                          <div className="space-y-4">
+                            <p className={cn("text-xs font-semibold uppercase tracking-widest", muted)}>
+                              Other upcoming
+                            </p>
+                            {upcoming.map((ride) => renderUpcomingRide(ride))}
+                          </div>
+                        )}
+
+                        {history.length > 0 && (
+                          <div className="space-y-4">
+                            {(nextRide || upcoming.length > 0) && (
+                              <div className={cn("border-t pt-2", isDark ? "border-[rgba(255,255,255,0.06)]" : "border-[#ddd2ea]")} />
+                            )}
+                            <p className={cn("text-xs font-semibold uppercase tracking-widest", muted)}>
+                              Past & Cancelled
+                            </p>
+                            <div className="space-y-4">
+                              {historyPageItems.map((ride) => (
                                 <RideCard
+                                  key={ride.id}
                                   ride={ride}
                                   dark={isDark}
                                   showActions
@@ -1541,42 +1768,48 @@ function App() {
                                   onToggleAvailability={handleToggleAvailability}
                                   onUpdateSeats={handleUpdateSeats}
                                   onShare={handleShareRide}
-                                  onContactReveal={handleContactReveal}
                                 />
+                              ))}
+                            </div>
+
+                            {history.length > PAGE_SIZE && (
+                              <div className="flex items-center justify-between pt-2">
+                                <button
+                                  type="button"
+                                  aria-label="Previous page"
+                                  disabled={currentHistoryPage <= 1}
+                                  onClick={() => setHistoryPage((p) => Math.max(1, p - 1))}
+                                  className={cn(
+                                    "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
+                                    btnCyan,
+                                    currentHistoryPage <= 1 && "opacity-50 cursor-not-allowed"
+                                  )}
+                                >
+                                  Previous
+                                </button>
+                                <span className={cn("text-sm font-medium", muted)}>
+                                  Page {currentHistoryPage} of {historyTotalPages}
+                                </span>
+                                <button
+                                  type="button"
+                                  aria-label="Next page"
+                                  disabled={currentHistoryPage >= historyTotalPages}
+                                  onClick={() => setHistoryPage((p) => Math.min(historyTotalPages, p + 1))}
+                                  className={cn(
+                                    "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
+                                    btnCyan,
+                                    currentHistoryPage >= historyTotalPages && "opacity-50 cursor-not-allowed"
+                                  )}
+                                >
+                                  Next
+                                </button>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                        {past.length > 0 && (
-                          <div className="space-y-4">
-                            {future.length > 0 && (
-                              <div className={cn("border-t pt-4", isDark ? "border-[rgba(255,255,255,0.06)]" : "border-[#ddd2ea]")} />
                             )}
-                            <p className={cn("text-xs font-semibold uppercase tracking-widest", muted)}>
-                              Past & Cancelled
-                            </p>
-                            {past.map((ride) => (
-                              <RideCard
-                                key={ride.id}
-                                ride={ride}
-                                dark={isDark}
-                                showActions
-                                onCancel={handleCancelRide}
-                                onToggleAvailability={handleToggleAvailability}
-                                onUpdateSeats={handleUpdateSeats}
-                                onShare={handleShareRide}
-                              />
-                            ))}
                           </div>
-                        )}
-                        {myRides.length === 0 && (
-                          <p className={cn("text-center text-lg", muted)}>
-                            You haven't posted any rides yet.
-                          </p>
                         )}
                       </div>
-                    );
-                  })()}
+                    )}
+                  </div>
                 </div>
               </section>
             </ProtectedRoute>
