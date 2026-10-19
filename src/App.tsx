@@ -123,6 +123,14 @@ function formatDeparture(ts: Timestamp): string {
     d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false });
 }
 
+function formatShortDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+  });
+}
+
 // If both locations are campus locations, treat them as interchangeable
 // since RHR/BHR/MHR/L-Gate/Main Gate are all walkable from each other.
 function locationsMatch(searchLoc: string, rideLoc: string): boolean {
@@ -421,12 +429,14 @@ function App() {
   const [postDate, setPostDate] = useState("");
   const [postTime, setPostTime] = useState("");
   const [postFrom, setPostFrom] = useState("");
+  const [postPrefill, setPostPrefill] = useState<{ date: string; from: string; to: string; nonce: number } | null>(null);
 
   // ── Search state ───────────────────────────────────────────────────────────
   const [searchResults, setSearchResults] = useState<Ride[]>([]);
   const [searchMessage, setSearchMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchDate, setSearchDate] = useState("");
+  const [emptySearch, setEmptySearch] = useState<{ date: string; from: string; to: string } | null>(null);
   const [sharedRide, setSharedRide] = useState<Ride | null>(null);
   const [sharedRideError, setSharedRideError] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
@@ -546,8 +556,15 @@ function App() {
       setSearchMessage("");
       setSearchDate("");
     }
+    if (location.pathname !== "/search") {
+      setEmptySearch(null);
+    }
     if (location.pathname !== "/post") {
       setPostMessage("");
+      setPostPrefill(null);
+      setPostDate("");
+      setPostTime("");
+      setPostFrom("");
     }
   }, [location.pathname]);
 
@@ -724,6 +741,7 @@ function App() {
 
       // 3. UI CLEANUP (Safe to run because form is safely stored)
       setPostMessage("Ride posted! Others can now find and contact you.");
+      setPostPrefill(null);
       setPostDate("");
       setPostTime("");
       setPostFrom("");
@@ -742,6 +760,7 @@ function App() {
 
   const handleSearchRide = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setEmptySearch(null);
     setSharedRideError("");
     const fd = new FormData(event.currentTarget);
 
@@ -787,16 +806,57 @@ function App() {
         .sort((a, b) => a.departureAt.seconds - b.departureAt.seconds); // In-memory sort by departure time
 
       setSearchResults(matches);
+      if (matches.length === 0) {
+        setEmptySearch({ date, from, to });
+      }
       setSearchMessage(
         matches.length === 0
           ? "No rides found. Try broadening your search or post one yourself!"
           : `Found ${matches.length} ride${matches.length > 1 ? "s" : ""}.`,
       );
     } catch {
+      setEmptySearch(null);
       setSearchMessage("Could not fetch rides. Please check your connection.");
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleEmptySearchPost = () => {
+    if (!emptySearch) return;
+
+    const validDate =
+      emptySearch.date && emptySearch.date >= getLocalDateISO()
+        ? emptySearch.date
+        : "";
+
+    const validFrom =
+      (COLLEGE_LOCATIONS as readonly string[]).includes(emptySearch.from) ||
+      (TRANSIT_LOCATIONS as readonly string[]).includes(emptySearch.from)
+        ? emptySearch.from
+        : "";
+
+    const availableToOptions: readonly string[] = (
+      COLLEGE_LOCATIONS as readonly string[]
+    ).includes(validFrom)
+      ? TRANSIT_LOCATIONS
+      : validFrom !== ""
+        ? COLLEGE_LOCATIONS
+        : ALL_LOCATIONS;
+
+    const validTo = availableToOptions.includes(emptySearch.to)
+      ? emptySearch.to
+      : "";
+
+    setPostPrefill({
+      date: validDate,
+      from: validFrom,
+      to: validTo,
+      nonce: Date.now(),
+    });
+    setPostDate(validDate);
+    setPostFrom(validFrom);
+    navigate("/post");
   };
 
   // ── My Rides handlers ──────────────────────────────────────────────────────
@@ -1245,8 +1305,14 @@ function App() {
                   <form className="space-y-4" onSubmit={handlePostRide}>
                     {/* ── From ── */}
                     <div className="relative w-full">
-                      <select name="from" required defaultValue="" className="field-input !pr-12 appearance-none w-full"
-                        onChange={e => { setPostFrom(e.target.value); }}>
+                      <select
+                        key={`from-${postPrefill?.nonce ?? 0}`}
+                        name="from"
+                        required
+                        defaultValue={postPrefill?.from ?? ""}
+                        className="field-input !pr-12 appearance-none w-full"
+                        onChange={e => { setPostFrom(e.target.value); }}
+                      >
                         <option value="" disabled>Select departure location</option>
                         <optgroup label="Campus">
                           {COLLEGE_LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
@@ -1260,7 +1326,13 @@ function App() {
 
                     {/* ── To ── */}
                     <div className="relative w-full">
-                      <select name="to" required defaultValue="" className="field-input !pr-12 appearance-none w-full">
+                      <select
+                        key={`to-${postPrefill?.nonce ?? 0}-${postFrom}`}
+                        name="to"
+                        required
+                        defaultValue={postPrefill && postFrom === postPrefill.from ? postPrefill.to : ""}
+                        className="field-input !pr-12 appearance-none w-full"
+                      >
                         <option value="" disabled>Select destination</option>
                         {(COLLEGE_LOCATIONS.includes(postFrom as any)
                           ? TRANSIT_LOCATIONS
@@ -1278,8 +1350,10 @@ function App() {
                         {postDate || "Departure Date"}
                       </span>
                       <input
+                        key={`date-${postPrefill?.nonce ?? 0}`}
                         name="date"
                         type="date"
+                        defaultValue={postPrefill?.date ?? ""}
                         min={todayISO}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         onClick={(e) => {
@@ -1532,15 +1606,15 @@ function App() {
                   {searchMessage && (
                     <div className="mt-6 text-center space-y-3">
                       <p className={cn("text-xl", muted)}>{searchMessage}</p>
-                      {searchResults.length === 0 && !isSearching && searchMessage.startsWith("No rides") && (
+                      {emptySearch !== null && (
                         <div className="space-y-2">
                           <p className={cn("text-sm", muted)}>Be the first to post one.</p>
                           <button
                             type="button"
-                            onClick={() => navigate("/post")}
+                            onClick={handleEmptySearchPost}
                             className={cn("rounded-full px-6 py-2 text-sm font-semibold transition-all", btnMain)}
                           >
-                            Post Ride
+                            Post a ride for {formatShortDate(emptySearch.date)}
                           </button>
                         </div>
                       )}
