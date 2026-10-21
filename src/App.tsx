@@ -37,6 +37,10 @@ import {
   incrementContactClicks,
   getUserProfile,
   saveUserContact,
+  getUserAlerts,
+  createRideAlert,
+  deleteRideAlert,
+  markAlertRidesSeen,
   type UserProfile,
 } from "./db";
 import { Avatar } from "./components/Avatar";
@@ -53,7 +57,21 @@ import {
   LinkedInIcon,
   GitHubIcon,
   FeedbackIcon,
+  BellIcon,
+  TrashIcon,
 } from "./components/icons";
+import {
+  COLLEGE_LOCATIONS,
+  TRANSIT_LOCATIONS,
+  locationsMatch,
+  MAX_ALERTS,
+  MAX_SEEN_IDS,
+  ALERT_COOLDOWN_MS,
+  buildAlertId,
+  isRideEligibleForAlert,
+  getUnreadRideIds,
+  type RideAlert,
+} from "./utils/alertUtils";
 import type { Ride, VehicleType } from "./types";
 import { cn } from "./utils/cn";
 import {
@@ -71,24 +89,6 @@ declare const showToast: any;
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ALLOWED_EMAIL_DOMAIN = "iitbbs.ac.in";
-
-// ─── LOCATION LISTS ───────────────────────────────────────────────────────────
-//  Kept as two separate arrays so the from/to dropdowns can still show both,
-//  but it's easier to reason about which side is "campus" vs "transit hub".
-const COLLEGE_LOCATIONS = [
-  "RHR",
-  "BHR",
-  "MHR",
-  "L-Gate",
-  "Main Gate",
-] as const;
-
-const TRANSIT_LOCATIONS = [
-  "Khurda Road Junction Railway Station",
-  "Bhubaneswar Railway Station",
-  "Biju Patnaik International Airport",
-  "Baramunda ISBT (BSABT)",
-] as const;
 
 // Both dropdowns offer all locations so rides can go in either direction.
 const ALL_LOCATIONS = [...COLLEGE_LOCATIONS, ...TRANSIT_LOCATIONS];
@@ -129,15 +129,6 @@ function formatShortDate(dateStr: string): string {
     day: "numeric",
     month: "short",
   });
-}
-
-// If both locations are campus locations, treat them as interchangeable
-// since RHR/BHR/MHR/L-Gate/Main Gate are all walkable from each other.
-function locationsMatch(searchLoc: string, rideLoc: string): boolean {
-  if (searchLoc === rideLoc) return true;
-  const campusSet = new Set(COLLEGE_LOCATIONS as readonly string[]);
-  if (campusSet.has(searchLoc) && campusSet.has(rideLoc)) return true;
-  return false;
 }
 
 
@@ -402,6 +393,239 @@ function ProtectedRoute({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// WATCHED SEARCHES (ALERTS) PAGE COMPONENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface AlertsPageProps {
+  alerts: RideAlert[];
+  alertMatches: Record<string, Ride[]>;
+  uid: string;
+  loading: boolean;
+  error: boolean;
+  isDark: boolean;
+  cardBg: string;
+  heading: string;
+  muted: string;
+  btnMain: string;
+  btnCyan: string;
+  renderRide: (ride: Ride) => React.ReactNode;
+  onDelete: (alertId: string) => Promise<void>;
+  onSeen: (alertId: string, newlySeenIds: string[]) => void;
+  onRefresh: () => void;
+}
+
+function AlertsPage({
+  alerts,
+  alertMatches,
+  uid,
+  loading,
+  error,
+  isDark,
+  cardBg,
+  heading,
+  muted,
+  btnMain,
+  renderRide,
+  onDelete,
+  onSeen,
+  onRefresh,
+}: AlertsPageProps) {
+  const navigate = useNavigate();
+  const newIdsRef = useRef<Record<string, Set<string>>>({});
+  const stampedRef = useRef<Set<string>>(new Set());
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteErrorId, setDeleteErrorId] = useState<string | null>(null);
+
+  useEffect(() => {
+    for (const alert of alerts) {
+      const allRides = alertMatches[alert.date] || [];
+      const eligibleRides = allRides.filter((r) =>
+        isRideEligibleForAlert(r, alert, uid, Math.floor(Date.now() / 1000))
+      );
+      const unread = getUnreadRideIds(eligibleRides, alert);
+      if (unread.length === 0) continue;
+
+      if (!newIdsRef.current[alert.id]) {
+        newIdsRef.current[alert.id] = new Set();
+      }
+      for (const id of unread) {
+        newIdsRef.current[alert.id].add(id);
+      }
+
+      const toStamp = unread.filter((id) => !stampedRef.current.has(`${alert.id}:${id}`));
+      if (toStamp.length > 0) {
+        for (const id of toStamp) {
+          stampedRef.current.add(`${alert.id}:${id}`);
+        }
+        markAlertRidesSeen(alert.id, [...alert.seenRideIds, ...toStamp], alert.firstMatchSeenAt == null).catch(() => {});
+        onSeen(alert.id, toStamp);
+      }
+    }
+  }, [alerts, alertMatches, uid, onSeen]);
+
+  const handleDelete = async (alertId: string) => {
+    setDeleteErrorId(null);
+    setDeletingId(alertId);
+    try {
+      await onDelete(alertId);
+    } catch {
+      setDeleteErrorId(alertId);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const newBadgeClass = isDark
+    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+    : "bg-cyan-100 text-cyan-800 border border-cyan-300";
+
+  return (
+    <section className="mx-auto flex min-h-[85vh] w-full max-w-4xl animate-rise flex-col">
+      <BackButton onClick={() => navigate("/")} dark={isDark} />
+      <div className="mx-auto w-full max-w-2xl space-y-6">
+        <div className={cn("rounded-3xl p-6 md:p-8 shadow-xl", cardBg)}>
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <h2 className={cn("text-2xl md:text-3xl font-bold", heading)}>
+              Watched searches
+            </h2>
+            <button
+              type="button"
+              aria-label="Refresh alerts"
+              onClick={onRefresh}
+              disabled={loading}
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-full transition-all focus:outline-none",
+                isDark
+                  ? "bg-[#1A2540] text-slate-300 hover:text-white border border-[rgba(255,255,255,0.06)]"
+                  : "bg-slate-100 text-slate-600 hover:text-slate-900 border border-[#ddd2ea]",
+                loading && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              <RefreshIcon className={cn("h-5 w-5", loading && "animate-spin")} />
+            </button>
+          </div>
+
+          {loading && (
+            <div className="mb-4 text-center">
+              <span className={cn("text-xs tracking-wide animate-pulse", muted)}>
+                Checking for updates…
+              </span>
+            </div>
+          )}
+
+          {error && alerts.length === 0 ? (
+            <div className="text-center py-8 space-y-3">
+              <p className={cn("text-lg", muted)}>Couldn't load your alerts.</p>
+              <button
+                type="button"
+                onClick={onRefresh}
+                className={cn("rounded-full px-6 py-2 text-sm font-semibold transition-all", btnMain)}
+              >
+                Retry
+              </button>
+            </div>
+          ) : !loading && alerts.length === 0 ? (
+            <div className="text-center py-8 space-y-3">
+              <p className={cn("text-lg", muted)}>You aren't watching any searches yet.</p>
+              <button
+                type="button"
+                onClick={() => navigate("/search")}
+                className={cn("rounded-full px-6 py-2 text-sm font-semibold transition-all", btnMain)}
+              >
+                Search rides
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {alerts.map((alert) => {
+                const allRides = alertMatches[alert.date] || [];
+                const eligibleRides = allRides
+                  .filter((r) =>
+                    isRideEligibleForAlert(r, alert, uid, Math.floor(Date.now() / 1000))
+                  )
+                  .sort((a, b) => a.departureAt.seconds - b.departureAt.seconds);
+
+                const currentUnreadSet = new Set(getUnreadRideIds(eligibleRides, alert));
+
+                return (
+                  <div
+                    key={alert.id}
+                    className={cn(
+                      "rounded-2xl p-4 md:p-5 border transition-all",
+                      isDark
+                        ? "border-[rgba(255,255,255,0.08)] bg-[#10172A]"
+                        : "border-[#e0d6ed] bg-white/70"
+                    )}
+                  >
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                      <div className="min-w-0">
+                        <span className={cn("font-semibold text-base md:text-lg block", heading)}>
+                          {formatShortDate(alert.date)} · {alert.from || "Any"} to {alert.to || "Any"}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        aria-label="Stop watching this search"
+                        disabled={loading || deletingId === alert.id}
+                        onClick={() => handleDelete(alert.id)}
+                        className={cn(
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all",
+                          isDark
+                            ? "text-slate-400 hover:text-red-400 hover:bg-red-950/30"
+                            : "text-slate-500 hover:text-red-600 hover:bg-red-50",
+                          (loading || deletingId === alert.id) && "opacity-50 cursor-not-allowed"
+                        )}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    {deleteErrorId === alert.id && (
+                      <p className="text-xs text-red-500 mb-2">
+                        Could not remove alert. Please try again.
+                      </p>
+                    )}
+
+                    {eligibleRides.length === 0 ? (
+                      <p className={cn("text-sm py-2 italic", muted)}>Watching, nothing yet.</p>
+                    ) : (
+                      <div className="space-y-3 mt-3">
+                        {eligibleRides.map((ride) => {
+                          const isNew =
+                            currentUnreadSet.has(ride.id) ||
+                            Boolean(newIdsRef.current[alert.id]?.has(ride.id));
+                          return (
+                            <div key={ride.id} className="relative space-y-1">
+                              {isNew && (
+                                <div className="flex justify-end mb-1">
+                                  <span
+                                    className={cn(
+                                      "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider",
+                                      newBadgeClass
+                                    )}
+                                  >
+                                    New
+                                  </span>
+                                </div>
+                              )}
+                              {renderRide(ride)}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MAIN APP COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -441,6 +665,18 @@ function App() {
   const [sharedRideError, setSharedRideError] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // ── Alerts state ───────────────────────────────────────────────────────────
+  const [alerts, setAlerts] = useState<RideAlert[]>([]);
+  const [alertMatches, setAlertMatches] = useState<Record<string, Ride[]>>({});
+  const [alertsLoading, setAlertsLoading] = useState(false);
+  const [alertsLoaded, setAlertsLoaded] = useState(false);
+  const [alertsError, setAlertsError] = useState(false);
+  const [creatingAlert, setCreatingAlert] = useState(false);
+  const [watchMessage, setWatchMessage] = useState<{ text: string; showLink: boolean } | null>(null);
+  const lastAlertCheckRef = useRef<number>(0);
+  const inFlightUidRef = useRef<string | null>(null);
+  const refetchAfterRef = useRef<boolean>(false);
+
   // ── My Rides state ─────────────────────────────────────────────────────────
   const [myRides, setMyRides] = useState<Ride[]>([]);
   const [myRidesLoading, setMyRidesLoading] = useState(false);
@@ -478,6 +714,70 @@ function App() {
 
   const todayISO = getLocalDateISO();
   const minPostTime = postDate === todayISO ? getLocalTimeHHMM() : undefined;
+
+  // ── Alerts data fetcher ─────────────────────────────────────────────────────
+
+  const fetchAlertsData = async (uid: string): Promise<Record<string, Ride[]> | null> => {
+    if (inFlightUidRef.current === uid) {
+      refetchAfterRef.current = true;
+      return null;
+    }
+    inFlightUidRef.current = uid;
+    setAlertsLoading(true);
+    setAlertsError(false);
+    try {
+      const fetchedAlerts = await getUserAlerts(uid);
+      if (auth.currentUser?.uid !== uid) return null;
+
+      const today = getLocalDateISO();
+      for (const a of fetchedAlerts) {
+        if (a.date < today) {
+          deleteRideAlert(a.id).catch(() => {});
+        }
+      }
+
+      const validAlerts = fetchedAlerts.filter((a) => a.date >= today).slice(0, MAX_ALERTS);
+
+      if (validAlerts.length === 0) {
+        setAlerts([]);
+        setAlertMatches({});
+        setAlertsLoaded(true);
+        setAlertsError(false);
+        lastAlertCheckRef.current = Date.now();
+        return {};
+      }
+
+      const distinctDates = Array.from(new Set(validAlerts.map((a) => a.date)));
+      const ridesByDate = await Promise.all(distinctDates.map((d) => getRidesByDate(d)));
+      if (auth.currentUser?.uid !== uid) return null;
+
+      const newMatches: Record<string, Ride[]> = {};
+      distinctDates.forEach((date, i) => {
+        newMatches[date] = ridesByDate[i];
+      });
+
+      setAlerts(validAlerts);
+      setAlertMatches(newMatches);
+      setAlertsLoaded(true);
+      setAlertsError(false);
+      lastAlertCheckRef.current = Date.now();
+      return newMatches;
+    } catch {
+      if (auth.currentUser?.uid === uid) {
+        setAlertsError(true);
+      }
+      return null;
+    } finally {
+      if (inFlightUidRef.current === uid) {
+        inFlightUidRef.current = null;
+        setAlertsLoading(false);
+        if (refetchAfterRef.current && auth.currentUser?.uid === uid) {
+          refetchAfterRef.current = false;
+          void fetchAlertsData(uid);
+        }
+      }
+    }
+  };
 
   // ── Effects ────────────────────────────────────────────────────────────────
 
@@ -536,8 +836,19 @@ function App() {
     setContactStatusMessage("");
     setIsSavingContact(false);
 
+    setAlerts([]);
+    setAlertMatches({});
+    setAlertsLoaded(false);
+    setAlertsError(false);
+    setAlertsLoading(false);
+    setWatchMessage(null);
+    lastAlertCheckRef.current = 0;
+    inFlightUidRef.current = null;
+    refetchAfterRef.current = false;
+
     if (currentUser?.uid) {
       loadUserProfile(currentUser.uid);
+      void fetchAlertsData(currentUser.uid);
     } else {
       setProfileStatus("idle");
     }
@@ -549,6 +860,37 @@ function App() {
     loadMyRides();
   }, [location.pathname, currentUser]);
 
+  // Refetch alerts on navigating to /alerts if cooldown passed
+  useEffect(() => {
+    if (
+      location.pathname === "/alerts" &&
+      currentUser?.uid &&
+      lastAlertCheckRef.current > 0 &&
+      Date.now() - lastAlertCheckRef.current > 10000
+    ) {
+      void fetchAlertsData(currentUser.uid);
+    }
+  }, [location.pathname, currentUser?.uid]);
+
+  // Refetch alerts on tab visibility change if cooldown passed
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === "visible" &&
+        currentUser?.uid &&
+        alerts.length > 0 &&
+        Date.now() - lastAlertCheckRef.current > ALERT_COOLDOWN_MS
+      ) {
+        void fetchAlertsData(currentUser.uid);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [currentUser?.uid, alerts.length]);
+
   // Search state reset when navigating to /search.
   useEffect(() => {
     if (location.pathname === "/search") {
@@ -558,6 +900,7 @@ function App() {
     }
     if (location.pathname !== "/search") {
       setEmptySearch(null);
+      setWatchMessage(null);
     }
     if (location.pathname !== "/post") {
       setPostMessage("");
@@ -761,6 +1104,7 @@ function App() {
   const handleSearchRide = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setEmptySearch(null);
+    setWatchMessage(null);
     setSharedRideError("");
     const fd = new FormData(event.currentTarget);
 
@@ -858,6 +1202,71 @@ function App() {
     setPostFrom(validFrom);
     navigate("/post");
   };
+
+  const handleWatchSearch = async () => {
+    const uid = currentUser?.uid;
+    if (!uid || !emptySearch || creatingAlert) return;
+    setCreatingAlert(true);
+    setWatchMessage(null);
+    try {
+      const created = await createRideAlert(uid, emptySearch.date, emptySearch.from, emptySearch.to);
+      setAlerts((prev) =>
+        prev.some((a) => a.id === created.id) ? prev : [...prev, created].slice(0, MAX_ALERTS)
+      );
+      const freshMatches = await fetchAlertsData(uid);
+      const dateRides = (freshMatches ? freshMatches[created.date] : alertMatches[created.date]) || [];
+      const hasEligible = dateRides.some((r) =>
+        isRideEligibleForAlert(r, created, uid, Math.floor(Date.now() / 1000))
+      );
+      if (hasEligible) {
+        setWatchMessage({ text: "A matching ride was just posted.", showLink: true });
+      } else {
+        setWatchMessage({
+          text: "Watching. New matches will show up here the next time you open IITransit.",
+          showLink: false,
+        });
+      }
+    } catch {
+      setWatchMessage({ text: "Could not save. Please try again.", showLink: false });
+    } finally {
+      setCreatingAlert(false);
+    }
+  };
+
+  const handleDeleteAlert = async (alertId: string) => {
+    await deleteRideAlert(alertId);
+    setAlerts((prev) => prev.filter((a) => a.id !== alertId));
+  };
+
+  const handleAlertSeen = (alertId: string, newlySeenIds: string[]) => {
+    setAlerts((prev) =>
+      prev.map((a) =>
+        a.id === alertId
+          ? {
+              ...a,
+              seenRideIds: Array.from(new Set([...a.seenRideIds, ...newlySeenIds])).slice(-MAX_SEEN_IDS),
+              firstMatchSeenAt: a.firstMatchSeenAt ?? Timestamp.now(),
+            }
+          : a
+      )
+    );
+  };
+
+  const unreadAlertCount = useMemo(() => {
+    const uid = currentUser?.uid;
+    if (!uid) return 0;
+    const nowSec = Math.floor(Date.now() / 1000);
+    let count = 0;
+    for (const alert of alerts) {
+      const eligibleRides = (alertMatches[alert.date] || []).filter((r) =>
+        isRideEligibleForAlert(r, alert, uid, nowSec)
+      );
+      if (getUnreadRideIds(eligibleRides, alert).length > 0) {
+        count++;
+      }
+    }
+    return count;
+  }, [currentUser?.uid, alerts, alertMatches]);
 
   // ── My Rides handlers ──────────────────────────────────────────────────────
 
@@ -1149,6 +1558,25 @@ function App() {
                 {/* Auth area */}
                 {currentUser ? (
                   <div className="flex items-center gap-3">
+                    {alerts.length > 0 && (
+                      <button
+                        type="button"
+                        aria-label={unreadAlertCount > 0 ? `Alerts, ${unreadAlertCount} new` : "Alerts"}
+                        onClick={() => navigate("/alerts")}
+                        className={cn(
+                          "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50",
+                          isDark
+                            ? "bg-[#121A2E] text-[#F8FAFC] border border-[rgba(255,255,255,0.06)] hover:bg-[#1a2540]"
+                            : "bg-white/80 text-slate-700 border border-[#ddd2ea] hover:bg-white"
+                        )}
+                      >
+                        <BellIcon className="h-5 w-5" />
+                        {unreadAlertCount > 0 && (
+                          <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500" />
+                        )}
+                      </button>
+                    )}
+
                     <button
                       type="button"
                       aria-label="Open profile"
@@ -1606,18 +2034,91 @@ function App() {
                   {searchMessage && (
                     <div className="mt-6 text-center space-y-3">
                       <p className={cn("text-xl", muted)}>{searchMessage}</p>
-                      {emptySearch !== null && (
-                        <div className="space-y-2">
-                          <p className={cn("text-sm", muted)}>Be the first to post one.</p>
-                          <button
-                            type="button"
-                            onClick={handleEmptySearchPost}
-                            className={cn("rounded-full px-6 py-2 text-sm font-semibold transition-all", btnMain)}
-                          >
-                            Post a ride for {formatShortDate(emptySearch.date)}
-                          </button>
-                        </div>
-                      )}
+                      {emptySearch !== null && (() => {
+                        const uid = currentUser?.uid ?? "";
+                        const currentAlertId = uid && emptySearch ? buildAlertId(uid, emptySearch.date, emptySearch.from, emptySearch.to) : "";
+                        const isWatching = alerts.some((a) => a.id === currentAlertId);
+                        const isCapReached = !isWatching && alerts.length >= MAX_ALERTS;
+
+                        let watchBtnLabel = "Watch this search";
+                        let watchBtnDisabled = false;
+                        let onWatchClick: () => void = handleWatchSearch;
+
+                        if (!alertsLoaded && alertsError) {
+                          watchBtnLabel = "Couldn't load, tap to retry";
+                          watchBtnDisabled = false;
+                          onWatchClick = () => { if (uid) void fetchAlertsData(uid); };
+                        } else if (!alertsLoaded || alertsLoading) {
+                          watchBtnLabel = "Loading...";
+                          watchBtnDisabled = true;
+                        } else if (isWatching) {
+                          watchBtnLabel = "Watching ✓";
+                          watchBtnDisabled = true;
+                        } else if (isCapReached) {
+                          watchBtnLabel = "Watch this search";
+                          watchBtnDisabled = true;
+                        } else if (creatingAlert) {
+                          watchBtnLabel = "Saving...";
+                          watchBtnDisabled = true;
+                        } else {
+                          watchBtnLabel = "Watch this search";
+                          watchBtnDisabled = false;
+                          onWatchClick = handleWatchSearch;
+                        }
+
+                        return (
+                          <div className="space-y-3">
+                            <p className={cn("text-sm", muted)}>Be the first to post one.</p>
+                            <div className="flex flex-wrap items-center justify-center gap-3">
+                              <button
+                                type="button"
+                                onClick={handleEmptySearchPost}
+                                className={cn("rounded-full px-6 py-2 text-sm font-semibold transition-all", btnMain)}
+                              >
+                                Post a ride for {formatShortDate(emptySearch.date)}
+                              </button>
+                              {Boolean(emptySearch.date) && (
+                                <button
+                                  type="button"
+                                  disabled={watchBtnDisabled}
+                                  onClick={onWatchClick}
+                                  className={cn(
+                                    "rounded-full px-6 py-2 text-sm font-semibold transition-all",
+                                    btnCyan,
+                                    watchBtnDisabled && "opacity-60 cursor-not-allowed"
+                                  )}
+                                >
+                                  {watchBtnLabel}
+                                </button>
+                              )}
+                            </div>
+                            {isCapReached && (
+                              <p className={cn("text-xs", muted)}>
+                                You can watch up to 5 searches. Remove one on the alerts page.
+                              </p>
+                            )}
+                            {watchMessage && (
+                              <div className="space-y-1 text-sm">
+                                <p className={cn(isDark ? "text-slate-300" : "text-slate-700")}>
+                                  {watchMessage.text}
+                                </p>
+                                {watchMessage.showLink && (
+                                  <button
+                                    type="button"
+                                    onClick={() => navigate("/alerts")}
+                                    className={cn(
+                                      "font-semibold underline underline-offset-2 transition-colors",
+                                      isDark ? "text-cyan-400 hover:text-cyan-300" : "text-cyan-700 hover:text-cyan-800"
+                                    )}
+                                  >
+                                    View on alerts page →
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
 
@@ -1886,6 +2387,44 @@ function App() {
                   </div>
                 </div>
               </section>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ════════════════════════════════════════════════════════════════════
+            WATCHED SEARCHES (ALERTS)
+        ════════════════════════════════════════════════════════════════════ */}
+        <Route
+          path="/alerts"
+          element={
+            <ProtectedRoute currentUser={currentUser} authLoading={authLoading}>
+              <AlertsPage
+                alerts={alerts}
+                alertMatches={alertMatches}
+                uid={currentUser?.uid ?? ""}
+                loading={alertsLoading}
+                error={alertsError}
+                isDark={isDark}
+                cardBg={cardBg}
+                heading={heading}
+                muted={muted}
+                btnMain={btnMain}
+                btnCyan={btnCyan}
+                renderRide={(ride) => (
+                  <RideCard
+                    key={ride.id}
+                    ride={ride}
+                    dark={isDark}
+                    onShare={handleShareRide}
+                    onContactReveal={handleContactReveal}
+                  />
+                )}
+                onDelete={handleDeleteAlert}
+                onSeen={handleAlertSeen}
+                onRefresh={() => {
+                  if (currentUser?.uid) void fetchAlertsData(currentUser.uid);
+                }}
+              />
             </ProtectedRoute>
           }
         />

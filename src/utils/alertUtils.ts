@@ -61,7 +61,7 @@ export function isRideEligibleForAlert(
   if (ride.date !== alert.date) return false;
   if (ride.status !== "active") return false;
   if (ride.departureAt.seconds < nowSeconds) return false;
-  if (ride.availableSeats <= 0 || ride.isAvailable === false) return false;
+  if ((ride.availableSeats ?? 0) <= 0 || ride.isAvailable === false) return false;
   if (ride.postedBy.uid === currentUid) return false;
 
   const alertFrom = alert.from.trim();
