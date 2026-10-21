@@ -589,7 +589,7 @@ function AlertsPage({
                     )}
 
                     {eligibleRides.length === 0 ? (
-                      <p className={cn("text-sm py-2 italic", muted)}>Watching, nothing yet.</p>
+                      <p className={cn("text-sm py-2", muted)}>Watching, nothing yet.</p>
                     ) : (
                       <div className="space-y-3 mt-3">
                         {eligibleRides.map((ride) => {
@@ -664,6 +664,7 @@ function App() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchDate, setSearchDate] = useState("");
   const [emptySearch, setEmptySearch] = useState<{ date: string; from: string; to: string } | null>(null);
+  const [searchCriteria, setSearchCriteria] = useState<{ date: string; from: string; to: string } | null>(null);
   const [sharedRide, setSharedRide] = useState<Ride | null>(null);
   const [sharedRideError, setSharedRideError] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
@@ -906,11 +907,13 @@ function App() {
       setSearchMessage("");
       setSearchDate("");
       setSearchPage(1);
+      setSearchCriteria(null);
     }
     if (location.pathname !== "/search") {
       setEmptySearch(null);
       setWatchMessage(null);
       setSearchPage(1);
+      setSearchCriteria(null);
     }
     if (location.pathname !== "/post") {
       setPostMessage("");
@@ -1114,6 +1117,7 @@ function App() {
   const handleSearchRide = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setEmptySearch(null);
+    setSearchCriteria(null);
     setWatchMessage(null);
     setSearchPage(1);
     setSharedRideError("");
@@ -1161,6 +1165,7 @@ function App() {
         .sort((a, b) => a.departureAt.seconds - b.departureAt.seconds); // In-memory sort by departure time
 
       setSearchResults(matches);
+      setSearchCriteria({ date, from, to });
       if (matches.length === 0) {
         setEmptySearch({ date, from, to });
       }
@@ -1216,11 +1221,12 @@ function App() {
 
   const handleWatchSearch = async () => {
     const uid = currentUser?.uid;
-    if (!uid || !emptySearch || creatingAlert) return;
+    const target = searchCriteria ?? emptySearch;
+    if (!uid || !target || creatingAlert) return;
     setCreatingAlert(true);
     setWatchMessage(null);
     try {
-      const created = await createRideAlert(uid, emptySearch.date, emptySearch.from, emptySearch.to);
+      const created = await createRideAlert(uid, target.date, target.from, target.to);
       setAlerts((prev) =>
         prev.some((a) => a.id === created.id) ? prev : [...prev, created].slice(0, MAX_ALERTS)
       );
@@ -2064,7 +2070,7 @@ function App() {
                     </button>
                   </form>
 
-                  {searchMessage && (
+                  {searchMessage && searchResults.length === 0 && (
                     <div className="mt-6 text-center space-y-3">
                       {emptySearch !== null ? (
                         <div className="space-y-1">
@@ -2163,25 +2169,81 @@ function App() {
                     </div>
                   )}
 
-                  {searchResults.length > 0 && (
-                    <div className="mt-6 space-y-4">
-                      {paginatedSearchResults.map((ride) => (
-                        <RideCard
-                          key={ride.id}
-                          ride={ride}
-                          dark={isDark}
-                          onShare={handleShareRide}
-                          onContactReveal={handleContactReveal}
-                        />
-                      ))}
-                      <Pagination
-                        currentPage={safeSearchPage}
-                        totalPages={totalSearchPages}
-                        onPageChange={setSearchPage}
-                        isDark={isDark}
-                      />
-                    </div>
-                  )}
+                  {searchResults.length > 0 && (() => {
+                    const uid = currentUser?.uid ?? "";
+                    const activeCriteria = searchCriteria ?? emptySearch;
+                    const currentAlertId = uid && activeCriteria ? buildAlertId(uid, activeCriteria.date, activeCriteria.from, activeCriteria.to) : "";
+                    const isWatching = alerts.some((a) => a.id === currentAlertId);
+                    const isCapReached = !isWatching && alerts.length >= MAX_ALERTS;
+                    const watchBtnDisabled = !alertsLoaded || alertsLoading || isWatching || isCapReached || creatingAlert;
+
+                    return (
+                      <div className="mt-6">
+                        <div className="mb-3 flex flex-wrap items-center gap-2 px-1 text-sm">
+                          <span className={cn("font-medium", isDark ? "text-slate-400" : "text-slate-600")}>
+                            {searchResults.length} {searchResults.length === 1 ? "ride" : "rides"} found
+                          </span>
+                          <span aria-hidden="true" className={isDark ? "text-slate-600" : "text-slate-300"}>
+                            ·
+                          </span>
+                          {isWatching ? (
+                            <span
+                              className={cn(
+                                "inline-flex items-center gap-1 font-medium cursor-default",
+                                isDark ? "text-emerald-400" : "text-emerald-600"
+                              )}
+                            >
+                              ✓ Watching
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={watchBtnDisabled}
+                              onClick={handleWatchSearch}
+                              title={isCapReached ? "You can watch up to 5 searches. Remove one on the alerts page." : undefined}
+                              className={cn(
+                                "inline-flex items-center gap-1.5 font-medium transition-colors",
+                                isDark ? "text-cyan-400 hover:text-cyan-300" : "text-cyan-700 hover:text-cyan-600",
+                                watchBtnDisabled && "opacity-50 cursor-not-allowed"
+                              )}
+                            >
+                              <BellIcon className="h-3.5 w-3.5 shrink-0" />
+                              {creatingAlert ? "Saving..." : "Watch this search"}
+                            </button>
+                          )}
+                        </div>
+
+                        {watchMessage && !watchMessage.showLink && watchMessage.text.includes("Could not save") && (
+                          <p className="mb-3 px-1 text-xs text-red-500">
+                            {watchMessage.text}
+                          </p>
+                        )}
+                        {isCapReached && !isWatching && (
+                          <p className={cn("mb-3 px-1 text-xs", muted)}>
+                            You can watch up to 5 searches. Remove one on the alerts page.
+                          </p>
+                        )}
+
+                        <div className="space-y-4">
+                          {paginatedSearchResults.map((ride) => (
+                            <RideCard
+                              key={ride.id}
+                              ride={ride}
+                              dark={isDark}
+                              onShare={handleShareRide}
+                              onContactReveal={handleContactReveal}
+                            />
+                          ))}
+                          <Pagination
+                            currentPage={safeSearchPage}
+                            totalPages={totalSearchPages}
+                            onPageChange={setSearchPage}
+                            isDark={isDark}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </section>
             </ProtectedRoute>
