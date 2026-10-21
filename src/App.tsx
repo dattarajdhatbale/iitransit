@@ -1166,7 +1166,7 @@ function App() {
       }
       setSearchMessage(
         matches.length === 0
-          ? "No rides found. Try broadening your search or post one yourself!"
+          ? "No rides found"
           : `Found ${matches.length} ride${matches.length > 1 ? "s" : ""}.`,
       );
     } catch {
@@ -1459,7 +1459,7 @@ function App() {
               )}
             >
               <span>
-                Your contact info was revealed {n} {n === 1 ? "time" : "times"}. If your ride is now full, update it to stop receiving messages.
+                Contact info viewed {n} {n === 1 ? "time" : "times"}. Mark as full to stop messages.
               </span>
               <button
                 type="button"
@@ -1600,7 +1600,12 @@ function App() {
                       >
                         <BellIcon className="h-5 w-5" />
                         {unreadAlertCount > 0 && (
-                          <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500" />
+                          <span
+                            className={cn(
+                              "absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-[#0B1020]",
+                              isDark ? "ring-[#0B1020]" : "ring-white"
+                            )}
+                          />
                         )}
                       </button>
                     )}
@@ -2061,7 +2066,16 @@ function App() {
 
                   {searchMessage && (
                     <div className="mt-6 text-center space-y-3">
-                      <p className={cn("text-xl", muted)}>{searchMessage}</p>
+                      {emptySearch !== null ? (
+                        <div className="space-y-1">
+                          <p className={cn("text-lg font-medium", heading)}>No rides found</p>
+                          <p className={cn("text-sm text-slate-500 dark:text-slate-400", isDark ? "text-slate-400" : "text-slate-500")}>
+                            Try adjusting your filters or post a ride.
+                          </p>
+                        </div>
+                      ) : (
+                        <p className={cn("text-xl", muted)}>{searchMessage}</p>
+                      )}
                       {emptySearch !== null && (() => {
                         const uid = currentUser?.uid ?? "";
                         const currentAlertId = uid && emptySearch ? buildAlertId(uid, emptySearch.date, emptySearch.from, emptySearch.to) : "";
@@ -2096,7 +2110,6 @@ function App() {
 
                         return (
                           <div className="space-y-3">
-                            <p className={cn("text-sm", muted)}>Be the first to post one.</p>
                             <div className="flex flex-wrap items-center justify-center gap-3">
                               <button
                                 type="button"
@@ -2294,7 +2307,7 @@ function App() {
                       )}
 
                       <p className={cn("text-xs leading-relaxed", muted)}>
-                        Used to pre-fill the Post a Ride form. Rides you've already posted keep the number they were posted with.
+                        Pre-fills new rides. Past rides keep their original number.
                       </p>
                     </form>
                   </div>
