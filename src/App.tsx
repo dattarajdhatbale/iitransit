@@ -80,8 +80,8 @@ import {
   sanitizeDigits,
   partitionRides,
   paginate,
-  PAGE_SIZE,
 } from "./utils/profileUtils";
+import { Pagination } from "./components/Pagination";
 
 declare const showToast: any;
 
@@ -90,6 +90,7 @@ declare const showToast: any;
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ALLOWED_EMAIL_DOMAIN = "iitbbs.ac.in";
+const SEARCH_PAGE_SIZE = 6;
 
 // Both dropdowns offer all locations so rides can go in either direction.
 const ALL_LOCATIONS = [...COLLEGE_LOCATIONS, ...TRANSIT_LOCATIONS];
@@ -658,6 +659,7 @@ function App() {
 
   // ── Search state ───────────────────────────────────────────────────────────
   const [searchResults, setSearchResults] = useState<Ride[]>([]);
+  const [searchPage, setSearchPage] = useState(1);
   const [searchMessage, setSearchMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchDate, setSearchDate] = useState("");
@@ -903,10 +905,12 @@ function App() {
       setSearchResults([]);
       setSearchMessage("");
       setSearchDate("");
+      setSearchPage(1);
     }
     if (location.pathname !== "/search") {
       setEmptySearch(null);
       setWatchMessage(null);
+      setSearchPage(1);
     }
     if (location.pathname !== "/post") {
       setPostMessage("");
@@ -1111,6 +1115,7 @@ function App() {
     event.preventDefault();
     setEmptySearch(null);
     setWatchMessage(null);
+    setSearchPage(1);
     setSharedRideError("");
     const fd = new FormData(event.currentTarget);
 
@@ -1368,6 +1373,23 @@ function App() {
   const { pageItems: historyPageItems, page: currentHistoryPage, totalPages: historyTotalPages } = useMemo(
     () => paginate(history, historyPage),
     [history, historyPage]
+  );
+
+  useEffect(() => {
+    if (historyPage > historyTotalPages) {
+      setHistoryPage(Math.max(1, historyTotalPages));
+    }
+  }, [historyPage, historyTotalPages]);
+
+  const totalSearchPages = Math.max(1, Math.ceil(searchResults.length / SEARCH_PAGE_SIZE));
+  const safeSearchPage = Math.min(searchPage, totalSearchPages);
+  const paginatedSearchResults = useMemo(
+    () =>
+      searchResults.slice(
+        (safeSearchPage - 1) * SEARCH_PAGE_SIZE,
+        safeSearchPage * SEARCH_PAGE_SIZE
+      ),
+    [searchResults, safeSearchPage]
   );
 
   const handleSaveContact = async (event: FormEvent<HTMLFormElement>) => {
@@ -2130,7 +2152,7 @@ function App() {
 
                   {searchResults.length > 0 && (
                     <div className="mt-6 space-y-4">
-                      {searchResults.map((ride) => (
+                      {paginatedSearchResults.map((ride) => (
                         <RideCard
                           key={ride.id}
                           ride={ride}
@@ -2139,6 +2161,12 @@ function App() {
                           onContactReveal={handleContactReveal}
                         />
                       ))}
+                      <Pagination
+                        currentPage={safeSearchPage}
+                        totalPages={totalSearchPages}
+                        onPageChange={setSearchPage}
+                        isDark={isDark}
+                      />
                     </div>
                   )}
                 </div>
@@ -2353,39 +2381,12 @@ function App() {
                               ))}
                             </div>
 
-                            {history.length > PAGE_SIZE && (
-                              <div className="flex items-center justify-between pt-2">
-                                <button
-                                  type="button"
-                                  aria-label="Previous page"
-                                  disabled={currentHistoryPage <= 1}
-                                  onClick={() => setHistoryPage((p) => Math.max(1, p - 1))}
-                                  className={cn(
-                                    "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
-                                    btnCyan,
-                                    currentHistoryPage <= 1 && "opacity-50 cursor-not-allowed"
-                                  )}
-                                >
-                                  Previous
-                                </button>
-                                <span className={cn("text-sm font-medium", muted)}>
-                                  Page {currentHistoryPage} of {historyTotalPages}
-                                </span>
-                                <button
-                                  type="button"
-                                  aria-label="Next page"
-                                  disabled={currentHistoryPage >= historyTotalPages}
-                                  onClick={() => setHistoryPage((p) => Math.min(historyTotalPages, p + 1))}
-                                  className={cn(
-                                    "rounded-full px-4 py-1.5 text-sm font-semibold transition-all",
-                                    btnCyan,
-                                    currentHistoryPage >= historyTotalPages && "opacity-50 cursor-not-allowed"
-                                  )}
-                                >
-                                  Next
-                                </button>
-                              </div>
-                            )}
+                            <Pagination
+                              currentPage={currentHistoryPage}
+                              totalPages={historyTotalPages}
+                              onPageChange={setHistoryPage}
+                              isDark={isDark}
+                            />
                           </div>
                         )}
                       </div>
