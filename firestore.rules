@@ -16,6 +16,35 @@ service cloud.firestore {
             || (request.resource.data.contact is string
                 && request.resource.data.contact.matches('[6-9][0-9]{9}')));
     }
+
+    match /alerts/{alertId} {
+      allow get: if isStudent()
+        && (resource == null
+            ? alertId.matches('^' + request.auth.uid + '_.*')
+            : resource.data.uid == request.auth.uid);
+      allow list, delete: if isStudent() && resource.data.uid == request.auth.uid;
+      allow create: if isStudent()
+        && request.resource.data.uid == request.auth.uid
+        && alertId.matches('^' + request.auth.uid + '_.*')
+        && request.resource.data.keys().hasOnly(['uid', 'date', 'from', 'to', 'createdAt', 'seenRideIds'])
+        && request.resource.data.date is string
+        && request.resource.data.date.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+        && request.resource.data.from is string
+        && request.resource.data.to is string
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.seenRideIds is list
+        && request.resource.data.seenRideIds.size() == 0;
+      allow update: if isStudent()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['seenRideIds', 'firstMatchSeenAt'])
+        && request.resource.data.seenRideIds is list
+        && request.resource.data.seenRideIds.size() <= 50
+        && (!('firstMatchSeenAt' in request.resource.data)
+            || (resource.data.get('firstMatchSeenAt', null) != null
+                ? request.resource.data.firstMatchSeenAt == resource.data.firstMatchSeenAt
+                : request.resource.data.firstMatchSeenAt == request.time));
+    }
+
     match /rides/{rideId} {
       allow read: if request.auth != null
                   && request.auth.token.email.matches('.*@iitbbs\\.ac\\.in');

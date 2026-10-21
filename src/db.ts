@@ -24,6 +24,7 @@ import {
   collection,
   addDoc,
   updateDoc,
+  deleteDoc,
   doc,
   getDoc,
   setDoc,
@@ -35,15 +36,19 @@ import {
   getDocs,
   Timestamp,
   increment,
+  type DocumentSnapshot,
 } from "firebase/firestore";
 
 import { db }             from "./firebase";
 import type { Ride, NewRide, UserProfile } from "./types";
-export type { UserProfile } from "./types";
+export type { Ride, UserProfile } from "./types";
+import { buildAlertId, MAX_SEEN_IDS, type RideAlert } from "./utils/alertUtils";
+export type { RideAlert } from "./utils/alertUtils";
 
 // The Firestore collection name. All rides live at /rides/{auto-id}
 const RIDES_COLLECTION = "rides";
 const USERS_COLLECTION = "users";
+const ALERTS_COLLECTION = "alerts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPER: convert an array of Firestore QueryDocumentSnapshots → Ride[]
@@ -214,4 +219,88 @@ export async function saveUserContact(uid: string, contact: string | null): Prom
     },
     { merge: true },
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEARCH ALERTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+function alertFromDoc(docSnap: DocumentSnapshot): RideAlert {
+  const data = docSnap.data() ?? {};
+  return {
+    id: docSnap.id,
+    uid: String(data.uid ?? ""),
+    date: String(data.date ?? ""),
+    from: String(data.from ?? ""),
+    to: String(data.to ?? ""),
+    createdAt: data.createdAt ?? null,
+    seenRideIds: Array.isArray(data.seenRideIds)
+      ? data.seenRideIds.filter((x: unknown): x is string => typeof x === "string")
+      : [],
+    firstMatchSeenAt: data.firstMatchSeenAt ?? null,
+  };
+}
+
+export async function getUserAlerts(uid: string): Promise<RideAlert[]> {
+  const q = query(
+    collection(db, ALERTS_COLLECTION),
+    where("uid", "==", uid)
+  );
+  const snapshot = await getDocs(q);
+  const alerts = snapshot.docs.map(alertFromDoc);
+  alerts.sort((a, b) => {
+    const dateCompare = a.date.localeCompare(b.date);
+    if (dateCompare !== 0) return dateCompare;
+    return (a.createdAt?.seconds ?? 0) - (b.createdAt?.seconds ?? 0);
+  });
+  return alerts;
+}
+
+export async function createRideAlert(
+  uid: string,
+  date: string,
+  from: string,
+  to: string
+): Promise<RideAlert> {
+  const id = buildAlertId(uid, date, from, to);
+  const alertRef = doc(db, ALERTS_COLLECTION, id);
+  const existing = await getDoc(alertRef);
+  if (existing.exists()) {
+    return alertFromDoc(existing);
+  }
+  await setDoc(alertRef, {
+    uid,
+    date,
+    from,
+    to,
+    createdAt: serverTimestamp(),
+    seenRideIds: [],
+  });
+  return {
+    id,
+    uid,
+    date,
+    from,
+    to,
+    createdAt: null,
+    seenRideIds: [],
+    firstMatchSeenAt: null,
+  };
+}
+
+export async function deleteRideAlert(alertId: string): Promise<void> {
+  await deleteDoc(doc(db, ALERTS_COLLECTION, alertId));
+}
+
+export async function markAlertRidesSeen(
+  alertId: string,
+  nextSeenRideIds: string[],
+  setFirstMatchSeen: boolean
+): Promise<void> {
+  const capped = Array.from(new Set(nextSeenRideIds)).slice(-MAX_SEEN_IDS);
+  const payload: Record<string, unknown> = { seenRideIds: capped };
+  if (setFirstMatchSeen) {
+    payload.firstMatchSeenAt = serverTimestamp();
+  }
+  await updateDoc(doc(db, ALERTS_COLLECTION, alertId), payload);
 }
