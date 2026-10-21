@@ -72,6 +72,7 @@ import {
   getUnreadRideIds,
   type RideAlert,
 } from "./utils/alertUtils";
+import { syncTimeOffset, getTrueTime } from "./utils/timeUtils";
 import type { Ride, VehicleType } from "./types";
 import { cn } from "./utils/cn";
 import {
@@ -440,7 +441,7 @@ function AlertsPage({
     for (const alert of alerts) {
       const allRides = alertMatches[alert.date] || [];
       const eligibleRides = allRides.filter((r) =>
-        isRideEligibleForAlert(r, alert, uid, Math.floor(Date.now() / 1000))
+        isRideEligibleForAlert(r, alert, uid, Math.floor(getTrueTime() / 1000))
       );
       const unread = getUnreadRideIds(eligibleRides, alert);
       if (unread.length === 0) continue;
@@ -541,7 +542,7 @@ function AlertsPage({
                 const allRides = alertMatches[alert.date] || [];
                 const eligibleRides = allRides
                   .filter((r) =>
-                    isRideEligibleForAlert(r, alert, uid, Math.floor(Date.now() / 1000))
+                    isRideEligibleForAlert(r, alert, uid, Math.floor(getTrueTime() / 1000))
                   )
                   .sort((a, b) => a.departureAt.seconds - b.departureAt.seconds);
 
@@ -696,6 +697,11 @@ function App() {
   const isPostingRef = useRef(false);
 
   const [installPrompt, setInstallPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    void syncTimeOffset();
+  }, []);
+
   useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
@@ -1216,7 +1222,7 @@ function App() {
       const freshMatches = await fetchAlertsData(uid);
       const dateRides = (freshMatches ? freshMatches[created.date] : alertMatches[created.date]) || [];
       const hasEligible = dateRides.some((r) =>
-        isRideEligibleForAlert(r, created, uid, Math.floor(Date.now() / 1000))
+        isRideEligibleForAlert(r, created, uid, Math.floor(getTrueTime() / 1000))
       );
       if (hasEligible) {
         setWatchMessage({ text: "A matching ride was just posted.", showLink: true });
@@ -1255,7 +1261,7 @@ function App() {
   const unreadAlertCount = useMemo(() => {
     const uid = currentUser?.uid;
     if (!uid) return 0;
-    const nowSec = Math.floor(Date.now() / 1000);
+    const nowSec = Math.floor(getTrueTime() / 1000);
     let count = 0;
     for (const alert of alerts) {
       const eligibleRides = (alertMatches[alert.date] || []).filter((r) =>
