@@ -1690,7 +1690,7 @@ function App() {
                   href="https://www.linkedin.com/in/dattarajdhatbale/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className={`inline-flex items-center justify-center transition-colors ${isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"}`}
+                  className={`inline-flex items-center justify-center transition-colors ${isDark ? "text-blue-400 hover:text-blue-300" : "text-[#0A66C2] hover:text-[#004182]"}`}
                   aria-label="Creator's LinkedIn"
                 >
                   <Linkedin className="h-5 w-5"/>
@@ -1709,7 +1709,7 @@ function App() {
                     )}
                   >
                     <FeedbackIcon />
-                    💬 / 💡/ 🐛
+                    / 💡/ 🐛
                   </a>
                 </div>
               </footer>
