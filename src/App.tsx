@@ -54,8 +54,7 @@ import {
   ChevronDownIcon,
   RefreshIcon,
   SpinnerIcon,
-  LinkedInIcon,
-  GitHubIcon,
+  Linkedin,
   FeedbackIcon,
   BellIcon,
   TrashIcon,
@@ -1678,7 +1677,7 @@ function App() {
 
               {/* ── Footer ── */}
               <footer className={cn(
-                "mt-8 flex flex-row items-center px-4 py-4 border-t sm:justify-between",
+                "mt-8 flex flex-row items-center justify-between px-4 py-4 border-t",
                 isDark
                   ? "border-[rgba(255,255,255,0.06)]"
                   : "border-[rgba(100,70,130,0.15)]",
@@ -1686,26 +1685,20 @@ function App() {
                 {/* Left — empty for balance */}
                 <div className="hidden sm:block sm:w-48" />
 
-                {/* Center — social icons */}
-                <div className="flex flex-1 items-center justify-center gap-5">
-                  {/* LinkedIn */}
-                  <a href="https://www.linkedin.com/in/dattarajdhatbale/" target="_blank" rel="noopener noreferrer"
-                    className={cn("transition-opacity hover:opacity-70",
-                      isDark ? "text-[#8B5CF6]" : "text-[#5a3d7a]")}>
-                    <LinkedInIcon />
-                  </a>
-
-                  {/* GitHub */}
-                  <a href="https://github.com/dattarajdhatbale/iitransit" target="_blank" rel="noopener noreferrer"
-                    className={cn("transition-opacity hover:opacity-70",
-                      isDark ? "text-[#8B5CF6]" : "text-[#5a3d7a]")}>
-                    <GitHubIcon />
-                  </a>
-                </div>
+                {/* Center — attribution */}
+                <a 
+                  href="https://www.linkedin.com/in/dattarajdhatbale/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center justify-center transition-colors ${isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"}`}
+                  aria-label="Creator's LinkedIn"
+                >
+                  <Linkedin className="h-5 w-5"/>
+                </a>
 
                 {/* Right — feedback button */}
                 <div className="flex justify-end sm:w-48">
-                  <a href="https://docs.google.com/forms/d/e/1FAIpQLSeet-8iazCjxWW6NFBJbTymvL3Grhx_rHKWJCiddUqWogUhWw/viewform"
+                  <a href="https://forms.gle/ecHCMBF3aQyRF4tE8"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cn(
@@ -1716,7 +1709,7 @@ function App() {
                     )}
                   >
                     <FeedbackIcon />
-                    Send Feedback
+                    💬 / 💡/ 🐛
                   </a>
                 </div>
               </footer>

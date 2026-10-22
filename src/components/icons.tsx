@@ -117,6 +117,8 @@ export function LinkedInIcon({ className = "h-6 w-6" }: IconProps) {
   );
 }
 
+export const Linkedin = LinkedInIcon;
+
 export function GitHubIcon({ className = "h-6 w-6" }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
