@@ -1683,21 +1683,21 @@ function App() {
                   : "border-[rgba(100,70,130,0.15)]",
               )}>
                 {/* Left — empty for balance */}
-                <div className="hidden sm:block sm:w-48" />
+                <div className="flex-1 sm:flex-none sm:w-48" />
 
                 {/* Center — attribution */}
                 <a 
                   href="https://www.linkedin.com/in/dattarajdhatbale/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className={`inline-flex items-center justify-center transition-colors ${isDark ? "text-blue-400 hover:text-blue-300" : "text-[#0A66C2] hover:text-[#004182]"}`}
+                  className={`inline-flex items-center justify-center transition-colors shrink-0 ${isDark ? "text-blue-400 hover:text-blue-300" : "text-[#0A66C2] hover:text-[#004182]"}`}
                   aria-label="Creator's LinkedIn"
                 >
                   <Linkedin className="h-5 w-5"/>
                 </a>
 
                 {/* Right — feedback button */}
-                <div className="flex justify-end sm:w-48">
+                <div className="flex flex-1 sm:flex-none justify-end sm:w-48">
                   <a href="https://forms.gle/ecHCMBF3aQyRF4tE8"
                     target="_blank"
                     rel="noopener noreferrer"
