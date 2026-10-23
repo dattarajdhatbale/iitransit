@@ -145,4 +145,4 @@ firestore.rules        Server-side schema, auth, and mutation security rules
 IITransit is actively maintained and improved based on student feedback.
 If you have a bug report, feature request, or suggestion, I'd really appreciate hearing from you:
 
-**[💡 Ideas / 🐛 Bugs — Submit Feedback](https://forms.gle/ecHCMBF3aQyRF4tE8)**
+**[💡 Ideas / 🐛 Bugs — Submit Feedback](https://forms.gle/tfoRdKjGRmBJkwSM9)**

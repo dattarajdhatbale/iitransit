@@ -1698,7 +1698,7 @@ function App() {
 
                 {/* Right — feedback button */}
                 <div className="flex flex-1 sm:flex-none justify-end sm:w-48">
-                  <a href="https://forms.gle/ecHCMBF3aQyRF4tE8"
+                  <a href="https://forms.gle/tfoRdKjGRmBJkwSM9"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cn(
