@@ -81,6 +81,7 @@ import {
   paginate,
 } from "./utils/profileUtils";
 import { Pagination } from "./components/Pagination";
+import { getInstallPrompt, clearInstallPrompt, subscribeInstallPrompt } from "./installPrompt";
 
 declare const showToast: any;
 
@@ -698,26 +699,19 @@ function App() {
   // Posting : 
   const isPostingRef = useRef(false);
 
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [installPrompt, setInstallPrompt] = useState<any>(() => getInstallPrompt());
 
   useEffect(() => {
     void syncTimeOffset();
   }, []);
 
-  useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
+  useEffect(() => subscribeInstallPrompt(setInstallPrompt), []);
 
   const handleInstall = async () => {
     if (!installPrompt) return;
     installPrompt.prompt();
     const { outcome } = await installPrompt.userChoice;
-    if (outcome === "accepted") setInstallPrompt(null);
+    if (outcome === "accepted") clearInstallPrompt();
   };
 
   const todayISO = getLocalDateISO();
