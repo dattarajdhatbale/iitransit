@@ -82,6 +82,7 @@ import {
 } from "./utils/profileUtils";
 import { Pagination } from "./components/Pagination";
 import { getInstallPrompt, clearInstallPrompt, subscribeInstallPrompt } from "./installPrompt";
+import { markReturningUser } from "./returningUser";
 
 declare const showToast: any;
 
@@ -803,6 +804,7 @@ function App() {
           alert(`Only @${ALLOWED_EMAIL_DOMAIN} accounts are allowed.`);
           return;
         }
+        markReturningUser();
         setCurrentUser(user);
       } else {
         setCurrentUser(null);

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { lazyWithReload } from "./lazyWithReload";
+import { isReturningUser } from "./returningUser";
 
 const App = lazyWithReload(() => import("./App"));
 const Landing = lazyWithReload(() => import("./landing/LandingPlaceholder"));
@@ -22,6 +23,10 @@ function ScreenFallback() {
 export default function Root() {
   const location = useLocation();
   const path = location.pathname.replace(/\/+$/, "") || "/";
+
+  if (path === "/" && isReturningUser()) {
+    return <Navigate to={{ pathname: "/app", search: location.search, hash: location.hash }} replace />;
+  }
 
   let screen = <App />;
   if (path === "/" || path === "/about") screen = <Landing />;
