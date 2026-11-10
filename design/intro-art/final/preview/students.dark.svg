@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" width="600" height="300" fill="none" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">Three students</title>
+  <desc id="dsc">Three original stick-figure students in the IITransit style: one with a backpack, one with a hair bun pulling a rolling suitcase, one in a cap carrying a tote bag.</desc>
+  <!--
+    Units are the car's local units (scale with the car: desktop 1.15, mobile 1.2).
+    Each #stand-n has its origin between its feet. Walk cycle: toggle .legs-a / .legs-b (pose B starts hidden).
+    Facing: drawn walking towards +x; mirror with scale(-1,1) to walk left.
+  -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(40,90)"><g id="stand-1">
+      <path d="M -11.6 -38 Q -11.6 -42 -7.6 -42 L 7.6 -42 Q 11.6 -42 11.6 -38 L 11.6 -22.4 Q 11.6 -19.6 8.6 -19.6 L -8.6 -19.6 Q -11.6 -19.6 -11.6 -22.4 Z" fill="#15122E" stroke="#E4DCFA" stroke-width="3"/>
+      <g class="legs"><g class="legs-a"><path d="M -4 -16 L -9.5 -1.5 M 4 -16 L 9.5 -1.5" stroke="#E4DCFA" stroke-width="3.4"/><ellipse cx="-10.6" cy="-1.2" rx="3.8" ry="2.2" fill="#E4DCFA"/><ellipse cx="11.4" cy="-1.2" rx="3.8" ry="2.2" fill="#E4DCFA"/></g><g class="legs-b" opacity="0"><path d="M -3 -16 L -2.6 -1.5 M 3 -16 L 6.4 -8.6 L 4.2 -3.4" stroke="#E4DCFA" stroke-width="3.4"/><ellipse cx="-3.4" cy="-1.2" rx="3.8" ry="2.2" fill="#E4DCFA"/><ellipse cx="5.6" cy="-3.2" rx="3.6" ry="2.1" fill="#E4DCFA"/></g></g>
+      <path class="shorts" d="M -9.2 -23.5 L 9.2 -23.5 L 8.4 -15 L 1.4 -15 L 0 -19.4 L -1.4 -15 L -8.4 -15 Z" fill="#15122E" stroke="#E4DCFA" stroke-width="2.6"/><path d="M -8.4 -41 Q 0 -44 8.4 -41 L 9.4 -22.4 Q 0 -20.4 -9.4 -22.4 Z" fill="#7A63B5" stroke="#E4DCFA" stroke-width="3"/><path d="M -5.4 -41.4 L -5 -27 M 5.4 -41.4 L 5 -27" stroke="#15122E" stroke-width="3"/><path d="M -8 -37.6 L -12.6 -24.6 M 8 -37.6 L 12.6 -24.6" stroke="#E4DCFA" stroke-width="3.2"/><circle cx="-12.8" cy="-23.6" r="2.4" fill="#B3A1E0" stroke="#E4DCFA" stroke-width="1.8"/><circle cx="12.8" cy="-23.6" r="2.4" fill="#B3A1E0" stroke="#E4DCFA" stroke-width="1.8"/>
+      <path d="M 0 -43.4 L 0 -41.6" stroke="#E4DCFA" stroke-width="3"/>
+      <g class="head"><circle cx="0" cy="-56" r="13" fill="#B3A1E0" stroke="#E4DCFA" stroke-width="3.4"/>
+      <g class="face"><circle cx="-4.6" cy="-56.2" r="2.1" fill="#1E1A4D"/><circle cx="4.6" cy="-56.2" r="2.1" fill="#1E1A4D"/>
+      <path d="M -7.2 -61.6 Q -4.8 -63.4 -2.4 -62.2 M 2.4 -62.2 Q 4.8 -63.4 7.2 -61.6" stroke="#1E1A4D" stroke-width="1.9"/>
+      <path d="M -4.6 -50.6 Q 0 -46.2 4.6 -50.6" stroke="#1E1A4D" stroke-width="2.2"/></g><g class="hair"><path d="M -13.4 -57 C -14.6 -70 -4.5 -74.5 2.5 -71.8 C 9.5 -73.6 15.2 -67 13.4 -58.5 C 11 -63.6 6.4 -66.6 1.2 -65.8 C -2.8 -65.2 -6.2 -67 -8.6 -64.6 C -10.8 -63.4 -12.6 -61 -13.4 -57 Z" fill="#7058B4"/></g></g>
+    </g></g>
+    <g transform="translate(100,90)"><g id="stand-2">
+      <g class="suitcase"><path d="M -21.6 -21.8 L -14.6 -25.8" stroke="#E4DCFA" stroke-width="2.6"/>
+        <rect x="-31.4" y="-22" width="15.6" height="19.6" rx="3.4" fill="#2E3A5E" stroke="#E4DCFA" stroke-width="3"/>
+        <path d="M -31.4 -12.4 L -15.8 -12.4" stroke="#A98ADF" stroke-width="2.4"/><rect x="-27.2" y="-19" width="4.6" height="3.4" rx="1" fill="#F0913F"/>
+        <circle cx="-28" cy="0.4" r="2.2" fill="#E4DCFA"/><circle cx="-19.2" cy="0.4" r="2.2" fill="#E4DCFA"/></g>
+      <g class="legs"><g class="legs-a"><path d="M -4 -16 L -9.5 -1.5 M 4 -16 L 9.5 -1.5" stroke="#E4DCFA" stroke-width="3.4"/><ellipse cx="-10.6" cy="-1.2" rx="3.8" ry="2.2" fill="#E4DCFA"/><ellipse cx="11.4" cy="-1.2" rx="3.8" ry="2.2" fill="#E4DCFA"/></g><g class="legs-b" opacity="0"><path d="M -3 -16 L -2.6 -1.5 M 3 -16 L 6.4 -8.6 L 4.2 -3.4" stroke="#E4DCFA" stroke-width="3.4"/><ellipse cx="-3.4" cy="-1.2" rx="3.8" ry="2.2" fill="#E4DCFA"/><ellipse cx="5.6" cy="-3.2" rx="3.6" ry="2.1" fill="#E4DCFA"/></g></g>
+      <path class="shorts" d="M -9.2 -23.5 L 9.2 -23.5 L 8.4 -15 L 1.4 -15 L 0 -19.4 L -1.4 -15 L -8.4 -15 Z" fill="#15122E" stroke="#E4DCFA" stroke-width="2.6"/><path d="M -8.4 -41 Q 0 -44 8.4 -41 L 9.4 -22.4 Q 0 -20.4 -9.4 -22.4 Z" fill="#A98ADF" stroke="#E4DCFA" stroke-width="3"/><path d="M -8 -37.6 L -12.6 -24.6 M 8 -37.6 L 12.6 -24.6" stroke="#E4DCFA" stroke-width="3.2"/><circle cx="-12.8" cy="-23.6" r="2.4" fill="#B3A1E0" stroke="#E4DCFA" stroke-width="1.8"/><circle cx="12.8" cy="-23.6" r="2.4" fill="#B3A1E0" stroke="#E4DCFA" stroke-width="1.8"/>
+      <path d="M 0 -43.4 L 0 -41.6" stroke="#E4DCFA" stroke-width="3"/>
+      <g class="head"><circle cx="0" cy="-56" r="13" fill="#B3A1E0" stroke="#E4DCFA" stroke-width="3.4"/>
+      <g class="face"><circle cx="-4.6" cy="-56.2" r="2.1" fill="#1E1A4D"/><circle cx="4.6" cy="-56.2" r="2.1" fill="#1E1A4D"/>
+      <path d="M -7.2 -61.6 Q -4.8 -63.4 -2.4 -62.2 M 2.4 -62.2 Q 4.8 -63.4 7.2 -61.6" stroke="#1E1A4D" stroke-width="1.9"/>
+      <path d="M -5 -51.2 Q 0 -44.2 5 -51.2 Z" fill="#15122E" stroke="#1E1A4D" stroke-width="2"/></g><g class="hair"><circle cx="0" cy="-73" r="5.6" fill="#7058B4"/><path d="M -13.6 -54 C -14.2 -68.8 -6.2 -71.6 0 -71.6 C 6.2 -71.6 14.2 -68.8 13.6 -54 C 11.2 -60.8 6.2 -64.6 0 -64.6 C -6.2 -64.6 -11.2 -60.8 -13.6 -54 Z" fill="#7058B4"/><path d="M -13.2 -54 C -14.8 -49.5 -14.2 -46 -11.8 -43.6" stroke="#7058B4" stroke-width="3.4"/></g></g>
+    </g></g>
+    <g transform="translate(160,90)"><g id="stand-3">
+      
+      <g class="legs"><g class="legs-a"><path d="M -4 -16 L -9.5 -1.5 M 4 -16 L 9.5 -1.5" stroke="#E4DCFA" stroke-width="3.4"/><ellipse cx="-10.6" cy="-1.2" rx="3.8" ry="2.2" fill="#E4DCFA"/><ellipse cx="11.4" cy="-1.2" rx="3.8" ry="2.2" fill="#E4DCFA"/></g><g class="legs-b" opacity="0"><path d="M -3 -16 L -2.6 -1.5 M 3 -16 L 6.4 -8.6 L 4.2 -3.4" stroke="#E4DCFA" stroke-width="3.4"/><ellipse cx="-3.4" cy="-1.2" rx="3.8" ry="2.2" fill="#E4DCFA"/><ellipse cx="5.6" cy="-3.2" rx="3.6" ry="2.1" fill="#E4DCFA"/></g></g>
+      <path class="shorts" d="M -9.2 -23.5 L 9.2 -23.5 L 8.4 -15 L 1.4 -15 L 0 -19.4 L -1.4 -15 L -8.4 -15 Z" fill="#A98ADF" stroke="#E4DCFA" stroke-width="2.6"/><path d="M -8.4 -41 Q 0 -44 8.4 -41 L 9.4 -22.4 Q 0 -20.4 -9.4 -22.4 Z" fill="#232D4C" stroke="#E4DCFA" stroke-width="3"/><g class="tote"><path d="M 6.6 -40 L 11 -29.4 M 6.6 -40 L 19.4 -29.4" stroke="#E4DCFA" stroke-width="2.4"/>
+        <path d="M 9.2 -29.6 L 21.4 -29.6 L 22.6 -16 L 8 -16 Z" fill="#7A63B5" stroke="#E4DCFA" stroke-width="3"/>
+        <path d="M 12.6 -23.4 L 18.2 -23.4" stroke="#15122E" stroke-width="2.2"/></g><path d="M -8 -37.6 L -12.6 -24.6 M 8 -37.6 L 12.6 -24.6" stroke="#E4DCFA" stroke-width="3.2"/><circle cx="-12.8" cy="-23.6" r="2.4" fill="#B3A1E0" stroke="#E4DCFA" stroke-width="1.8"/><circle cx="12.8" cy="-23.6" r="2.4" fill="#B3A1E0" stroke="#E4DCFA" stroke-width="1.8"/>
+      <path d="M 0 -43.4 L 0 -41.6" stroke="#E4DCFA" stroke-width="3"/>
+      <g class="head"><circle cx="0" cy="-56" r="13" fill="#B3A1E0" stroke="#E4DCFA" stroke-width="3.4"/>
+      <g class="face"><circle cx="-4.6" cy="-56.2" r="2.1" fill="#1E1A4D"/><circle cx="4.6" cy="-56.2" r="2.1" fill="#1E1A4D"/>
+      <path d="M -7.2 -61.6 Q -4.8 -63.4 -2.4 -62.2 M 2.4 -62.2 Q 4.8 -63.4 7.2 -61.6" stroke="#1E1A4D" stroke-width="1.9"/>
+      <path d="M -3.4 -50.2 Q 1.2 -46.6 5.4 -51.4" stroke="#1E1A4D" stroke-width="2.2"/></g><g class="hair"><path d="M -13.2 -62 C -13.2 -71.4 -6.4 -74.4 0 -74.4 C 6.4 -74.4 13.2 -71.4 13.2 -62 Z" fill="#15122E" stroke="#7058B4" stroke-width="3"/><path d="M 7 -62 L 21.5 -62 Q 23 -59.6 19.6 -59.4 L 8.4 -59.8" fill="#15122E" stroke="#7058B4" stroke-width="3"/><circle cx="0" cy="-74.4" r="1.8" fill="#7058B4"/></g></g>
+    </g></g>
+  </g>
+</svg>

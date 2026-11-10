@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 410" width="620" height="410" fill="none" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">Indian railway station</title>
+  <desc id="dsc">Simplified hand-drawn generic railway station: a station building with a pitched roof and a clock tower, a platform canopy with a departure board, a name board on the platform and a length of track in the foreground.</desc>
+
+  <g stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- ============ STATION BUILDING ============ -->
+    <g id="station-building">
+      <path id="station-building-walls" d="M 30 160 L 250 160 L 250 300 L 30 300 Z" fill="#F1EDFA" stroke="#1E1A4D" stroke-width="11"/>
+      <path id="station-roof" d="M 12 160 L 62 110 L 218 110 L 268 160 Z" fill="#E7DFF5" stroke="#1E1A4D" stroke-width="11"/>
+      <path id="station-building-band" d="M 30 214 L 250 214" stroke="#B7A6CD" stroke-width="6"/>
+    </g>
+
+    <!-- ============ CLOCK TOWER ============ -->
+    <g id="station-clock-tower">
+      <path id="station-tower-shaft" d="M 110 48 L 170 48 L 170 110 L 110 110 Z" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="11"/>
+      <path id="station-tower-cap" d="M 100 48 L 140 12 L 180 48 Z" fill="#E7DFF5" stroke="#1E1A4D" stroke-width="11"/>
+      <circle id="station-clock" cx="140" cy="78" r="17" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="8"/>
+      <path id="station-clock-hands" d="M 140 78 L 140 66 M 140 78 L 149 78" stroke="#1E1A4D" stroke-width="6"/>
+    </g>
+
+    <!-- ============ PLATFORM CANOPY ============ -->
+    <g id="station-canopy">
+      <path id="station-roof-canopy" d="M 248 174 L 260 148 L 454 148 L 466 174 Z" fill="#E7DFF5" stroke="#1E1A4D" stroke-width="11"/>
+      <path id="station-canopy-posts" d="M 276 174 L 290 174 L 290 300 L 276 300 Z M 336 174 L 350 174 L 350 300 L 336 300 Z M 396 174 L 410 174 L 410 300 L 396 300 Z M 450 174 L 464 174 L 464 300 L 450 300 Z" fill="#F1EDFA" stroke="#1E1A4D" stroke-width="7"/>
+      <path id="station-board-hangers" d="M 336 174 L 336 192 M 414 174 L 414 192" stroke="#1E1A4D" stroke-width="6"/>
+      <rect id="station-departure-board" x="330" y="192" width="90" height="34" rx="7" fill="#5A3D7A" stroke="#1E1A4D" stroke-width="7"/>
+      <path id="station-departure-board-lines" d="M 344 203 L 406 203 M 344 215 L 380 215" stroke="#C6B4E6" stroke-width="7"/>
+    </g>
+
+    <!-- ============ NAME BOARD ============ -->
+    <g id="station-sign">
+      <path id="station-sign-posts" d="M 486 136 L 500 136 L 500 300 L 486 300 Z M 576 136 L 590 136 L 590 300 L 576 300 Z" fill="#F1EDFA" stroke="#1E1A4D" stroke-width="7"/>
+      <rect id="station-sign-board" x="476" y="94" width="126" height="42" rx="10" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="7"/>
+      <circle id="station-sign-mark" cx="498" cy="115" r="9" fill="#AA82BC"/>
+      <path id="station-sign-text" d="M 516 115 L 580 115" stroke="#C6B4E6" stroke-width="8"/>
+    </g>
+
+    <!-- ============ FACADE DETAILS ============ -->
+    <g id="station-windows">
+      <path id="station-windows-upper" d="M 44 178 L 72 178 L 72 208 L 44 208 Z M 84 178 L 106 178 L 106 208 L 84 208 Z M 174 178 L 196 178 L 196 208 L 174 208 Z M 208 178 L 236 178 L 236 208 L 208 208 Z" fill="#AA82BC"/>
+      <path id="station-windows-lower" d="M 44 248 L 72 248 L 72 278 L 44 278 Z M 84 248 L 106 248 L 106 278 L 84 278 Z M 174 248 L 196 248 L 196 278 L 174 278 Z M 208 248 L 236 248 L 236 278 L 208 278 Z" fill="#C6B4E6"/>
+    </g>
+
+    <!-- ============ ENTRANCE ============ -->
+    <g id="station-entrance">
+      <path id="station-entrance-door" d="M 116 300 L 116 246 A 24 24 0 0 1 164 246 L 164 300 Z" fill="#5A3D7A" stroke="#1E1A4D" stroke-width="7"/>
+      <path id="station-entrance-step" d="M 104 300 L 176 300 L 176 312 L 104 312 Z" fill="#E1D8F2" stroke="#1E1A4D" stroke-width="7"/>
+    </g>
+
+    <!-- ============ PLATFORM AND TRACK ============ -->
+    <g id="station-platform">
+      <path id="station-platform-edge" d="M 0 322 L 620 322" stroke="#B7A6CD" stroke-width="7"/>
+      <path id="station-platform-lip" d="M 0 322 L 0 338" stroke="#B7A6CD" stroke-width="7"/>
+    </g>
+    <g id="station-track">
+      <path id="station-sleepers" d="M 24 352 L 24 378 M 64 352 L 64 378 M 104 352 L 104 378 M 144 352 L 144 378 M 184 352 L 184 378 M 224 352 L 224 378 M 264 352 L 264 378 M 304 352 L 304 378 M 344 352 L 344 378 M 384 352 L 384 378 M 424 352 L 424 378 M 464 352 L 464 378 M 504 352 L 504 378 M 544 352 L 544 378 M 584 352 L 584 378" stroke="#B7A6CD" stroke-width="7"/>
+      <path id="station-rails" d="M 0 352 L 620 352 M 0 378 L 620 378" stroke="#AA82BC" stroke-width="6"/>
+    </g>
+  </g>
+</svg>

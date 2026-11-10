@@ -1,0 +1,234 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 1080" width="800" height="1080" fill="none" role="img" aria-labelledby="ttl-frame-m dsc-frame-m">
+  <title id="ttl-frame-m">IIT Transit ending frame</title>
+  <desc id="dsc-frame-m">Hand-drawn doodle for mobile: the IIT Bhubaneswar main building at the top, a tall sweeping dotted route winding down the scene, three people sharing one compact car arriving at the railway station, and a map pin marking the destination.</desc>
+
+  <defs>
+    <g id="spark" fill="#C0A9D8">
+      <path d="M0 -11 C1.7 -3.7 3.7 -1.7 11 0 C3.7 1.7 1.7 3.7 0 11 C-1.7 3.7 -3.7 1.7 -11 0 C-3.7 -1.7 -1.7 -3.7 0 -11 Z"/>
+    </g>
+  </defs>
+
+  <g stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- ============ SIDE DECOR ============ -->
+    <g id="side-decor">
+      <use href="#spark" xlink:href="#spark" transform="translate(150,260) scale(0.45)"/>
+      <use href="#spark" xlink:href="#spark" transform="translate(300,160) scale(0.34)"/>
+      <use href="#spark" xlink:href="#spark" transform="translate(700,404) scale(0.45)"/>
+      <use href="#spark" xlink:href="#spark" transform="translate(648,700) scale(0.72)"/>
+      <g id="decor-bush">
+              <path d="M 62 985 C 57 970 65 960 75 963 C 77 949 92 948 95 962
+                       C 105 960 110 971 105 985 Z" fill="#E9E1F6" stroke="#BFB2D4" stroke-width="3.5"/>
+              <path d="M 82 973 L 82 968" stroke="#BFB2D4" stroke-width="2.6"/>
+            </g>
+    </g>
+    <!-- ============ GROUND SHADOWS ============ -->
+    <g id="ground">
+      <ellipse cx="200" cy="1040" rx="180" ry="8" fill="#C7BBD9"/>
+      <ellipse cx="322" cy="770" rx="175" ry="8" fill="#C7BBD9"/>
+    </g>
+    <!-- ============ COMPLETED ROUTE ============ -->
+    <g id="route">
+      <path id="route-trail" d="M 350 348 C 270 380 165 445 180 570 C 192 680 250 752 360 760 C 430 768 470 850 450 940 C 438 995 415 1020 395 1035"
+            stroke="#DCD2EA" stroke-width="14"/>
+      <path id="route-dashes" d="M 350 348 C 270 380 165 445 180 570 C 192 680 250 752 360 760 C 430 768 470 850 450 940 C 438 995 415 1020 395 1035"
+            stroke="#AA82BC" stroke-width="6" stroke-dasharray="1 16"/>
+    </g>
+    <!-- ============ START POINT ============ -->
+    <g id="start-point" transform="translate(302,48)">
+      <path d="M 48 300 L 48 232" stroke="#1E1A4D" stroke-width="4"/>
+      <path d="M 48 236 L 90 248 L 48 264 Z" fill="#CDB5DE" stroke="#1E1A4D" stroke-width="3.5"/>
+      <circle cx="48" cy="300" r="6" fill="#F0913F" stroke="#1E1A4D" stroke-width="3"/>
+    </g>
+    <!-- ============ IIT BHUBANESWAR MAIN BUILDING ============ -->
+    <g id="iit-building" transform="translate(358,81) scale(0.5)">
+      <g stroke-linecap="round" stroke-linejoin="round">
+      
+          <!-- ============ MAIN MASS ============ -->
+          <g id="building-main">
+            <!-- broad symmetrical wings -->
+            <path id="building-wing-left" d="M 86 240 L 296 240 L 296 470 L 86 470 Z" fill="#F1EDFA" stroke="#1E1A4D" stroke-width="12"/>
+            <path id="building-wing-right" d="M 504 240 L 714 240 L 714 470 L 504 470 Z" fill="#F1EDFA" stroke="#1E1A4D" stroke-width="12"/>
+            <!-- stepped central pavilion -->
+            <path id="building-central-lower" d="M 268 377 L 532 377 L 532 470 L 268 470 Z" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="12"/>
+            <path id="building-central-middle" d="M 296 295 L 504 295 L 504 377 L 296 377 Z" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="12"/>
+            <path id="building-central-upper" d="M 318 222 L 482 222 L 482 295 L 318 295 Z" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="12"/>
+            <!-- cornice ledges -->
+            <path id="building-cornice-tower" d="M 306 206 L 494 206 L 494 224 L 306 224 Z" fill="#E7DFF5" stroke="#1E1A4D" stroke-width="9"/>
+            <path id="building-cornice-drum" d="M 338 172 L 462 172 L 462 190 L 338 190 Z" fill="#E7DFF5" stroke="#1E1A4D" stroke-width="9"/>
+            <!-- louvred drum, ribbed dome, finial -->
+            <path id="building-drum" d="M 356 190 L 444 190 L 444 214 L 356 214 Z" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="9"/>
+            <path id="building-dome" d="M 358 174 C 358 128 374 104 400 98 C 426 104 442 128 442 174 Z" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="12"/>
+            <path id="building-dome-ribs" d="M 374 172 C 374 136 383 114 396 102 M 389 172 C 389 134 393 115 400 102 M 411 172 C 411 134 407 115 400 102 M 426 172 C 426 136 417 114 404 102" stroke="#AA82BC" stroke-width="6" opacity="0.6"/>
+            <path id="building-finial" d="M 400 98 L 400 84" stroke="#1E1A4D" stroke-width="9"/>
+            <circle cx="400" cy="78" r="9" fill="#AA82BC" stroke="#1E1A4D" stroke-width="6"/>
+            <!-- parapet along the wings -->
+            <path id="building-roofline" d="M 76 224 L 306 224 L 306 244 L 76 244 Z M 494 224 L 724 224 L 724 244 L 494 244 Z" fill="#E7DFF5" stroke="#1E1A4D" stroke-width="12"/>
+          </g>
+      
+          <!-- ============ WINDOW BANDS ============ -->
+          <g id="building-windows">
+            <path id="building-windows-upper" d="M 168 260 h 28 v 24 h -28 Z M 200 260 h 28 v 24 h -28 Z M 232 260 h 28 v 24 h -28 Z M 264 260 h 28 v 24 h -28 Z M 508 260 h 28 v 24 h -28 Z M 540 260 h 28 v 24 h -28 Z M 572 260 h 28 v 24 h -28 Z M 604 260 h 28 v 24 h -28 Z " fill="#C6B4E6"/>
+            <path id="building-windows-middle" d="M 168 302 h 28 v 24 h -28 Z M 200 302 h 28 v 24 h -28 Z M 232 302 h 28 v 24 h -28 Z M 264 302 h 28 v 24 h -28 Z M 508 302 h 28 v 24 h -28 Z M 540 302 h 28 v 24 h -28 Z M 572 302 h 28 v 24 h -28 Z M 604 302 h 28 v 24 h -28 Z " fill="#C6B4E6"/>
+            <path id="building-windows-lower" d="M 168 344 h 28 v 24 h -28 Z M 200 344 h 28 v 24 h -28 Z M 232 344 h 28 v 24 h -28 Z M 264 344 h 28 v 24 h -28 Z M 508 344 h 28 v 24 h -28 Z M 540 344 h 28 v 24 h -28 Z M 572 344 h 28 v 24 h -28 Z M 604 344 h 28 v 24 h -28 Z " fill="#C6B4E6"/>
+            <path id="building-louvres" d="M 124 260 L 156 260 L 156 326 L 124 326 Z M 644 260 L 676 260 L 676 326 L 644 326 Z" fill="#5A3D7A"/>
+            <!-- ground floor arcade -->
+            <path id="building-arcade" d="M 120 462 L 120 428 A 19 19 0 0 1 158 428 L 158 462 Z M 172 462 L 172 428 A 19 19 0 0 1 210 428 L 210 462 Z M 224 462 L 224 428 A 19 19 0 0 1 262 428 L 262 462 Z M 538 462 L 538 428 A 19 19 0 0 1 576 428 L 576 462 Z M 590 462 L 590 428 A 19 19 0 0 1 628 428 L 628 462 Z M 642 462 L 642 428 A 19 19 0 0 1 680 428 L 680 462 Z " fill="#AA82BC"/>
+          </g>
+      
+          <!-- ============ CENTRAL GLAZING ============ -->
+          <g id="building-glazing">
+            <path id="building-glazed-band" d="M 348 242 L 452 242 L 452 284 L 348 284 Z" fill="#5A3D7A"/>
+            <path id="building-band-flanks" d="M 326 242 L 338 242 L 338 284 L 326 284 Z M 462 242 L 474 242 L 474 284 L 462 284 Z" fill="#AA82BC"/>
+            <path id="building-tall-windows" d="M 315 314 L 335 314 L 335 362 L 315 362 Z M 345 314 L 365 314 L 365 362 L 345 362 Z M 375 314 L 395 314 L 395 362 L 375 362 Z M 405 314 L 425 314 L 425 362 L 405 362 Z M 435 314 L 455 314 L 455 362 L 435 362 Z M 465 314 L 485 314 L 485 362 L 465 362 Z " fill="#AA82BC"/>
+            <path id="building-square-windows" d="M 307 384 L 325 384 L 325 402 L 307 402 Z M 335 384 L 353 384 L 353 402 L 335 402 Z M 363 384 L 381 384 L 381 402 L 363 402 Z M 391 384 L 409 384 L 409 402 L 391 402 Z M 419 384 L 437 384 L 437 402 L 419 402 Z M 447 384 L 465 384 L 465 402 L 447 402 Z M 475 384 L 493 384 L 493 402 L 475 402 Z " fill="#AA82BC"/>
+            <path id="building-drum-louvres" d="M 362 196 L 374 196 L 374 208 L 362 208 Z M 378 196 L 390 196 L 390 208 L 378 208 Z M 394 196 L 406 196 L 406 208 L 394 208 Z M 410 196 L 422 196 L 422 208 L 410 208 Z M 426 196 L 438 196 L 438 208 L 426 208 Z" fill="#AA82BC"/>
+          </g>
+      
+          <!-- ============ ENTRANCE ============ -->
+          <g id="building-entrance">
+            <path id="building-entrance-recess" d="M 292 420 L 508 420 L 508 470 L 292 470 Z" fill="#E1D8F2" stroke="#1E1A4D" stroke-width="9"/>
+            <path id="building-entrance-openings" d="M 306 428 L 352 428 L 352 470 L 306 470 Z M 372 428 L 428 428 L 428 470 L 372 470 Z M 448 428 L 494 428 L 494 470 L 448 470 Z" fill="#5A3D7A"/>
+            <path id="building-entrance-columns" d="M 352 428 L 372 428 L 372 470 L 352 470 Z M 428 428 L 448 428 L 448 470 L 428 470 Z" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="9"/>
+          </g>
+          <path id="building-entrance-canopy" d="M 282 404 L 518 404 L 518 422 L 282 422 Z" fill="#E7DFF5" stroke="#1E1A4D" stroke-width="9"/>
+          <path id="building-steps" d="M 274 470 L 526 470 L 526 486 L 274 486 Z" fill="#E1D8F2" stroke="#1E1A4D" stroke-width="9"/>
+        </g>
+    </g>
+    <!-- ============ RAILWAY STATION ============ -->
+    <g id="railway-station" transform="translate(30,809) scale(0.58)">
+      <g stroke-linecap="round" stroke-linejoin="round">
+      
+          <!-- ============ STATION BUILDING ============ -->
+          <g id="station-building">
+            <path id="station-building-walls" d="M 30 160 L 250 160 L 250 300 L 30 300 Z" fill="#F1EDFA" stroke="#1E1A4D" stroke-width="11"/>
+            <path id="station-roof" d="M 12 160 L 62 110 L 218 110 L 268 160 Z" fill="#E7DFF5" stroke="#1E1A4D" stroke-width="11"/>
+            <path id="station-building-band" d="M 30 214 L 250 214" stroke="#B7A6CD" stroke-width="6"/>
+          </g>
+      
+          <!-- ============ CLOCK TOWER ============ -->
+          <g id="station-clock-tower">
+            <path id="station-tower-shaft" d="M 110 48 L 170 48 L 170 110 L 110 110 Z" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="11"/>
+            <path id="station-tower-cap" d="M 100 48 L 140 12 L 180 48 Z" fill="#E7DFF5" stroke="#1E1A4D" stroke-width="11"/>
+            <circle id="station-clock" cx="140" cy="78" r="17" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="8"/>
+            <path id="station-clock-hands" d="M 140 78 L 140 66 M 140 78 L 149 78" stroke="#1E1A4D" stroke-width="6"/>
+          </g>
+      
+          <!-- ============ PLATFORM CANOPY ============ -->
+          <g id="station-canopy">
+            <path id="station-roof-canopy" d="M 248 174 L 260 148 L 454 148 L 466 174 Z" fill="#E7DFF5" stroke="#1E1A4D" stroke-width="11"/>
+            <path id="station-canopy-posts" d="M 276 174 L 290 174 L 290 300 L 276 300 Z M 336 174 L 350 174 L 350 300 L 336 300 Z M 396 174 L 410 174 L 410 300 L 396 300 Z M 450 174 L 464 174 L 464 300 L 450 300 Z" fill="#F1EDFA" stroke="#1E1A4D" stroke-width="7"/>
+            <path id="station-board-hangers" d="M 336 174 L 336 192 M 414 174 L 414 192" stroke="#1E1A4D" stroke-width="6"/>
+            <rect id="station-departure-board" x="330" y="192" width="90" height="34" rx="7" fill="#5A3D7A" stroke="#1E1A4D" stroke-width="7"/>
+            <path id="station-departure-board-lines" d="M 344 203 L 406 203 M 344 215 L 380 215" stroke="#C6B4E6" stroke-width="7"/>
+          </g>
+      
+          <!-- ============ NAME BOARD ============ -->
+          <g id="station-sign">
+            <path id="station-sign-posts" d="M 486 136 L 500 136 L 500 300 L 486 300 Z M 576 136 L 590 136 L 590 300 L 576 300 Z" fill="#F1EDFA" stroke="#1E1A4D" stroke-width="7"/>
+            <rect id="station-sign-board" x="476" y="94" width="126" height="42" rx="10" fill="#F5F2F9" stroke="#1E1A4D" stroke-width="7"/>
+            <circle id="station-sign-mark" cx="498" cy="115" r="9" fill="#AA82BC"/>
+            <path id="station-sign-text" d="M 516 115 L 580 115" stroke="#C6B4E6" stroke-width="8"/>
+          </g>
+      
+          <!-- ============ FACADE DETAILS ============ -->
+          <g id="station-windows">
+            <path id="station-windows-upper" d="M 44 178 L 72 178 L 72 208 L 44 208 Z M 84 178 L 106 178 L 106 208 L 84 208 Z M 174 178 L 196 178 L 196 208 L 174 208 Z M 208 178 L 236 178 L 236 208 L 208 208 Z" fill="#AA82BC"/>
+            <path id="station-windows-lower" d="M 44 248 L 72 248 L 72 278 L 44 278 Z M 84 248 L 106 248 L 106 278 L 84 278 Z M 174 248 L 196 248 L 196 278 L 174 278 Z M 208 248 L 236 248 L 236 278 L 208 278 Z" fill="#C6B4E6"/>
+          </g>
+      
+          <!-- ============ ENTRANCE ============ -->
+          <g id="station-entrance">
+            <path id="station-entrance-door" d="M 116 300 L 116 246 A 24 24 0 0 1 164 246 L 164 300 Z" fill="#5A3D7A" stroke="#1E1A4D" stroke-width="7"/>
+            <path id="station-entrance-step" d="M 104 300 L 176 300 L 176 312 L 104 312 Z" fill="#E1D8F2" stroke="#1E1A4D" stroke-width="7"/>
+          </g>
+      
+          <!-- ============ PLATFORM AND TRACK ============ -->
+          <g id="station-platform">
+            <path id="station-platform-edge" d="M 0 322 L 620 322" stroke="#B7A6CD" stroke-width="7"/>
+            <path id="station-platform-lip" d="M 0 322 L 0 338" stroke="#B7A6CD" stroke-width="7"/>
+          </g>
+          <g id="station-track">
+            <path id="station-sleepers" d="M 24 352 L 24 378 M 64 352 L 64 378 M 104 352 L 104 378 M 144 352 L 144 378 M 184 352 L 184 378 M 224 352 L 224 378 M 264 352 L 264 378 M 304 352 L 304 378 M 344 352 L 344 378 M 384 352 L 384 378 M 424 352 L 424 378 M 464 352 L 464 378 M 504 352 L 504 378 M 544 352 L 544 378 M 584 352 L 584 378" stroke="#B7A6CD" stroke-width="7"/>
+            <path id="station-rails" d="M 0 352 L 620 352 M 0 378 L 620 378" stroke="#AA82BC" stroke-width="6"/>
+          </g>
+        </g>
+    </g>
+    <!-- ============ DESTINATION PIN ============ -->
+    <g id="destination-pin" transform="translate(-85,267) scale(0.8)">
+      <path d="M 600 960 C 584 934 568 916 568 894 A 32 32 0 1 1 632 894 C 632 916 616 934 600 960 Z
+               M 600 882.5 A 11.5 11.5 0 1 0 600 905.5 A 11.5 11.5 0 1 0 600 882.5 Z"
+            fill="#AA82BC" fill-rule="evenodd" stroke="#1E1A4D" stroke-width="4.5"/>
+    </g>
+    <!-- ============ SHARED VEHICLE ============ -->
+    <g id="vehicle" transform="translate(133,573) scale(1.2)">
+      <g id="vehicle-wheels">
+        <circle cx="62" cy="134" r="22" fill="#F7F5FC" stroke="#1E1A4D" stroke-width="4"/>
+        <circle cx="244" cy="134" r="22" fill="#F7F5FC" stroke="#1E1A4D" stroke-width="4"/>
+        <circle cx="62" cy="134" r="8" fill="#DDD2F0" stroke="#1E1A4D" stroke-width="3.2"/>
+        <circle cx="244" cy="134" r="8" fill="#DDD2F0" stroke="#1E1A4D" stroke-width="3.2"/>
+      </g>
+
+      <path id="vehicle-body"
+        d="M 20 104 L 66 46 Q 74 40 88 40 L 186 40 Q 200 40 208 48 L 232 84
+           Q 238 90 248 92 L 276 96 Q 292 100 296 110 C 302 120 300 129 294 132 Q 290 134 282 134
+           H 266 A 22 22 0 0 0 222 134 H 84 A 22 22 0 0 0 40 134 H 24
+           Q 14 134 14 124 V 114 Q 14 104 20 104 Z"
+        fill="#F1EDFA" stroke="#1E1A4D" stroke-width="4"/>
+
+      <g id="vehicle-windows">
+        <path d="M 176 46 L 200 46 L 224 86 L 176 86 Z" fill="#E7E1F6"/>
+        <path d="M 112 48 L 168 48 L 168 86 L 112 86 Z" fill="#E7E1F6"/>
+        <path d="M 73 48 L 106 48 L 106 86 L 43 86 Z" fill="#E7E1F6"/>
+      </g>
+
+      <g id="passengers">
+        <!-- passenger-1 : rear quarter seat -->
+        <g id="passenger-1">
+          <path d="M 52 86 Q 76 74 100 86" fill="#C6B4E6" stroke="#1E1A4D" stroke-width="3"/>
+          <path d="M 84 75 L 84 80" stroke="#1E1A4D" stroke-width="3"/>
+          <g transform="rotate(6 84 66)">
+            <circle cx="84" cy="66" r="10.5" fill="#D9CBF1" stroke="#1E1A4D" stroke-width="3.4"/>
+            <circle cx="79.8" cy="64.5" r="1.9" fill="#1E1A4D"/>
+            <circle cx="88.2" cy="64.5" r="1.9" fill="#1E1A4D"/>
+            <path d="M 80 70.4 Q 84 74.6 88 70.4" stroke="#1E1A4D" stroke-width="2.2"/>
+          </g>
+        </g>
+        <!-- passenger-2 : rear seat -->
+        <g id="passenger-2">
+          <path d="M 118 86 Q 140 72 162 86" fill="#C6B4E6" stroke="#1E1A4D" stroke-width="3"/>
+          <path d="M 140 73 L 140 80" stroke="#1E1A4D" stroke-width="3"/>
+          <g transform="rotate(-4 140 64)">
+            <circle cx="140" cy="64" r="10.5" fill="#D9CBF1" stroke="#1E1A4D" stroke-width="3.4"/>
+            <circle cx="135.8" cy="62.5" r="1.9" fill="#1E1A4D"/>
+            <circle cx="144.2" cy="62.5" r="1.9" fill="#1E1A4D"/>
+            <path d="M 135.3 68.4 Q 140 74 144.7 68.4" stroke="#1E1A4D" stroke-width="2.2"/>
+          </g>
+        </g>
+        <!-- passenger-3 : front seat -->
+        <g id="passenger-3">
+          <path d="M 182 86 Q 196 73 210 86" fill="#C6B4E6" stroke="#1E1A4D" stroke-width="3"/>
+          <path d="M 196 73 L 196 80" stroke="#1E1A4D" stroke-width="3"/>
+          <g transform="rotate(5 196 64)">
+            <circle cx="196" cy="64" r="10.5" fill="#D9CBF1" stroke="#1E1A4D" stroke-width="3.4"/>
+            <circle cx="191.8" cy="62.5" r="1.8" fill="#1E1A4D"/>
+            <circle cx="200.2" cy="62.5" r="1.8" fill="#1E1A4D"/>
+            <path d="M 192 68.4 Q 196 72.6 200 68.4" stroke="#1E1A4D" stroke-width="2.2"/>
+          </g>
+        </g>
+      </g>
+
+      <g id="vehicle-window-frames" fill="none" stroke="#1E1A4D" stroke-width="3.4">
+        <path d="M 176 46 L 200 46 L 224 86 L 176 86 Z"/>
+        <path d="M 112 48 L 168 48 L 168 86 L 112 86 Z"/>
+        <path d="M 73 48 L 106 48 L 106 86 L 43 86 Z"/>
+      </g>
+
+      <g id="vehicle-details">
+        <path d="M 176 92 L 176 124" stroke="#B7A6CD" stroke-width="2.6"/>
+        <rect x="268" y="100" width="18" height="12" rx="5" fill="#F0913F" stroke="#1E1A4D" stroke-width="3"/>
+      </g>
+    </g>
+
+  </g>
+</svg>
