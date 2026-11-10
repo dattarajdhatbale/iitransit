@@ -20,13 +20,15 @@ export default defineConfig({
         clientsClaim: true,
       },
       manifest: {
+        id: "/",
         name: "IITransit",
         short_name: "IITransit",
         description: "Ride sharing for IIT Bhubaneswar students",
         theme_color: "#0B1020",
         background_color: "#0B1020",
         display: "standalone",
-        start_url: "/",
+        start_url: "/app",
+        scope: "/",
         icons: [
           {
             src: "/icon-192.png",
