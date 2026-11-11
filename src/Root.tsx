@@ -5,7 +5,7 @@ import { isReturningUser } from "./returningUser";
 
 const App = lazyWithReload(() => import("./App"));
 const Landing = lazyWithReload(() => import("./landing/LandingPlaceholder"));
-const IntroPreview = lazyWithReload(() => import("./landing/IntroPreview"));
+const LandingPage = lazyWithReload(() => import("./landing/LandingPage"));
 
 // Shown for the moment a lazy chunk is loading; matches the app's own backgrounds.
 function ScreenFallback() {
@@ -31,7 +31,7 @@ export default function Root() {
 
   let screen = <App />;
   if (path === "/" || path === "/about") screen = <Landing />;
-  else if (path === "/intro-preview") screen = <IntroPreview />;
+  else if (path === "/intro-preview") screen = <LandingPage />;
 
   return <Suspense fallback={<ScreenFallback />}>{screen}</Suspense>;
 }
