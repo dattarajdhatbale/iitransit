@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useMemo, useRef, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import DesktopScene from "../scenes/DesktopScene";
 import MobileScene from "../scenes/MobileScene";
@@ -6,6 +6,7 @@ import { SCENES, type SceneKey } from "../scenes/sceneGeometry";
 import "../styles/iitransit-art.css";
 import { CAPTIONS, FINAL_CAPTION } from "./captions";
 import RouteDebugOverlay from "./RouteDebugOverlay";
+import { useIntroAnimation } from "./useIntroAnimation";
 
 interface IntroStageProps {
   scene: SceneKey;
@@ -13,8 +14,6 @@ interface IntroStageProps {
   onToggleTheme: () => void;
   motionOn: boolean;
   onToggleMotion: () => void;
-  /** Shows the scroll hint (only while the scroll animation can actually run). */
-  showScrollHint?: boolean;
   /** Draws the route sampler's points over the art, for checking geometry. */
   debug?: boolean;
 }
@@ -22,8 +21,9 @@ interface IntroStageProps {
 const pct = (value: number, of: number) => `${(value / of) * 100}%`;
 
 // The intro's full-screen stage: top bar, captions and the scene, sized to fill the screen without
-// cropping or stretching. Static for now: it shows the final frame, which is also the Motion OFF view.
-// Elements the animation will drive carry data-* hooks: [data-caption], [data-scroll-hint],
+// cropping or stretching. With Motion ON, scrolling plays the story while the stage is pinned (see
+// useIntroAnimation). With Motion OFF, nothing animates: the scene's own markup is the final frame.
+// Elements the animation drives carry data-* hooks: [data-caption], [data-scroll-hint],
 // [data-scene-box] and the SVG ids inside the scene.
 export default function IntroStage({
   scene,
@@ -31,12 +31,17 @@ export default function IntroStage({
   onToggleTheme,
   motionOn,
   onToggleMotion,
-  showScrollHint = false,
   debug = false,
 }: IntroStageProps) {
   const geometry = SCENES[scene];
   const Scene = scene === "desktop" ? DesktopScene : MobileScene;
   const isMobile = scene === "mobile";
+  const stageRef = useRef<HTMLElement>(null);
+  useIntroAnimation({ stageRef, scene, motionOn });
+
+  // The animation writes to the scene's SVG directly; keep React from re-rendering it on unrelated
+  // changes (theme, Motion toggle styling).
+  const sceneElement = useMemo(() => <Scene className="block h-full w-full" />, [Scene]);
 
   // A box with the scene's exact aspect ratio, as large as fits: the SVG and any HTML laid over it
   // then share one coordinate system (percentages of this box = scene units).
@@ -88,7 +93,7 @@ export default function IntroStage({
   const box = geometry.captionBox;
 
   return (
-    <section data-intro-stage aria-label="IITransit intro" className="relative flex h-[100svh] flex-col overflow-hidden">
+    <section ref={stageRef} data-intro-stage aria-label="IITransit intro" className="relative flex h-[100svh] flex-col overflow-hidden">
       <header
         className={`relative z-10 flex shrink-0 items-center justify-between ${
           isMobile ? "h-14 gap-2 px-3" : "h-16 gap-3 px-4 md:px-10"
@@ -146,7 +151,7 @@ export default function IntroStage({
 
       <div className={`relative min-h-0 flex-1 ${isMobile ? "px-4 pb-4" : ""}`} style={{ containerType: "size" }}>
         <div data-scene-box className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={sceneBoxStyle}>
-          <Scene className="block h-full w-full" />
+          {sceneElement}
           {box && (
             <div
               className="absolute"
@@ -167,7 +172,7 @@ export default function IntroStage({
 
       <div
         data-scroll-hint
-        hidden={!showScrollHint}
+        hidden={!motionOn}
         className={`pointer-events-none absolute bottom-[max(16px,env(safe-area-inset-bottom))] left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 text-sm ${quiet}`}
       >
         <span>Scroll to ride</span>
