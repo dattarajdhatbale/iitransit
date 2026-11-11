@@ -1,0 +1,1087 @@
+/* IITransit landing page: everything below the intro.
+ *
+ * Every rule is scoped under .lp, the page's root element. The app is a single-page app, so this
+ * stylesheet stays loaded after "Open App"; scoping keeps it from touching the app.
+ * Light values sit on .lp, dark values on html.dark-mode .lp (the class the app's theme toggle sets).
+ * Class names carry an lp- prefix so they never collide with Tailwind utilities.
+ *
+ * Accent: burnt orange in light mode, marigold in dark mode, ink text on both. It is used only for the
+ * main Open App buttons, one underline per heading and active markers.
+ */
+
+.lp {
+  --lp-bg: #faf6ef;
+  --lp-tint: #f2ecf7;
+  --lp-tint-2: #e8dff2;
+  --lp-tint-3: #d8cfe3;
+  --lp-ink: #1e1a4d;
+  --lp-text: #4c4870;
+  --lp-quiet: #67638a;
+  --lp-line: rgba(30, 26, 77, 0.1);
+  --lp-accent: #e5650f;
+  --lp-accent-hover: #ee7424;
+  --lp-on-accent: #1e1a4d;
+  --lp-btn2: #5a3d7a;
+  --lp-btn2-ink: #ffffff;
+  --lp-switch-off: #b7a6cd;
+  --lp-intro-end: #c4b6d6;
+  --lp-frame: #171c30;
+  --lp-frame-ring: rgba(255, 255, 255, 0);
+  --lp-shadow: 0 2px 4px rgba(30, 26, 77, 0.06), 0 18px 40px -18px rgba(30, 26, 77, 0.35),
+    0 50px 90px -40px rgba(30, 26, 77, 0.3);
+  --lp-shadow-sm: 0 1px 2px rgba(30, 26, 77, 0.08), 0 10px 24px -14px rgba(30, 26, 77, 0.3);
+  --lp-bar: rgba(250, 246, 239, 0.94);
+  --lp-board: #1e1a4d;
+  --lp-board-ink: #f1edfa;
+  --lp-board-quiet: #a79fd0;
+  --lp-board-line: rgba(255, 255, 255, 0.09);
+  --lp-toast: #1e1a4d;
+  --lp-toast-ink: #faf6ef;
+  --lp-nudge-bg: #f0ebf8;
+  --lp-nudge-fg: #5a3d7a;
+  --lp-nudge-border: #ddd2ea;
+  /* The one contrast band (How it works): the app's own dark colours */
+  --lp-band: #0b1020;
+  --lp-band-surface: #121a2e;
+  --lp-band-ink: #f1ecff;
+  --lp-band-text: #cbd5e1;
+  --lp-band-quiet: #94a3b8;
+  --lp-band-line: rgba(255, 255, 255, 0.08);
+  --lp-band-border: transparent;
+
+  --lp-font-word: "Space Grotesk", "Inter", system-ui, sans-serif; /* wordmark, as in the app */
+  --lp-font-head: "Bricolage Grotesque", "Inter", system-ui, sans-serif; /* section headings */
+  --lp-font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --lp-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --lp-ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+
+  background: var(--lp-bg);
+  /* Tilted phones and chips may poke past the edge on narrow screens. clip (not hidden) keeps
+     position: sticky working for the How it works phone. */
+  overflow-x: clip;
+}
+
+html.dark-mode .lp {
+  --lp-bg: #0b1020;
+  --lp-tint: #10172a;
+  --lp-tint-2: #1a2540;
+  --lp-tint-3: #2e3a5e;
+  --lp-ink: #f1ecff;
+  --lp-text: #c4bddf;
+  --lp-quiet: #9a94b9;
+  --lp-line: rgba(255, 255, 255, 0.08);
+  --lp-accent: #f0a43a;
+  --lp-accent-hover: #f6b65a;
+  --lp-btn2: #7c3aed;
+  --lp-switch-off: #3b4670;
+  --lp-intro-end: #0b1020;
+  --lp-frame: #2a3352;
+  --lp-frame-ring: rgba(255, 255, 255, 0.06);
+  --lp-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 24px 50px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --lp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -16px rgba(0, 0, 0, 0.8);
+  --lp-bar: rgba(11, 16, 32, 0.82);
+  --lp-board: #121a2e;
+  --lp-board-ink: #e4dcfa;
+  --lp-board-quiet: #8c86ae;
+  --lp-board-line: rgba(255, 255, 255, 0.07);
+  --lp-toast: #f1ecff;
+  --lp-toast-ink: #1e1a4d;
+  --lp-nudge-bg: #1a2540;
+  --lp-nudge-fg: #cbd5e1;
+  --lp-nudge-border: rgba(255, 255, 255, 0.06);
+  --lp-band: #121a2e;
+  --lp-band-surface: #1a2540;
+  --lp-band-border: rgba(255, 255, 255, 0.07);
+}
+
+/* App screens inside the mock phones.
+ * lp-ui-invert = the opposite of the page theme (dark app on the cream page, light app at night);
+ * lp-ui-light = always the app's light theme (used on the dark band). */
+.lp .lp-ui-dark,
+.lp .lp-ui-invert {
+  --lp-show-l: none;
+  --lp-show-d: block;
+  --app-bg: #0b1020;
+  --app-ink: #f8fafc;
+  --app-heading: #ffffff;
+  --app-muted: #94a3b8;
+  --app-bg-home: #0a1020;
+  --app-bg-search: #090d1a;
+  --card-bg: #121a2e;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-title: #f1f5f9;
+  --card-meta: #cbd5e1;
+  --card-note: #94a3b8;
+  --card-strong: #f1f5f9;
+  --badge-bg: rgba(6, 78, 59, 0.4);
+  --badge-fg: #34d399;
+  --sc-bg: #1a2540;
+  --sc-fg: #cbd5e1;
+  --sc-border: rgba(255, 255, 255, 0.06);
+  --posted: #64748b;
+  --share: #94a3b8;
+  --scard: #121a2e;
+  --scard-border: rgba(255, 255, 255, 0.06);
+  --fld-bg: #1a2540;
+  --fld-ink: #f1f5f9;
+  --fld-border: rgba(255, 255, 255, 0.07);
+  --btn-search: #7c3aed;
+  --wa-head: #202c33;
+  --wa-head-ink: #e9edef;
+  --wa-wall: #0b141a;
+  --wa-in: #202c33;
+  --wa-out: #005c4b;
+  --wa-text: #e9edef;
+  --wa-meta: #8696a0;
+  --wa-tick: #53bdeb;
+  --wa-pill: #182229;
+  --wa-pill-ink: #8696a0;
+  --wa-input: #2a3942;
+  --wa-dot: rgba(255, 255, 255, 0.025);
+  --wa-n1: #f06292;
+  --wa-n2: #64b5f6;
+  --wa-n3: #ba68c8;
+  --wa-n4: #81c784;
+}
+.lp .lp-ui-light,
+html.dark-mode .lp .lp-ui-invert {
+  --lp-show-l: block;
+  --lp-show-d: none;
+  --app-bg: linear-gradient(160deg, #d8cfe3, #c4b6d6);
+  --app-ink: #1e1a4d;
+  --app-heading: #0f172a;
+  --app-muted: #5f6170;
+  --app-bg-home: linear-gradient(180deg, #d7cee1, #cbbed8);
+  --app-bg-search: linear-gradient(180deg, #d6cde0 0%, #c5b6d5 100%);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: #ddd2ea;
+  --card-title: #383a4e;
+  --card-meta: #686978;
+  --card-note: #888888;
+  --card-strong: #0f172a;
+  --badge-bg: #d1fae5;
+  --badge-fg: #047857;
+  --sc-bg: #eee6f5;
+  --sc-fg: #5a4f72;
+  --sc-border: transparent;
+  --posted: #94a3b8;
+  --share: #64748b;
+  --scard: rgba(255, 255, 255, 0.72);
+  --scard-border: rgba(255, 255, 255, 0.6);
+  --fld-bg: #1c2541;
+  --fld-ink: #ffffff;
+  --fld-border: transparent;
+  --btn-search: #ab82bd;
+  --wa-head: #008069;
+  --wa-head-ink: #ffffff;
+  --wa-wall: #efeae2;
+  --wa-in: #ffffff;
+  --wa-out: #d9fdd3;
+  --wa-text: #111b21;
+  --wa-meta: #667781;
+  --wa-tick: #53bdeb;
+  --wa-pill: #ffffff;
+  --wa-pill-ink: #54656f;
+  --wa-input: #ffffff;
+  --wa-dot: rgba(17, 27, 33, 0.05);
+  --wa-n1: #c2185b;
+  --wa-n2: #1e88e5;
+  --wa-n3: #6a1b9a;
+  --wa-n4: #2e7d32;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────────────────────────────
+ * Only the new parts get these. The intro sits inside .lp too, and Tailwind's utilities live in a
+ * cascade layer, so any rule here that reached the intro would quietly beat them. */
+.lp .lp-sheet-wrap,
+.lp .lp-footer,
+.lp .lp-topbar {
+  color: var(--lp-ink);
+  font-family: var(--lp-font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.lp .lp-sheet-wrap :focus-visible,
+.lp .lp-footer :focus-visible,
+.lp .lp-topbar :focus-visible {
+  outline: 2px solid var(--lp-accent);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+.lp .lp-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.lp .lp-wrap {
+  max-width: 1160px;
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* The intro keeps the look it had on /intro-preview. Its last colour shows in the sheet's corners. */
+.lp .lp-intro {
+  background: linear-gradient(to bottom right, #d8cfe3, #cfc3dc, #c4b6d6);
+  color: #242638;
+}
+html.dark-mode .lp .lp-intro {
+  background: #0b1020;
+  color: #f8fafc;
+}
+.lp .lp-sheet-wrap {
+  background: var(--lp-intro-end);
+}
+.lp .lp-sheet {
+  position: relative;
+  background: var(--lp-bg);
+  border-radius: 32px 32px 0 0;
+  box-shadow: 0 -1px 0 var(--lp-line);
+}
+
+/* ── Buttons and toggles ──────────────────────────────────────────────────────────────────────── */
+.lp .lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font: 600 16px/1 var(--lp-font-body);
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, transform 0.2s var(--lp-ease);
+}
+.lp .lp-btn-accent {
+  background: var(--lp-accent);
+  color: var(--lp-on-accent);
+}
+.lp .lp-btn-accent:hover {
+  background: var(--lp-accent-hover);
+  transform: translateY(-1px);
+}
+.lp .lp-btn-2 {
+  background: var(--lp-btn2);
+  color: var(--lp-btn2-ink);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 16px;
+}
+.lp .lp-btn-ghost {
+  background: transparent;
+  color: var(--lp-ink);
+  border: 1px solid var(--lp-line);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 14px;
+}
+.lp .lp-icon-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+.lp .lp-textlink {
+  font-weight: 500;
+  color: var(--lp-ink);
+  text-decoration: none;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 12px 4px;
+}
+.lp .lp-textlink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.lp .lp-switch {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--lp-switch-off);
+  transition: background-color 0.2s;
+}
+.lp .lp-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.2s;
+}
+.lp [aria-pressed="true"] .lp-switch {
+  background: #7c3aed;
+}
+.lp [aria-pressed="true"] .lp-switch::after {
+  left: 14px;
+}
+
+/* ── Top bar (after the intro) ────────────────────────────────────────────────────────────────── */
+.lp .lp-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--lp-bar);
+  backdrop-filter: saturate(1.3) blur(14px);
+  -webkit-backdrop-filter: saturate(1.3) blur(14px);
+  border-bottom: 1px solid var(--lp-line);
+  transform: translateY(-110%);
+  transition: transform 0.35s var(--lp-ease);
+}
+.lp .lp-topbar[data-shown="true"] {
+  transform: none;
+}
+.lp .lp-topbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 58px;
+}
+.lp .lp-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lp .lp-wordmark {
+  font: 700 22px/1 var(--lp-font-word);
+  letter-spacing: -0.05em;
+  text-decoration: none;
+  color: var(--lp-ink);
+}
+
+/* ── Type ─────────────────────────────────────────────────────────────────────────────────────── */
+.lp .lp-display {
+  font: 680 clamp(44px, 5.4vw, 78px) / 1.02 var(--lp-font-head);
+  letter-spacing: -0.03em;
+  margin: 0;
+  text-wrap: balance;
+}
+.lp .lp-h2 {
+  font: 650 clamp(36px, 4.4vw, 58px) / 1.06 var(--lp-font-head);
+  letter-spacing: -0.028em;
+  margin: 0;
+  text-wrap: balance;
+}
+.lp .lp-h3 {
+  font: 600 20px/1.3 var(--lp-font-body);
+  letter-spacing: -0.012em;
+  margin: 0;
+}
+.lp .lp-lede {
+  font-size: clamp(17px, 1.6vw, 19px);
+  line-height: 1.6;
+  color: var(--lp-text);
+  max-width: 44ch;
+}
+.lp .lp-sec {
+  padding-block: clamp(80px, 9vw, 124px);
+}
+.lp .lp-copy {
+  display: grid;
+  gap: 22px;
+  align-content: center;
+}
+.lp .lp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin-top: 6px;
+}
+
+/* Hand-drawn underline: one per heading at most */
+.lp .lp-hl {
+  position: relative;
+  white-space: nowrap;
+}
+.lp .lp-hl svg {
+  position: absolute;
+  left: -3%;
+  bottom: -0.14em;
+  width: 106%;
+  height: 0.3em;
+  overflow: visible;
+  pointer-events: none;
+}
+.lp .lp-hl path {
+  fill: none;
+  stroke: var(--lp-accent);
+  stroke-width: 0.11em;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+/* ── Mock phones ──────────────────────────────────────────────────────────────────────────────── */
+.lp .lp-phone {
+  width: 300px;
+  border-radius: 46px;
+  padding: 9px;
+  background: var(--lp-frame);
+  box-shadow: var(--lp-shadow), inset 0 0 0 1px var(--lp-frame-ring);
+  position: relative;
+}
+.lp .lp-phone::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 22px;
+  border-radius: 999px;
+  background: #05070d;
+  z-index: 3;
+}
+.lp .lp-screen {
+  position: relative;
+  height: 610px;
+  border-radius: 38px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg);
+  color: var(--app-ink);
+}
+.lp .lp-statusbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 26px 8px;
+  font: 600 12.5px/1 var(--lp-font-body);
+  flex: none;
+  position: relative;
+  z-index: 2;
+}
+.lp .lp-statusbar i {
+  font-style: normal;
+  letter-spacing: 1px;
+  font-size: 10px;
+}
+
+/* The app's ride card (copied from src/App.tsx), sized in em so it shrinks inside the phones */
+.lp .lp-rc {
+  font-size: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1em;
+  padding: 1.25em;
+  display: grid;
+  gap: 0.5em;
+  text-align: left;
+}
+.lp .lp-rc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5em;
+  flex-wrap: wrap;
+}
+.lp .lp-rc-route {
+  font-size: 1.125em;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--card-title);
+}
+.lp .lp-rc-badge {
+  border-radius: 999px;
+  padding: 0.125em 0.75em;
+  font-size: 0.875em;
+  line-height: 1.43;
+  font-weight: 500;
+  background: var(--badge-bg);
+  color: var(--badge-fg);
+}
+.lp .lp-rc-line {
+  font-size: 0.875em;
+  line-height: 1.43;
+  color: var(--card-meta);
+}
+.lp .lp-rc-line strong {
+  color: var(--card-strong);
+}
+.lp .lp-rc-note {
+  font-size: 0.875em;
+  line-height: 1.43;
+  color: var(--card-note);
+  font-style: italic;
+}
+.lp .lp-rc-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+  margin-top: 0.4em;
+}
+.lp .lp-rc-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.lp .lp-rc-sc {
+  border: 1px solid var(--sc-border);
+  background: var(--sc-bg);
+  color: var(--sc-fg);
+  border-radius: 999px;
+  padding: 0.375em 1em;
+  font: 600 0.875em/1.43 var(--lp-font-body);
+  cursor: pointer;
+}
+.lp .lp-rc-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  background: #16a34a;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.375em 1em;
+  font: 600 0.875em/1.43 var(--lp-font-body);
+  text-decoration: none;
+}
+.lp .lp-rc-wa svg {
+  width: 1.05em;
+  height: 1.05em;
+}
+.lp .lp-rc-posted {
+  font-size: 0.75em;
+  line-height: 1.33;
+  color: var(--posted);
+}
+.lp .lp-rc-share {
+  color: var(--share);
+  display: grid;
+  flex: none;
+}
+.lp .lp-rc-share svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* The app's Search Rides screen */
+.lp .lp-srch {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 6px 12px 0;
+}
+.lp .lp-srch-card {
+  background: var(--scard);
+  border: 1px solid var(--scard-border);
+  border-radius: 22px;
+  padding: 16px 14px 14px;
+  display: grid;
+  gap: 8px;
+  box-shadow: 0 10px 24px -14px rgba(0, 0, 0, 0.35);
+}
+.lp .lp-srch-h {
+  font: 600 21px/1.2 var(--lp-font-body);
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: var(--app-heading);
+  margin: 2px 0 6px;
+}
+.lp .lp-fld {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: var(--fld-bg);
+  color: var(--fld-ink);
+  border: 1px solid var(--fld-border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  line-height: 1.3;
+  min-width: 0;
+}
+.lp .lp-fld span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lp .lp-fld svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  opacity: 0.75;
+}
+.lp .lp-srch-btn {
+  background: var(--btn-search);
+  color: #fff;
+  border-radius: 999px;
+  text-align: center;
+  padding: 11px;
+  font: 600 15px/1 var(--lp-font-body);
+  margin: 2px 0 6px;
+}
+.lp .lp-srch .lp-rc {
+  font-size: 12.5px;
+}
+
+/* A familiar group chat */
+.lp .lp-wa {
+  background-color: var(--wa-wall);
+  color: var(--wa-text);
+  background-image: radial-gradient(var(--wa-dot) 1.2px, transparent 1.4px);
+  background-size: 14px 14px;
+}
+.lp .lp-wa .lp-statusbar {
+  background: var(--wa-head);
+  color: var(--wa-head-ink);
+}
+.lp .lp-wa-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 10px;
+  background: var(--wa-head);
+  color: var(--wa-head-ink);
+  flex: none;
+}
+.lp .lp-wa-av {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #9db8c4;
+  display: grid;
+  place-items: center;
+  font: 600 12px/1 var(--lp-font-body);
+  color: #fff;
+  flex: none;
+}
+.lp .lp-wa-title {
+  min-width: 0;
+  flex: 1;
+}
+.lp .lp-wa-title b {
+  display: block;
+  font: 600 15px/1.25 var(--lp-font-body);
+}
+.lp .lp-wa-title span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lp .lp-wa-icons {
+  display: flex;
+  gap: 14px;
+}
+.lp .lp-wa-feed {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 8px 10px 6px;
+}
+.lp .lp-wa-unread {
+  align-self: stretch;
+  text-align: center;
+  background: var(--wa-pill);
+  color: var(--wa-pill-ink);
+  font-size: 11.5px;
+  padding: 4px 10px;
+  margin-block: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 500;
+  box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+}
+.lp .lp-msg {
+  position: relative;
+  max-width: 84%;
+  background: var(--wa-in);
+  border-radius: 0 8px 8px 8px;
+  padding: 5px 8px 6px;
+  font-size: 13.5px;
+  line-height: 1.35;
+  box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+  align-self: flex-start;
+}
+.lp .lp-msg-cont {
+  border-radius: 8px;
+}
+.lp .lp-msg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -7px;
+  border-top: 8px solid var(--wa-in);
+  border-left: 8px solid transparent;
+}
+.lp .lp-msg-cont::before {
+  display: none;
+}
+.lp .lp-msg-out {
+  margin-right: 4px;
+  align-self: flex-end;
+  background: var(--wa-out);
+  border-radius: 8px 0 8px 8px;
+}
+.lp .lp-msg-out::before {
+  left: auto;
+  right: -7px;
+  border-top-color: var(--wa-out);
+  border-left: 0;
+  border-right: 8px solid transparent;
+}
+.lp .lp-msg b {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 1px;
+}
+.lp .lp-msg time {
+  float: right;
+  margin: 6px 0 -4px 10px;
+  font-size: 10.5px;
+  color: var(--wa-meta);
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+.lp .lp-tick {
+  color: var(--wa-tick);
+}
+.lp .lp-wa-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px 16px;
+  flex: none;
+}
+.lp .lp-wa-input span {
+  flex: 1;
+  background: var(--wa-input);
+  border-radius: 999px;
+  padding: 9px 14px;
+  font-size: 13.5px;
+  color: var(--wa-meta);
+}
+.lp .lp-wa-input i {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #00a884;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+/* ── 1. The batch group ───────────────────────────────────────────────────────────────────────── */
+.lp .lp-problem {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+.lp .lp-duo {
+  position: relative;
+  height: 700px;
+  width: 620px;
+  justify-self: center;
+}
+.lp .lp-duo-1,
+.lp .lp-duo-2 {
+  position: absolute;
+  inset: 0;
+}
+.lp .lp-duo-2 {
+  z-index: 2;
+}
+.lp .lp-duo-1 .lp-phone {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: rotate(-4deg);
+}
+.lp .lp-duo-2 .lp-phone {
+  position: absolute;
+  right: 0;
+  top: 70px;
+  transform: rotate(3deg);
+}
+
+/* ── 2. Destinations ──────────────────────────────────────────────────────────────────────────── */
+.lp .lp-where {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 88px);
+  align-items: center;
+}
+.lp .lp-board {
+  background: var(--lp-board);
+  color: var(--lp-board-ink);
+  border-radius: 24px;
+  padding: 24px clamp(18px, 3vw, 32px) 12px;
+  box-shadow: var(--lp-shadow-sm);
+  font-family: var(--lp-font-mono);
+  border: 1px solid var(--lp-board-line);
+}
+.lp .lp-board-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lp-board-quiet);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--lp-board-line);
+}
+.lp .lp-board-clock {
+  font-variant-numeric: tabular-nums;
+  color: var(--lp-accent);
+  letter-spacing: 0.08em;
+}
+.lp .lp-board-row {
+  display: grid;
+  grid-template-columns: 4.2em minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--lp-board-line);
+}
+.lp .lp-board-row:last-child {
+  border-bottom: 0;
+}
+.lp .lp-board-code {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--lp-accent);
+}
+.lp .lp-board-name {
+  font-family: var(--lp-font-body);
+  font-size: 15.5px;
+  line-height: 1.35;
+}
+.lp .lp-board-kind {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lp-board-quiet);
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────────────────────────── */
+.lp .lp-footer {
+  padding-block: 8px 28px;
+  padding-bottom: max(28px, env(safe-area-inset-bottom, 0px));
+}
+.lp .lp-foot-route {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin-bottom: 40px;
+}
+.lp .lp-foot-route span {
+  flex: 1;
+  height: 4px;
+  margin-bottom: 4px;
+  background-image: radial-gradient(circle, var(--lp-tint-3) 2px, transparent 2.5px);
+  background-size: 14px 4px;
+}
+.lp .lp-foot-route svg {
+  width: 20px;
+  height: 26px;
+  flex: none;
+}
+.lp .lp-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 32px clamp(48px, 7vw, 96px);
+}
+.lp .lp-foot-brand {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.lp .lp-foot-brand p {
+  color: var(--lp-text);
+}
+.lp .lp-foot-col {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  justify-items: start;
+}
+.lp .lp-foot-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lp-quiet);
+  margin-bottom: 8px;
+}
+.lp .lp-foot-col a:not(.lp-btn) {
+  text-decoration: none;
+  color: var(--lp-text);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.lp .lp-foot-col a:not(.lp-btn):hover {
+  color: var(--lp-ink);
+}
+.lp .lp-foot-open {
+  padding: 9px 16px;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.lp .lp-foot-base {
+  grid-column: 1 / -1;
+  padding-top: 22px;
+  border-top: 1px solid var(--lp-line);
+  font-size: 14px;
+  color: var(--lp-quiet);
+}
+
+/* ── Narrow screens ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 1040px) {
+  .lp .lp-problem,
+  .lp .lp-where {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lp .lp-problem .lp-copy {
+    order: -1;
+  }
+  .lp .lp-duo {
+    zoom: 0.86;
+  }
+}
+@media (max-width: 620px) {
+  .lp .lp-sheet-wrap,
+  .lp .lp-footer {
+    font-size: 16px;
+  }
+  .lp .lp-duo {
+    zoom: 0.56;
+  }
+  .lp .lp-board-row {
+    grid-template-columns: 3.6em minmax(0, 1fr);
+  }
+  .lp .lp-board-kind {
+    display: none;
+  }
+  .lp .lp-foot {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .lp .lp-foot-brand {
+    grid-column: 1 / -1;
+  }
+  .lp .lp-topbar .lp-label {
+    display: none;
+  }
+}
+@media (max-width: 380px) {
+  .lp .lp-duo {
+    zoom: 0.51;
+  }
+}
+
+/* ── Motion ───────────────────────────────────────────────────────────────────────────────────────
+ * The page is complete without any of this. useLandingMotion adds:
+ *   lp-pre   on [data-reveal] still below the screen (removed when it scrolls in: fade up)
+ *   lp-wait  on [data-play] still below the screen (its starting state)
+ *   lp-play  when it scrolls in (its own moment, then it rests in the final state)
+ * With Motion off nothing is added, and data-motion="off" stops anything already running. */
+.lp[data-motion="on"] .lp-pre {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.lp[data-motion="on"] [data-reveal] {
+  transition: opacity 0.7s var(--lp-ease), transform 0.7s var(--lp-ease);
+  transition-delay: calc(var(--i, 0) * 100ms);
+}
+.lp[data-motion="on"] .lp-pre .lp-hl path,
+.lp[data-motion="on"] .lp-hl.lp-pre path {
+  stroke-dashoffset: 1;
+}
+.lp[data-motion="on"] .lp-hl path {
+  transition: stroke-dashoffset 0.8s var(--lp-ease) 0.45s;
+}
+/* Second phone settles in after the chat */
+.lp[data-motion="on"] .lp-duo-2.lp-pre {
+  transform: translate(30px, 30px) rotate(4deg);
+}
+.lp[data-motion="on"] .lp-duo-2 {
+  transition-delay: 0.85s;
+  transition-duration: 0.8s;
+}
+/* The chat fills in */
+.lp[data-motion="on"] .lp-wait .lp-msg,
+.lp[data-motion="on"] .lp-wait .lp-wa-unread {
+  opacity: 0;
+}
+.lp[data-motion="on"] .lp-play .lp-msg,
+.lp[data-motion="on"] .lp-play .lp-wa-unread {
+  animation: lp-rise 0.45s var(--lp-ease) both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+@keyframes lp-rise {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+/* The departures board flips in, row by row */
+.lp[data-motion="on"] .lp-board.lp-play .lp-board-row {
+  animation: lp-flap 0.5s var(--lp-ease) both;
+  animation-delay: calc(var(--i, 0) * 110ms + 0.15s);
+}
+@keyframes lp-flap {
+  from {
+    transform: perspective(500px) rotateX(-70deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.lp[data-motion="off"] .lp-sheet *,
+.lp[data-motion="off"] .lp-sheet *::before,
+.lp[data-motion="off"] .lp-sheet *::after {
+  animation: none !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp .lp-topbar {
+    transition: none;
+  }
+}
+
+/* Anchor targets clear the fixed top bar */
+.lp .lp-sheet [id] {
+  scroll-margin-top: 72px;
+}
