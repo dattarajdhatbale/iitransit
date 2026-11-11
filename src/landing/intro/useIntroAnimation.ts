@@ -47,11 +47,7 @@ export function useIntroAnimation({ stageRef, scene, motionOn }: Options) {
       lastScrollY.current = window.scrollY;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      document.documentElement.removeAttribute("style");
-      document.body.removeAttribute("style");
-    };
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useGSAP(
