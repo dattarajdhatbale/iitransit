@@ -6,6 +6,7 @@ import { useMotionPreference } from "./intro/useMotionPreference";
 import { useSceneKey } from "./intro/useSceneKey";
 import DestinationsSection from "./sections/DestinationsSection";
 import Footer from "./sections/Footer";
+import HowItWorksSection from "./sections/HowItWorksSection";
 import ProblemSection from "./sections/ProblemSection";
 import TopBar from "./sections/TopBar";
 import "./sections/landing.css";
@@ -49,6 +50,7 @@ export default function LandingPage() {
         <main className="lp-sheet">
           <ProblemSection />
           <DestinationsSection />
+          <HowItWorksSection motionOn={motionOn} />
         </main>
       </div>
       <Footer />

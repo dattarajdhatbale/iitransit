@@ -202,6 +202,10 @@ html.dark-mode .lp .lp-ui-invert {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
+/* Don't rely on the app's reset for paragraph margins; :where keeps this below every class rule */
+.lp :where(.lp-sheet-wrap, .lp-footer) p {
+  margin: 0;
+}
 .lp .lp-sheet-wrap :focus-visible,
 .lp .lp-footer :focus-visible,
 .lp .lp-topbar :focus-visible {
@@ -885,6 +889,249 @@ html.dark-mode .lp .lp-intro {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--lp-board-quiet);
+}
+
+/* ── 3. How it works: the one contrast band ───────────────────────────────────────────────────── */
+.lp .lp-band {
+  background: var(--lp-band);
+  color: var(--lp-band-ink);
+  border-block: 1px solid var(--lp-band-border);
+}
+.lp .lp-band .lp-h2 {
+  color: var(--lp-band-ink);
+}
+.lp .lp-how {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 96px);
+}
+.lp .lp-steps {
+  position: relative;
+  margin-top: 24px;
+}
+.lp .lp-step {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  position: relative;
+}
+.lp .lp-step-n {
+  font: 600 14px/1 var(--lp-font-body);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  color: var(--lp-band-quiet);
+  transition: color 0.3s;
+}
+.lp .lp-step .lp-h3 {
+  font-size: clamp(21px, 2vw, 26px);
+  color: var(--lp-band-ink);
+}
+.lp .lp-step > p {
+  color: var(--lp-band-text);
+  max-width: 40ch;
+}
+.lp .lp-tap-hint {
+  margin-top: 22px;
+  font-size: 14px;
+  color: var(--lp-band-quiet);
+  text-align: center;
+  min-height: 1.6em;
+}
+
+/* Pinned layout: one phone stays in place while the steps scroll past */
+.lp .lp-how-pinned .lp-steps {
+  padding-left: 32px;
+}
+.lp .lp-track {
+  position: absolute;
+  left: 6px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--lp-band-line);
+  border-radius: 2px;
+}
+.lp .lp-track b {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: calc(var(--lp-progress, 0) * 100%);
+  background: var(--lp-accent);
+  border-radius: 2px;
+  transition: height 0.5s var(--lp-ease);
+}
+.lp .lp-how-pinned .lp-step {
+  min-height: 72vh;
+  align-content: center;
+}
+.lp .lp-how-pinned .lp-step[data-step="0"] {
+  min-height: 52vh;
+  align-content: start;
+  padding-top: 6vh;
+}
+/* The last step leaves room below it, so the phone is still fully in view when step 3 is active */
+.lp .lp-how-pinned .lp-step[data-step="2"] {
+  min-height: 100vh;
+  align-content: start;
+  padding-top: 32vh;
+}
+.lp .lp-how-pinned .lp-step::before {
+  content: "";
+  position: absolute;
+  left: -32px;
+  top: calc(50% - 7px);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--lp-band);
+  border: 2px solid var(--lp-band-line);
+  transition: border-color 0.3s, background-color 0.3s;
+}
+.lp .lp-how-pinned .lp-step[data-step="0"]::before {
+  top: calc(6vh + 14px);
+}
+.lp .lp-how-pinned .lp-step[data-step="2"]::before {
+  top: calc(32vh + 4px);
+}
+.lp .lp-how-pinned .lp-step-active .lp-step-n {
+  color: var(--lp-accent);
+}
+.lp .lp-how-pinned .lp-step-active::before {
+  border-color: var(--lp-accent);
+  background: var(--lp-accent);
+}
+.lp .lp-pin-col {
+  position: relative;
+}
+.lp .lp-pin-phone {
+  position: sticky;
+  top: max(84px, calc(50vh - 330px));
+  display: grid;
+  justify-items: center;
+  padding-top: 6vh;
+}
+.lp .lp-screens {
+  height: 628px;
+}
+.lp .lp-screens > .lp-screen {
+  position: absolute;
+  inset: 9px;
+  height: auto;
+  opacity: 0;
+  transition: opacity 0.45s var(--lp-ease);
+}
+.lp .lp-screens > .lp-screen-on {
+  opacity: 1;
+}
+.lp .lp-chip-float {
+  position: absolute;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--lp-toast);
+  color: var(--lp-toast-ink);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: var(--lp-shadow-sm);
+  white-space: nowrap;
+}
+.lp .lp-ok {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.lp .lp-signed {
+  left: -44px;
+  top: 228px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s, transform 0.4s var(--lp-ease);
+}
+.lp .lp-signed[data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Real screenshots inside a phone screen */
+.lp .lp-shot {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.lp .lp-shot img {
+  display: none;
+  width: 100%;
+}
+.lp .lp-shot .lp-shot-l {
+  display: var(--lp-show-l);
+}
+.lp .lp-shot .lp-shot-d {
+  display: var(--lp-show-d);
+}
+.lp .lp-shot-cover img {
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.lp .lp-shot-top img {
+  height: auto;
+}
+
+/* Stacked layout: phones, short screens and Motion OFF */
+.lp .lp-how-stacked {
+  grid-template-columns: minmax(0, 1fr);
+}
+.lp .lp-how-stacked .lp-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+.lp .lp-how-stacked .lp-step-n {
+  color: var(--lp-accent);
+}
+.lp .lp-step-visual {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  margin-top: 18px;
+  zoom: 0.78;
+}
+/* Line the three columns up row by row (number, title, text, phone), whatever the text lengths */
+@media (min-width: 901px) {
+  .lp .lp-how-stacked .lp-steps {
+    grid-template-rows: auto auto auto 1fr;
+    row-gap: 0;
+  }
+  .lp .lp-how-stacked .lp-step {
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+    row-gap: 12px;
+  }
+}
+@media (max-width: 900px) {
+  .lp .lp-how-stacked .lp-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 56px;
+  }
+  .lp .lp-step-visual {
+    zoom: 0.86;
+  }
+  .lp .lp-signed {
+    left: -12px;
+  }
+}
+.lp[data-motion="off"] .lp-band *,
+.lp[data-motion="off"] .lp-band *::before {
+  transition-duration: 0s !important;
 }
 
 /* ── Footer ───────────────────────────────────────────────────────────────────────────────────── */

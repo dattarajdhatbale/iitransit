@@ -31,7 +31,13 @@ export default function TopBar({ isDark, onToggleTheme, motionOn, onToggleMotion
           IITransit
         </a>
         <div className="lp-controls">
-          <button type="button" className="lp-btn lp-btn-ghost" onClick={onToggleMotion} aria-pressed={motionOn}>
+          <button
+            type="button"
+            className="lp-btn lp-btn-ghost"
+            onClick={onToggleMotion}
+            aria-pressed={motionOn}
+            aria-label="Motion"
+          >
             <span className="lp-label">Motion</span>
             <span className="lp-switch" aria-hidden="true" />
           </button>
