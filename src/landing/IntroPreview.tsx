@@ -1,53 +1,43 @@
-import { useRef } from "react";
-import { Link } from "react-router-dom";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-import { getIsDark } from "../theme";
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { getIsDark, setIsDark } from "../theme";
+import IntroStage from "./intro/IntroStage";
+import { useMotionPreference } from "./intro/useMotionPreference";
+import { useSceneKey } from "./intro/useSceneKey";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
-
-// Temporary development page for the intro animation, at /intro-preview. Removed before launch.
+// Temporary development page for the intro, at /intro-preview (add ?debug to see the route maths).
+// Removed before launch, when the intro moves to the real landing page.
 export default function IntroPreview() {
-  const root = useRef<HTMLDivElement>(null);
-  const isDark = getIsDark();
+  const [isDark, setDark] = useState<boolean>(getIsDark);
+  const scene = useSceneKey();
+  const { motionOn, setMotionOn } = useMotionPreference();
+  const debug = new URLSearchParams(useLocation().search).has("debug");
 
-  useGSAP(
-    () => {
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: "[data-stage]",
-            start: "top top",
-            end: "+=150%",
-            scrub: 0.5,
-            pin: true,
-          },
-        })
-        .fromTo("[data-dot]", { x: 0 }, { x: () => window.innerWidth * 0.6, ease: "none" });
-    },
-    { scope: root },
-  );
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    setDark(next);
+  };
 
   return (
     <div
-      ref={root}
       className={
         isDark
           ? "min-h-[100svh] bg-[#0B1020] text-[#F8FAFC]"
           : "min-h-[100svh] bg-gradient-to-br from-[#d8cfe3] via-[#cfc3dc] to-[#c4b6d6] text-[#242638]"
       }
     >
-      <header className="flex items-center justify-between px-4 py-3 md:px-10">
-        <span className="text-sm">Intro preview · GSAP {gsap.version}</span>
-        <Link to="/app" className="rounded-full bg-[#7C3AED] px-4 py-2 text-sm font-bold text-white">
-          Open App
-        </Link>
-      </header>
-      <section data-stage className="flex h-[100svh] items-center px-6">
-        <div data-dot className="h-12 w-12 rounded-full bg-[#7C3AED]" />
+      <IntroStage
+        scene={scene}
+        isDark={isDark}
+        onToggleTheme={toggleTheme}
+        motionOn={motionOn}
+        onToggleMotion={() => setMotionOn(!motionOn)}
+        debug={debug}
+      />
+      <section className="flex min-h-[60svh] items-center justify-center px-4 text-center text-sm opacity-70">
+        The landing page sections continue here.
       </section>
-      <section className="h-[100svh] px-6 py-10">After the pin, the page scrolls normally.</section>
     </div>
   );
 }
