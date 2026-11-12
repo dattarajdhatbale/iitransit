@@ -18,13 +18,14 @@ import "./sections/landing.css";
 import { useLandingMotion } from "./useLandingMotion";
 
 // The landing page: the scroll intro, then the sections. Owns the theme, Motion and scene state and
-// shares them with the intro and the sections. Add ?debug to see the intro's route maths.
+// shares them with the intro and the sections. On the dev server, add ?debug to see the intro's route maths.
 export default function LandingPage() {
   const [isDark, setDark] = useState<boolean>(getIsDark);
   const scene = useSceneKey();
   const { motionOn, setMotionOn } = useMotionPreference();
   const location = useLocation();
-  const debug = new URLSearchParams(location.search).has("debug");
+  // Dev server only: the live site never shows the overlay, even with ?debug.
+  const debug = import.meta.env.DEV && new URLSearchParams(location.search).has("debug");
   const rootRef = useRef<HTMLDivElement>(null);
 
   useLandingMotion(rootRef, motionOn);
