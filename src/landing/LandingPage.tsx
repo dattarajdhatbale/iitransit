@@ -1,4 +1,6 @@
+import "@fontsource-variable/onest";
 import { useEffect, useRef, useState } from "react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLocation } from "react-router-dom";
 import { getIsDark, setIsDark } from "../theme";
 import IntroStage from "./intro/IntroStage";
@@ -27,6 +29,7 @@ export default function LandingPage() {
 
   useLandingMotion(rootRef, motionOn);
   useScrollToHashOnLoad(location.hash);
+  useRefreshWhenFontsLoad();
 
   const toggleTheme = () => {
     const next = !isDark;
@@ -62,6 +65,20 @@ export default function LandingPage() {
       <Footer />
     </div>
   );
+}
+
+// Re-measure scroll positions once the web fonts have arrived (headings change height when the
+// fallback font swaps out). Nothing above the pin depends on fonts today; this keeps it that way.
+function useRefreshWhenFontsLoad() {
+  useEffect(() => {
+    let live = true;
+    document.fonts?.ready.then(() => {
+      if (live) ScrollTrigger.refresh();
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
 }
 
 // The browser scrolls to #how or #faq before the intro's pin adds its scroll distance above them,

@@ -80,7 +80,7 @@ export default function IntroStage({
         key={caption.id}
         data-caption={caption.id}
         aria-hidden={isFinal ? undefined : true}
-        className={`absolute inset-0 m-0 font-['Space_Grotesk'] font-bold leading-[1.1] tracking-tight ${ink} ${
+        className={`absolute inset-0 m-0 font-['Onest_Variable'] font-[650] leading-[1.1] tracking-[-0.02em] ${ink} ${
           isMobile ? "flex flex-col items-center justify-center px-4 text-center" : ""
         }`}
         style={{ opacity: isFinal ? 1 : 0, visibility: isFinal ? "visible" : "hidden" }}

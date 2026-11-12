@@ -17,7 +17,7 @@ export default function ClosingSection() {
           <ArtPin className="lp-road-pin" />
         </div>
         <h2 className="lp-h2" id="lp-closing-title" data-reveal>
-          Heading to the station? So is someone <Highlight stroke={3}>else.</Highlight>
+          Heading to the{"\u00a0"}station? So{"\u00a0"}is someone{"\u00a0"}<Highlight stroke={3}>else.</Highlight>
         </h2>
         <p className="lp-lede" data-reveal style={{ "--i": 1 } as CSSProperties}>
           Sign in with your @iitbbs.ac.in Google account.

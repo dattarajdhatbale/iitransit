@@ -85,7 +85,11 @@ export default function DestinationsSection() {
         </div>
         <div className="lp-copy" data-reveal style={{ "--i": 1 } as CSSProperties}>
           <h2 className="lp-h2" id="lp-where-title">
-            Both stations, the airport and <Highlight stroke={1}>Baramunda.</Highlight>
+            <span className="lp-line">Both stations, </span>
+            <span className="lp-line">the{"\u00a0"}airport </span>
+            <span className="lp-line">
+              and <Highlight stroke={1}>Baramunda.</Highlight>
+            </span>
           </h2>
           <p className="lp-lede">
             The four places everyone leaves campus for. Going home for the weekend, catching a flight, or getting to Khurda Road

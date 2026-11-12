@@ -13,7 +13,12 @@ export default function ProblemSection() {
       <div className="lp-wrap lp-problem">
         <div className="lp-copy" data-reveal>
           <h2 className="lp-display" id="lp-problem-title">
-            Stop scrolling the batch group for a <Highlight>ride.</Highlight>
+            <span className="lp-line">Stop scrolling </span>
+            <span className="lp-line">the{"\u00a0"}batch </span>
+            <span className="lp-line">group for </span>
+            <span className="lp-line">
+              a{"\u00a0"}<Highlight>ride.</Highlight>
+            </span>
           </h2>
           <p className="lp-lede">
             Someone asks who's going to the station at 6. Forty memes later, nobody remembers. On IITransit the ride stays put,

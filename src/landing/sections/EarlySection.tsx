@@ -16,7 +16,7 @@ export default function EarlySection() {
       <div className="lp-wrap lp-early">
         <div className="lp-copy" data-reveal>
           <h2 className="lp-h2" id="lp-early-title">
-            Nobody going yet? You're <Highlight stroke={2}>early.</Highlight>
+            Nobody going yet? You're{"\u00a0"}<Highlight stroke={2}>early.</Highlight>
           </h2>
           <p className="lp-lede">
             Post the ride yourself in one tap, with the route and date already filled in. Or watch the search, and the bell

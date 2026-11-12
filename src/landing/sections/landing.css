@@ -50,7 +50,7 @@
   --lp-band-border: transparent;
 
   --lp-font-word: "Space Grotesk", "Inter", system-ui, sans-serif; /* wordmark, as in the app */
-  --lp-font-head: "Bricolage Grotesque", "Inter", system-ui, sans-serif; /* section headings */
+  --lp-font-head: "Onest Variable", "Inter", system-ui, sans-serif; /* headings (self-hosted, Fontsource) */
   --lp-font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --lp-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
   --lp-ease: cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -371,22 +371,22 @@ html.dark-mode .lp .lp-intro {
 
 /* ── Type ─────────────────────────────────────────────────────────────────────────────────────── */
 .lp .lp-display {
-  font: 680 clamp(44px, 5.4vw, 78px) / 1.02 var(--lp-font-head);
-  letter-spacing: -0.03em;
+  font: 650 clamp(42px, 4.7vw, 68px) / 1.07 var(--lp-font-head);
+  letter-spacing: -0.02em;
   margin: 0;
   text-wrap: balance;
 }
 .lp .lp-h2 {
-  font: 650 clamp(36px, 4.4vw, 58px) / 1.06 var(--lp-font-head);
-  letter-spacing: -0.028em;
+  font: 600 clamp(34px, 4.1vw, 54px) / 1.1 var(--lp-font-head);
+  letter-spacing: -0.015em;
   margin: 0;
   text-wrap: balance;
 }
 .lp .lp-h3 {
-  /* Bricolage, loaded in real 600-700 weights. The app loads Inter only up to 500, so a 600 Inter
-     here would be faked by the browser and look smudged at this size. */
-  font: 600 21px/1.25 var(--lp-font-head);
-  letter-spacing: -0.015em;
+  /* The heading font, a real 600. The app loads Inter only up to 500, so a 600 Inter here would be
+     faked by the browser and look smudged at this size. */
+  font: 600 21px/1.2 var(--lp-font-head);
+  letter-spacing: -0.01em;
   margin: 0;
 }
 .lp .lp-lede {
@@ -403,12 +403,26 @@ html.dark-mode .lp .lp-intro {
   gap: 22px;
   align-content: center;
 }
+/* Room for the underline, which hangs below the heading's last line */
+.lp .lp-copy > .lp-lede {
+  margin-top: 24px;
+}
 .lp .lp-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 10px 18px;
   margin-top: 6px;
+}
+
+/* Fixed line breaks for headings that read better in a set shape on wide screens */
+.lp .lp-line {
+  display: inline;
+}
+@media (min-width: 1041px) {
+  .lp .lp-line {
+    display: block;
+  }
 }
 
 /* Hand-drawn underline: one per heading at most */
@@ -419,9 +433,10 @@ html.dark-mode .lp .lp-intro {
 .lp .lp-hl svg {
   position: absolute;
   left: -3%;
-  bottom: -0.14em;
+  /* Below the descenders (the y in "early"), so the stroke never cuts through a letter */
+  bottom: -0.27em;
   width: 106%;
-  height: 0.3em;
+  height: 0.28em;
   overflow: visible;
   pointer-events: none;
 }
@@ -1347,8 +1362,8 @@ html.dark-mode .lp .lp-intro {
   align-items: center;
   gap: 16px;
   padding: 20px 0;
-  font: 500 18px/1.4 var(--lp-font-body);
-  letter-spacing: -0.01em;
+  font: 550 18px/1.4 var(--lp-font-head);
+  letter-spacing: -0.005em;
   color: var(--lp-ink);
 }
 .lp .lp-faq summary::-webkit-details-marker {
