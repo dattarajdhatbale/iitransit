@@ -63,7 +63,7 @@ The home page introduces IITransit to students who haven't used it yet. It opens
 | Deployment | Vercel |
 | PWA | vite-plugin-pwa |
 | Animation | GSAP 3 with ScrollTrigger (landing page only) |
-| Fonts | Inter and Space Grotesk (Google Fonts); Onest, self-hosted via Fontsource (landing page headings) |
+| Fonts | Inter, Space Grotesk and Onest (landing page headings), all self-hosted via Fontsource |
 | Testing | Vitest |
 
 ---
