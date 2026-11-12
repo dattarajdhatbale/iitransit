@@ -2,11 +2,13 @@
 
 A ride-sharing web app for IIT Bhubaneswar students to coordinate shared cabs and autos to transit hubs.
 
-**Live Demo:** https://iitransit.vercel.app
+**Live:** https://iitransit.vercel.app (the landing page; the app itself is at [`/app`](https://iitransit.vercel.app/app))
 
 ---
 
 ## Demo
+
+A walkthrough of the app (recorded before the landing page was added):
 
 [![Watch the Demo](https://img.youtube.com/vi/U10DvnTRGu4/0.jpg)](https://www.youtube.com/watch?v=U10DvnTRGu4)
 
@@ -37,6 +39,17 @@ IITransit provides a simple, focused interface: post a ride you are offering, or
 
 ---
 
+## Landing Page
+
+The home page introduces IITransit to students who haven't used it yet. It opens with a scroll-driven intro: an illustrated scene of students leaving campus for the station, in which a shared car picks them up and drives the route as you scroll, ending on "Find your ride-mates on IITransit." Short sections follow: the batch-group problem, the destinations, how it works, what happens when nobody is going yet, an FAQ, and a closing link into the app.
+
+- **Who sees it** — New visitors on `/`. Anyone who has used the app signed in on this device, and the installed app, goes straight to `/app`, but only when `/` is the first page of the visit, so pressing Back from the app still shows the page and section links like `/#faq` always work. `/about` always shows it.
+- **Motion** — The intro follows the scroll, and each section's animation plays once as it comes into view. Both start off when the system asks for reduced motion, and a Motion switch on the page turns them on or off and remembers the choice. With Motion off, everything shows in its final state.
+- **Real app screens** — The phones show the app's own screenshots or copies of its components, in the opposite theme to the page so they stand out. Example dates are computed from today, so the screens never look stale.
+- **Kept apart from the app** — The landing page and the app load as separate bundles: the page never downloads Firebase, and the app never downloads the animation library.
+
+---
+
 ## Technology Stack
 
 | Layer | Technology |
@@ -49,6 +62,9 @@ IITransit provides a simple, focused interface: post a ride you are offering, or
 | Authentication | Firebase Authentication (Google OAuth) |
 | Deployment | Vercel |
 | PWA | vite-plugin-pwa |
+| Animation | GSAP 3 with ScrollTrigger (landing page only) |
+| Fonts | Inter and Space Grotesk (Google Fonts); Onest, self-hosted via Fontsource (landing page headings) |
+| Testing | Vitest |
 
 ---
 
@@ -69,6 +85,12 @@ IITransit provides a simple, focused interface: post a ride you are offering, or
 **Soft deletes.** Hard deletes are denied in `firestore.rules` (`allow delete: false` on rides). Cancelled rides set their `status` field to `"cancelled"`, preserving history and auditability.
 
 **Duplicate submission guard.** A `useRef` flag is set synchronously at the start of the post handler, preventing repeated submissions on slow connections before React's async state update takes effect.
+
+**Scroll intro as a pure function.** GSAP animates a plain state object, never the DOM. A pure `computeFrame` function turns that state into transforms and opacities, and a small applier writes them to the SVG and restores every attribute it touched when Motion is turned off or the page is left. Because the timeline never touches the DOM, unit tests run the whole intro at any scroll position, in both directions. The route maths (positions and turns along hand-drawn Bézier paths) is plain TypeScript and tested the same way.
+
+**Generated scenes.** The intro's desktop and mobile scenes and their route geometry are generated from the approved artwork by `design/intro-art/tools/make_scenes.py`, so an art change is one re-run instead of hand edits to React components.
+
+**The view stays put.** The intro is pinned while it plays, which adds scroll distance below it. When the pin is added, removed or resized (Motion toggled, phone rotated), `scrollMapping.ts` moves the scroll position so the reader keeps looking at the same thing.
 
 **Separation of concerns.** Firestore operations live in `db.ts`, domain utilities in `utils/` (`alertUtils.ts`, `profileUtils.ts`, `timeUtils.ts`), type definitions in `types.ts`, and Firebase initialisation in `firebase.ts`. `App.tsx` focuses on declarative SPA routing and UI state.
 
@@ -99,7 +121,17 @@ These values are available from the Firebase Console under Project Settings → 
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`. To test on a mobile device on the same network, use the Network URL printed in the terminal.
+The landing page will be available at `http://localhost:5173` and the app at `http://localhost:5173/app`. To test on a mobile device on the same network, use the Network URL printed in the terminal.
+
+Once you have signed in, `/` takes you straight to the app; open `/about` to see the landing page. On the dev server, `/about?debug` draws the intro's route geometry over the scene.
+
+Other scripts:
+
+```bash
+npm test            # unit tests (Vitest)
+npm run typecheck   # TypeScript check, no output when it passes
+npm run build       # production build in dist/
+```
 
 > Note: Sign-in requires a Google account with an `@iitbbs.ac.in` domain. Testing authentication locally requires adding `localhost` to the Authorized Domains list in Firebase Console → Authentication → Settings.
 
@@ -109,20 +141,36 @@ The app will be available at `http://localhost:5173`. To test on a mobile device
 
 ```
 src/
+  main.tsx             React entry point
+  Root.tsx             Top-level routing: landing page or app, loaded lazily
+  rootRoute.ts         The rules for which page a URL shows (tested)
+  returningUser.ts     Remembers a sign-in on this device, so "/" can skip the landing page
+  lazyWithReload.ts    Lazy loading that reloads once if a chunk is missing after a deploy
+  installPrompt.ts     Captures the PWA install prompt from the first page loaded
+  theme.ts             Shared light/dark theme helpers
   App.tsx              UI layer — SPA routing, views, and event handlers
   components/
     Avatar.tsx         User avatar with profile link and initials fallback
+    Pagination.tsx     Numbered pagination
     icons.tsx          Custom SVG icon components
   firebase.ts          Firebase app initialisation
   db.ts                All Firestore reads, writes, and atomic updates
   types.ts             TypeScript interfaces for Ride, SearchAlert, UserProfile, etc.
-  main.tsx             React entry point
   index.css            Design tokens and global component styles
   utils/
     alertUtils.ts      Watched search matching, deterministic IDs, and cooldown logic
     profileUtils.ts    Phone sanitization, validation, and pagination helpers
     timeUtils.ts       Server clock offset sync via HTTP HEAD Date header
     cn.ts              Tailwind class merger utility
+  landing/
+    LandingPage.tsx    The landing page: owns theme, Motion and scene state
+    useLandingMotion.ts  Plays each section's animation once as it scrolls into view
+    intro/             The scroll intro: timeline, frame applier, route maths, scroll mapping
+    scenes/            Desktop and mobile scenes and their geometry (generated)
+    sections/          One component per section, plus landing.css
+    parts/             Shared pieces: phone frame, ride card copy, screenshots, example dates
+    styles/            The intro art's colour theme (generated)
+design/intro-art/      Source artwork; tools/make_scenes.py generates the scenes
 firestore.rules        Server-side schema, auth, and mutation security rules
 ```
 

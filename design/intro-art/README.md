@@ -10,7 +10,7 @@ generated files under `src/landing/`.
 | `final/iit-bhubaneswar-main-building.svg`, `railway-station.svg`, `shared-car.svg`, `students.svg` | Components |
 | `final/themed/*.app.svg` | Same art with colour roles as CSS classes, for inlining in React |
 | `final/themed/*.svg` | Same, with an embedded light/dark style, for standalone viewing |
-| `final/preview/*.light.svg`, `*.dark.svg` | Colours baked in (used by `public/landing/` and `og-image.png`) |
+| `final/preview/*.light.svg`, `*.dark.svg` | Colours baked in (used to make `public/og-image.png`) |
 | `final/iitransit-art.css` | Theme stylesheet (copy lives at `src/landing/styles/iitransit-art.css`) |
 | `final/theme.py` | The palette: colour roles with light and dark values. Re-run after any art change |
 | `final/build_final.py`, `src/build_frames.py` | Compose the scenes from the components |
