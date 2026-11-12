@@ -3,13 +3,14 @@ import { ShareIcon } from "../../components/icons";
 import { Highlight } from "../parts/Highlight";
 import { BellIcon } from "../parts/icons";
 import { Phone, StatusBar } from "../parts/Phone";
-import { SHOTS, Screenshot } from "../parts/Screenshot";
+import { NoRidesFound, SearchScreen } from "../parts/SearchScreen";
 import { usePlayEvents } from "../parts/usePlayEvents";
 
 const SHARE_EXAMPLE = "iitransit.vercel.app/search?id=7Hq2xK";
 
-// 4. Nobody going yet: the app's real "No rides found" screen with the bell's match, then three
-// tiles for the smaller features. Each tile's picture plays once when it scrolls in (Motion ON).
+// 4. Nobody going yet: the app's "No rides found" screen (built from its styles, so the date stays
+// current) with the bell's match, then three tiles for the smaller features. Each tile's picture
+// plays once when it scrolls in (Motion ON).
 export default function EarlySection() {
   return (
     <section className="lp-sec" aria-labelledby="lp-early-title">
@@ -25,9 +26,11 @@ export default function EarlySection() {
         </div>
         <div className="lp-early-vis" data-reveal data-play="bell" style={{ "--i": 1 } as CSSProperties}>
           <Phone tone="invert">
-            <div className="lp-screen lp-screen-search">
+            <div className="lp-screen">
               <StatusBar time="20:15" />
-              <Screenshot light={SHOTS.searchLight} dark={SHOTS.searchDark} fit="top" />
+              <SearchScreen from="MHR" to="Khurda Road Junction Railway Station" days={3} back>
+                <NoRidesFound days={3} />
+              </SearchScreen>
             </div>
           </Phone>
           <span className="lp-chip-float lp-notif" aria-hidden="true">

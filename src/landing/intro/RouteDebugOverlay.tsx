@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { SceneGeometry } from "../scenes/sceneGeometry";
 import { createRouteSampler } from "./routeSampler";
 
-// Development aid for /intro-preview?debug: draws what the route sampler computes on top of the art.
+// Development aid for /about?debug: draws what the route sampler computes on top of the art.
 // If the maths and the drawing agree, every marker sits on the dotted route and the green ring
 // sits on the car's axle point in the final frame.
 export default function RouteDebugOverlay({ geometry }: { geometry: SceneGeometry }) {
