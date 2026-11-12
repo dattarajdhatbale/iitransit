@@ -22,4 +22,6 @@ export function Screenshot({ light, dark, fit = "cover" }: ScreenshotProps) {
 export const SHOTS = {
   homeLight: { src: "/landing/screens/home-light.webp", width: 600, height: 1103 },
   postLight: { src: "/landing/screens/post-light.webp", width: 600, height: 1120 },
+  searchLight: { src: "/landing/screens/search-light.webp", width: 600, height: 917 },
+  searchDark: { src: "/landing/screens/search-dark.webp", width: 600, height: 910 },
 };

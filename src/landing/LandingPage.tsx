@@ -4,7 +4,10 @@ import { getIsDark, setIsDark } from "../theme";
 import IntroStage from "./intro/IntroStage";
 import { useMotionPreference } from "./intro/useMotionPreference";
 import { useSceneKey } from "./intro/useSceneKey";
+import ClosingSection from "./sections/ClosingSection";
 import DestinationsSection from "./sections/DestinationsSection";
+import EarlySection from "./sections/EarlySection";
+import FaqSection from "./sections/FaqSection";
 import Footer from "./sections/Footer";
 import HowItWorksSection from "./sections/HowItWorksSection";
 import ProblemSection from "./sections/ProblemSection";
@@ -51,6 +54,9 @@ export default function LandingPage() {
           <ProblemSection />
           <DestinationsSection />
           <HowItWorksSection motionOn={motionOn} />
+          <EarlySection />
+          <FaqSection />
+          <ClosingSection />
         </main>
       </div>
       <Footer />

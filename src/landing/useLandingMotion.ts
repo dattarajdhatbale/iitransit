@@ -2,6 +2,8 @@ import { useEffect, type RefObject } from "react";
 
 /** Fired on a [data-play] element when its moment starts, for parts that run their own JavaScript. */
 export const PLAY_EVENT = "lp:play";
+/** Fired on a [data-play] element when it is put in its starting state (it is still below the screen). */
+export const ARM_EVENT = "lp:arm";
 /** Fired on every [data-play] element when Motion turns off, to jump straight to the final state. */
 export const FINISH_EVENT = "lp:finish";
 
@@ -68,6 +70,7 @@ export function useLandingMotion(rootRef: RefObject<HTMLElement | null>, motionO
       // Already played (it stays in its final state), or already on screen: leave it as it is.
       if (el.classList.contains("lp-play") || !stillToCome(el)) continue;
       el.classList.add("lp-wait");
+      el.dispatchEvent(new CustomEvent(ARM_EVENT));
       armed.add(el);
     }
     armed.forEach((el) => observer.observe(el));
@@ -75,7 +78,13 @@ export function useLandingMotion(rootRef: RefObject<HTMLElement | null>, motionO
     return () => {
       observer.disconnect();
       // Leave nothing half-armed: a rebuild (Motion toggled, Strict Mode) starts from a clean page.
-      for (const el of armed) el.classList.remove("lp-pre", "lp-wait");
+      for (const el of armed) {
+        el.classList.remove("lp-pre");
+        if (el.classList.contains("lp-wait")) {
+          el.classList.remove("lp-wait");
+          el.dispatchEvent(new CustomEvent(FINISH_EVENT));
+        }
+      }
     };
   }, [rootRef, motionOn]);
 }
