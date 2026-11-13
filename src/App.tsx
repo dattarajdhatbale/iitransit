@@ -81,6 +81,8 @@ import {
   paginate,
 } from "./utils/profileUtils";
 import { Pagination } from "./components/Pagination";
+import { getInstallPrompt, clearInstallPrompt, subscribeInstallPrompt } from "./installPrompt";
+import { markReturningUser } from "./returningUser";
 
 declare const showToast: any;
 
@@ -482,7 +484,7 @@ function AlertsPage({
 
   return (
     <section className="mx-auto flex min-h-[85vh] w-full max-w-4xl animate-rise flex-col">
-      <BackButton onClick={() => navigate("/")} dark={isDark} />
+      <BackButton onClick={() => navigate("/app")} dark={isDark} />
       <div className="mx-auto w-full max-w-2xl space-y-6">
         <div className={cn("rounded-3xl p-6 md:p-8 shadow-xl", cardBg)}>
           <div className="flex items-center justify-between gap-4 mb-6">
@@ -698,26 +700,19 @@ function App() {
   // Posting : 
   const isPostingRef = useRef(false);
 
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [installPrompt, setInstallPrompt] = useState<any>(() => getInstallPrompt());
 
   useEffect(() => {
     void syncTimeOffset();
   }, []);
 
-  useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
+  useEffect(() => subscribeInstallPrompt(setInstallPrompt), []);
 
   const handleInstall = async () => {
     if (!installPrompt) return;
     installPrompt.prompt();
     const { outcome } = await installPrompt.userChoice;
-    if (outcome === "accepted") setInstallPrompt(null);
+    if (outcome === "accepted") clearInstallPrompt();
   };
 
   const todayISO = getLocalDateISO();
@@ -809,6 +804,7 @@ function App() {
           alert(`Only @${ALLOWED_EMAIL_DOMAIN} accounts are allowed.`);
           return;
         }
+        markReturningUser();
         setCurrentUser(user);
       } else {
         setCurrentUser(null);
@@ -982,7 +978,7 @@ function App() {
       await signInWithPopup(auth, provider);
       // onAuthStateChanged fires next and setCurrentUser is called there.
       const fromLocation = (location.state as { from?: { pathname: string; search?: string } })?.from;
-      const from = fromLocation ? `${fromLocation.pathname}${fromLocation.search || ""}` : "/";
+      const from = fromLocation ? `${fromLocation.pathname}${fromLocation.search || ""}` : "/app";
       navigate(from, { replace: true });
     } catch (error: unknown) {
       const code = (error as { code?: string }).code;
@@ -995,7 +991,7 @@ function App() {
   };
 
   const handleLogout = async () => {
-    navigate("/");
+    navigate("/app");
     await signOut(auth);
     // onAuthStateChanged fires and sets currentUser to null.
   };
@@ -1515,7 +1511,7 @@ function App() {
             HOME PAGE
         ════════════════════════════════════════════════════════════════════ */}
         <Route
-          path="/"
+          path="/app"
           element={
             <section className="mx-auto flex w-full max-w-6xl animate-rise flex-col">
               <nav className="mb-12 flex items-center justify-between">
@@ -1724,7 +1720,7 @@ function App() {
           path="/auth"
           element={
             <section className="mx-auto flex min-h-[85vh] w-full max-w-4xl animate-rise flex-col">
-              <BackButton onClick={() => navigate("/")} dark={isDark} />
+              <BackButton onClick={() => navigate("/app")} dark={isDark} />
               <div className={cn("mx-auto mt-6 w-full max-w-xl rounded-3xl p-8 text-center shadow-xl md:p-12", cardBg)}>
                 <h2 className={cn("mb-8 text-5xl font-bold", heading)}>Sign In</h2>
                 <button
@@ -1758,7 +1754,7 @@ function App() {
           element={
             <ProtectedRoute currentUser={currentUser} authLoading={authLoading}>
               <section className="mx-auto flex min-h-[85vh] w-full max-w-4xl animate-rise flex-col">
-                <BackButton onClick={() => navigate("/")} dark={isDark} />
+                <BackButton onClick={() => navigate("/app")} dark={isDark} />
                 <div className={cn("mx-auto w-full max-w-2xl rounded-3xl p-8 shadow-xl md:p-10", cardBg)}>
                   <h2 className={cn("mb-7 text-center text-3xl md:text-4xl font-bold", heading)}>Post a Ride</h2>
 
@@ -1977,7 +1973,7 @@ function App() {
           element={
             <ProtectedRoute currentUser={currentUser} authLoading={authLoading}>
               <section className="mx-auto flex min-h-[85vh] w-full max-w-4xl animate-rise flex-col">
-                <BackButton onClick={() => navigate("/")} dark={isDark} />
+                <BackButton onClick={() => navigate("/app")} dark={isDark} />
 
                 {/* ── Shared ride deep link result ── */}
                 {sharedRideError && (
@@ -2251,7 +2247,7 @@ function App() {
           element={
             <ProtectedRoute currentUser={currentUser} authLoading={authLoading}>
               <section className="mx-auto flex min-h-[85vh] w-full max-w-4xl animate-rise flex-col">
-                <BackButton onClick={() => navigate("/")} dark={isDark} />
+                <BackButton onClick={() => navigate("/app")} dark={isDark} />
                 <div className="mx-auto w-full max-w-2xl space-y-6">
                   {/* a) Account card */}
                   <div className={cn("rounded-3xl p-6 md:p-8 shadow-xl", cardBg)}>
@@ -2509,7 +2505,7 @@ function App() {
         {/* ════════════════════════════════════════════════════════════════════
             CATCH-ALL WILDCARD ROUTE
         ════════════════════════════════════════════════════════════════════ */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/app" replace />} />
       </Routes>
     </main>
   );

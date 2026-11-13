@@ -1,0 +1,1817 @@
+/* IITransit landing page: everything below the intro.
+ *
+ * Every rule is scoped under .lp, the page's root element. The app is a single-page app, so this
+ * stylesheet stays loaded after "Open App"; scoping keeps it from touching the app.
+ * Light values sit on .lp, dark values on html.dark-mode .lp (the class the app's theme toggle sets).
+ * Class names carry an lp- prefix so they never collide with Tailwind utilities.
+ *
+ * Accent: burnt orange in light mode, marigold in dark mode, ink text on both. It is used only for the
+ * main Open App buttons, one underline per heading and active markers.
+ */
+
+.lp {
+  --lp-bg: #faf6ef;
+  --lp-tint: #f2ecf7;
+  --lp-tint-2: #e8dff2;
+  --lp-tint-3: #d8cfe3;
+  --lp-ink: #1e1a4d;
+  --lp-text: #4c4870;
+  --lp-quiet: #67638a;
+  --lp-line: rgba(30, 26, 77, 0.1);
+  --lp-accent: #e5650f;
+  --lp-accent-hover: #ee7424;
+  --lp-on-accent: #1e1a4d;
+  --lp-btn2: #5a3d7a;
+  --lp-btn2-ink: #ffffff;
+  --lp-switch-off: #b7a6cd;
+  --lp-intro-end: #c4b6d6;
+  --lp-frame: #171c30;
+  --lp-frame-ring: rgba(255, 255, 255, 0);
+  --lp-shadow: 0 2px 4px rgba(30, 26, 77, 0.06), 0 18px 40px -18px rgba(30, 26, 77, 0.35),
+    0 50px 90px -40px rgba(30, 26, 77, 0.3);
+  --lp-shadow-sm: 0 1px 2px rgba(30, 26, 77, 0.08), 0 10px 24px -14px rgba(30, 26, 77, 0.3);
+  --lp-bar: rgba(250, 246, 239, 0.94);
+  --lp-board: #1e1a4d;
+  --lp-board-ink: #f1edfa;
+  --lp-board-quiet: #a79fd0;
+  --lp-board-line: rgba(255, 255, 255, 0.09);
+  --lp-toast: #1e1a4d;
+  --lp-toast-ink: #faf6ef;
+  --lp-nudge-bg: #f0ebf8;
+  --lp-nudge-fg: #5a3d7a;
+  --lp-nudge-border: #ddd2ea;
+  /* The one contrast band (How it works): the app's own dark colours */
+  --lp-band: #0b1020;
+  --lp-band-surface: #121a2e;
+  --lp-band-ink: #f1ecff;
+  --lp-band-text: #cbd5e1;
+  --lp-band-quiet: #94a3b8;
+  --lp-band-line: rgba(255, 255, 255, 0.08);
+  --lp-band-border: transparent;
+
+  --lp-font-word: "Space Grotesk", "Inter", system-ui, sans-serif; /* wordmark, as in the app */
+  --lp-font-head: "Onest Variable", "Inter", system-ui, sans-serif; /* headings (self-hosted, Fontsource) */
+  --lp-font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --lp-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --lp-ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+
+  background: var(--lp-bg);
+  /* Tilted phones and chips may poke past the edge on narrow screens. clip (not hidden) keeps
+     position: sticky working for the How it works phone. */
+  overflow-x: clip;
+}
+
+html.dark-mode .lp {
+  --lp-bg: #0b1020;
+  --lp-tint: #10172a;
+  --lp-tint-2: #1a2540;
+  --lp-tint-3: #2e3a5e;
+  --lp-ink: #f1ecff;
+  --lp-text: #c4bddf;
+  --lp-quiet: #9a94b9;
+  --lp-line: rgba(255, 255, 255, 0.08);
+  --lp-accent: #f0a43a;
+  --lp-accent-hover: #f6b65a;
+  --lp-btn2: #7c3aed;
+  --lp-switch-off: #3b4670;
+  --lp-intro-end: #0b1020;
+  --lp-frame: #2a3352;
+  --lp-frame-ring: rgba(255, 255, 255, 0.06);
+  --lp-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 24px 50px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --lp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -16px rgba(0, 0, 0, 0.8);
+  --lp-bar: rgba(11, 16, 32, 0.82);
+  --lp-board: #121a2e;
+  --lp-board-ink: #e4dcfa;
+  --lp-board-quiet: #8c86ae;
+  --lp-board-line: rgba(255, 255, 255, 0.07);
+  --lp-toast: #f1ecff;
+  --lp-toast-ink: #1e1a4d;
+  --lp-nudge-bg: #1a2540;
+  --lp-nudge-fg: #cbd5e1;
+  --lp-nudge-border: rgba(255, 255, 255, 0.06);
+  --lp-band: #121a2e;
+  --lp-band-surface: #1a2540;
+  --lp-band-border: rgba(255, 255, 255, 0.07);
+}
+
+/* App screens inside the mock phones.
+ * lp-ui-invert = the opposite of the page theme (dark app on the cream page, light app at night);
+ * lp-ui-light = always the app's light theme (used on the dark band). */
+.lp .lp-ui-dark,
+.lp .lp-ui-invert {
+  --lp-show-l: none;
+  --lp-show-d: block;
+  --app-bg: #0b1020;
+  --app-ink: #f8fafc;
+  --app-heading: #ffffff;
+  --app-muted: #94a3b8;
+  --app-bg-home: #0a1020;
+  --card-bg: #121a2e;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-title: #f1f5f9;
+  --card-meta: #cbd5e1;
+  --card-note: #94a3b8;
+  --card-strong: #f1f5f9;
+  --badge-bg: rgba(6, 78, 59, 0.4);
+  --badge-fg: #34d399;
+  --sc-bg: #1a2540;
+  --sc-fg: #cbd5e1;
+  --sc-border: rgba(255, 255, 255, 0.06);
+  --posted: #64748b;
+  --share: #94a3b8;
+  --scard: #121a2e;
+  --scard-border: rgba(255, 255, 255, 0.06);
+  --fld-bg: #1a2540;
+  --fld-ink: #f1f5f9;
+  --fld-border: rgba(255, 255, 255, 0.07);
+  --btn-search: #7c3aed;
+  --btn-main: #7c3aed;
+  --btn-watch: #2563eb;
+  --btn-watch-ink: #ffffff;
+  --back-bg: #1a2540;
+  --back-border: rgba(255, 255, 255, 0.07);
+  --back-ink: #ffffff;
+  --wa-head: #202c33;
+  --wa-head-ink: #e9edef;
+  --wa-wall: #0b141a;
+  --wa-in: #202c33;
+  --wa-out: #005c4b;
+  --wa-text: #e9edef;
+  --wa-meta: #8696a0;
+  --wa-tick: #53bdeb;
+  --wa-pill: #182229;
+  --wa-pill-ink: #8696a0;
+  --wa-input: #2a3942;
+  --wa-dot: rgba(255, 255, 255, 0.025);
+  --wa-n1: #f06292;
+  --wa-n2: #64b5f6;
+  --wa-n3: #ba68c8;
+  --wa-n4: #81c784;
+}
+.lp .lp-ui-light,
+html.dark-mode .lp .lp-ui-invert {
+  --lp-show-l: block;
+  --lp-show-d: none;
+  --app-bg: linear-gradient(160deg, #d8cfe3, #c4b6d6);
+  --app-ink: #1e1a4d;
+  --app-heading: #0f172a;
+  --app-muted: #5f6170;
+  --app-bg-home: linear-gradient(180deg, #d7cee1, #cbbed8);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: #ddd2ea;
+  --card-title: #383a4e;
+  --card-meta: #686978;
+  --card-note: #888888;
+  --card-strong: #0f172a;
+  --badge-bg: #d1fae5;
+  --badge-fg: #047857;
+  --sc-bg: #eee6f5;
+  --sc-fg: #5a4f72;
+  --sc-border: transparent;
+  --posted: #94a3b8;
+  --share: #64748b;
+  --scard: rgba(255, 255, 255, 0.72);
+  --scard-border: rgba(255, 255, 255, 0.6);
+  --fld-bg: #1c2541;
+  --fld-ink: #ffffff;
+  --fld-border: transparent;
+  --btn-search: #ab82bd;
+  --btn-main: #aa82bc;
+  --btn-watch: #a8deef;
+  --btn-watch-ink: #1f3145;
+  --back-bg: rgba(255, 255, 255, 0.72);
+  --back-border: #ddd2ea;
+  --back-ink: #1e1a4d;
+  --wa-head: #008069;
+  --wa-head-ink: #ffffff;
+  --wa-wall: #efeae2;
+  --wa-in: #ffffff;
+  --wa-out: #d9fdd3;
+  --wa-text: #111b21;
+  --wa-meta: #667781;
+  --wa-tick: #53bdeb;
+  --wa-pill: #ffffff;
+  --wa-pill-ink: #54656f;
+  --wa-input: #ffffff;
+  --wa-dot: rgba(17, 27, 33, 0.05);
+  --wa-n1: #c2185b;
+  --wa-n2: #1e88e5;
+  --wa-n3: #6a1b9a;
+  --wa-n4: #2e7d32;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────────────────────────────
+ * Only the new parts get these. The intro sits inside .lp too, and Tailwind's utilities live in a
+ * cascade layer, so any rule here that reached the intro would quietly beat them. */
+.lp .lp-sheet-wrap,
+.lp .lp-footer,
+.lp .lp-topbar {
+  color: var(--lp-ink);
+  font-family: var(--lp-font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+/* Don't rely on the app's reset for paragraph margins; :where keeps this below every class rule */
+.lp :where(.lp-sheet-wrap, .lp-footer) p {
+  margin: 0;
+}
+.lp .lp-sheet-wrap :focus-visible,
+.lp .lp-footer :focus-visible,
+.lp .lp-topbar :focus-visible {
+  outline: 2px solid var(--lp-accent);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+.lp .lp-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.lp .lp-wrap {
+  max-width: 1160px;
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* The intro keeps the look it had on /intro-preview. Its last colour shows in the sheet's corners. */
+.lp .lp-intro {
+  background: linear-gradient(to bottom right, #d8cfe3, #cfc3dc, #c4b6d6);
+  color: #242638;
+}
+html.dark-mode .lp .lp-intro {
+  background: #0b1020;
+  color: #f8fafc;
+}
+.lp .lp-sheet-wrap {
+  background: var(--lp-intro-end);
+}
+.lp .lp-sheet {
+  position: relative;
+  background: var(--lp-bg);
+  border-radius: 32px 32px 0 0;
+  box-shadow: 0 -1px 0 var(--lp-line);
+}
+
+/* ── Buttons and toggles ──────────────────────────────────────────────────────────────────────── */
+.lp .lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font: 600 16px/1 var(--lp-font-body);
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, transform 0.2s var(--lp-ease);
+}
+.lp .lp-btn-accent {
+  background: var(--lp-accent);
+  color: var(--lp-on-accent);
+}
+.lp .lp-btn-accent:hover {
+  background: var(--lp-accent-hover);
+  transform: translateY(-1px);
+}
+.lp .lp-btn-2 {
+  background: var(--lp-btn2);
+  color: var(--lp-btn2-ink);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 16px;
+}
+.lp .lp-btn-ghost {
+  background: transparent;
+  color: var(--lp-ink);
+  border: 1px solid var(--lp-line);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 14px;
+}
+.lp .lp-icon-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+.lp .lp-textlink {
+  font-weight: 500;
+  color: var(--lp-ink);
+  text-decoration: none;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 12px 4px;
+}
+.lp .lp-textlink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.lp .lp-switch {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--lp-switch-off);
+  transition: background-color 0.2s;
+}
+.lp .lp-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.2s;
+}
+.lp [aria-pressed="true"] .lp-switch {
+  background: #7c3aed;
+}
+.lp [aria-pressed="true"] .lp-switch::after {
+  left: 14px;
+}
+
+/* ── Top bar (after the intro) ────────────────────────────────────────────────────────────────── */
+.lp .lp-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--lp-bar);
+  backdrop-filter: saturate(1.3) blur(14px);
+  -webkit-backdrop-filter: saturate(1.3) blur(14px);
+  border-bottom: 1px solid var(--lp-line);
+  transform: translateY(-110%);
+  transition: transform 0.35s var(--lp-ease);
+}
+.lp .lp-topbar[data-shown="true"] {
+  transform: none;
+}
+.lp .lp-topbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 58px;
+}
+.lp .lp-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lp .lp-wordmark {
+  font: 700 22px/1 var(--lp-font-word);
+  letter-spacing: -0.05em;
+  text-decoration: none;
+  color: var(--lp-ink);
+}
+
+/* ── Type ─────────────────────────────────────────────────────────────────────────────────────── */
+.lp .lp-display {
+  font: 650 clamp(42px, 4.7vw, 68px) / 1.07 var(--lp-font-head);
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+.lp .lp-h2 {
+  font: 600 clamp(34px, 4.1vw, 54px) / 1.1 var(--lp-font-head);
+  letter-spacing: -0.015em;
+  margin: 0;
+  text-wrap: balance;
+}
+.lp .lp-h3 {
+  /* The heading font, a real 600. The app loads Inter only up to 500, so a 600 Inter here would be
+     faked by the browser and look smudged at this size. */
+  font: 600 21px/1.2 var(--lp-font-head);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.lp .lp-lede {
+  font-size: clamp(17px, 1.6vw, 19px);
+  line-height: 1.6;
+  color: var(--lp-text);
+  max-width: 44ch;
+}
+.lp .lp-sec {
+  padding-block: clamp(80px, 9vw, 124px);
+}
+.lp .lp-copy {
+  display: grid;
+  gap: 22px;
+  align-content: center;
+}
+/* Room for the underline, which hangs below the heading's last line */
+.lp .lp-copy > .lp-lede {
+  margin-top: 24px;
+}
+.lp .lp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin-top: 6px;
+}
+
+/* Fixed line breaks for headings that read better in a set shape on wide screens */
+.lp .lp-line {
+  display: inline;
+}
+@media (min-width: 1041px) {
+  .lp .lp-line {
+    display: block;
+  }
+}
+
+/* Hand-drawn underline: one per heading at most */
+.lp .lp-hl {
+  position: relative;
+  white-space: nowrap;
+}
+.lp .lp-hl svg {
+  position: absolute;
+  left: -3%;
+  /* Below the descenders (the y in "early"), so the stroke never cuts through a letter */
+  bottom: -0.27em;
+  width: 106%;
+  height: 0.28em;
+  overflow: visible;
+  pointer-events: none;
+}
+.lp .lp-hl path {
+  fill: none;
+  stroke: var(--lp-accent);
+  stroke-width: 0.11em;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+/* ── Mock phones ──────────────────────────────────────────────────────────────────────────────── */
+.lp .lp-phone {
+  width: 300px;
+  border-radius: 46px;
+  padding: 9px;
+  background: var(--lp-frame);
+  box-shadow: var(--lp-shadow), inset 0 0 0 1px var(--lp-frame-ring);
+  position: relative;
+}
+.lp .lp-phone::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 22px;
+  border-radius: 999px;
+  background: #05070d;
+  z-index: 3;
+}
+.lp .lp-screen {
+  position: relative;
+  height: 610px;
+  border-radius: 38px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg);
+  color: var(--app-ink);
+}
+.lp .lp-statusbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 26px 8px;
+  font: 600 12.5px/1 var(--lp-font-body);
+  flex: none;
+  position: relative;
+  z-index: 2;
+}
+.lp .lp-statusbar i {
+  font-style: normal;
+  letter-spacing: 1px;
+  font-size: 10px;
+}
+
+/* The app's ride card (copied from src/App.tsx), sized in em so it shrinks inside the phones */
+.lp .lp-rc {
+  font-size: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1em;
+  padding: 1.25em;
+  display: grid;
+  gap: 0.5em;
+  text-align: left;
+}
+.lp .lp-rc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5em;
+  flex-wrap: wrap;
+}
+.lp .lp-rc-route {
+  font-size: 1.125em;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--card-title);
+}
+.lp .lp-rc-badge {
+  border-radius: 999px;
+  padding: 0.125em 0.75em;
+  font-size: 0.875em;
+  line-height: 1.43;
+  font-weight: 500;
+  background: var(--badge-bg);
+  color: var(--badge-fg);
+}
+.lp .lp-rc-line {
+  font-size: 0.875em;
+  line-height: 1.43;
+  color: var(--card-meta);
+}
+.lp .lp-rc-line strong {
+  color: var(--card-strong);
+}
+.lp .lp-rc-note {
+  font-size: 0.875em;
+  line-height: 1.43;
+  color: var(--card-note);
+  font-style: italic;
+}
+.lp .lp-rc-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+  margin-top: 0.4em;
+}
+.lp .lp-rc-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.lp .lp-rc-sc {
+  border: 1px solid var(--sc-border);
+  background: var(--sc-bg);
+  color: var(--sc-fg);
+  border-radius: 999px;
+  padding: 0.375em 1em;
+  font: 600 0.875em/1.43 var(--lp-font-body);
+  cursor: pointer;
+}
+.lp .lp-rc-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  background: #16a34a;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.375em 1em;
+  font: 600 0.875em/1.43 var(--lp-font-body);
+  text-decoration: none;
+}
+.lp .lp-rc-wa svg {
+  width: 1.05em;
+  height: 1.05em;
+}
+.lp .lp-rc-posted {
+  font-size: 0.75em;
+  line-height: 1.33;
+  color: var(--posted);
+}
+.lp .lp-rc-share {
+  color: var(--share);
+  display: grid;
+  flex: none;
+}
+.lp .lp-rc-share svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* The app's Search Rides screen */
+.lp .lp-srch {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 6px 12px 0;
+}
+.lp .lp-srch-card {
+  background: var(--scard);
+  border: 1px solid var(--scard-border);
+  border-radius: 22px;
+  padding: 16px 14px 14px;
+  display: grid;
+  gap: 8px;
+  box-shadow: 0 10px 24px -14px rgba(0, 0, 0, 0.35);
+}
+.lp .lp-srch-h {
+  font: 600 21px/1.2 var(--lp-font-body);
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: var(--app-heading);
+  margin: 2px 0 6px;
+}
+.lp .lp-fld {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: var(--fld-bg);
+  color: var(--fld-ink);
+  border: 1px solid var(--fld-border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  line-height: 1.3;
+  min-width: 0;
+}
+.lp .lp-fld span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lp .lp-fld svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  opacity: 0.75;
+}
+.lp .lp-srch-btn {
+  background: var(--btn-search);
+  color: #fff;
+  border-radius: 999px;
+  text-align: center;
+  padding: 11px;
+  font: 600 15px/1 var(--lp-font-body);
+  margin: 2px 0 6px;
+}
+.lp .lp-srch .lp-rc {
+  font-size: 12.5px;
+}
+/* Back button and the "No rides found" state, as in the app */
+.lp .lp-srch-back {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 2px 0 10px;
+  border-radius: 10px;
+  background: var(--back-bg);
+  border: 1px solid var(--back-border);
+  color: var(--back-ink);
+}
+.lp .lp-srch-back svg {
+  width: 16px;
+  height: 16px;
+}
+.lp .lp-empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 10px 0 6px;
+  text-align: center;
+}
+.lp .lp-empty-t {
+  font: 500 15px/1.3 var(--lp-font-body);
+  color: var(--app-heading);
+}
+.lp .lp-empty-s {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--app-muted);
+  margin-bottom: 4px;
+}
+.lp .lp-empty-btn {
+  border-radius: 999px;
+  padding: 6px 16px;
+  font: 600 11.5px/1.4 var(--lp-font-body);
+}
+.lp .lp-empty-main {
+  background: var(--btn-main);
+  color: #ffffff;
+}
+.lp .lp-empty-watch {
+  background: var(--btn-watch);
+  color: var(--btn-watch-ink);
+}
+
+
+/* A familiar group chat */
+.lp .lp-wa {
+  background-color: var(--wa-wall);
+  color: var(--wa-text);
+  background-image: radial-gradient(var(--wa-dot) 1.2px, transparent 1.4px);
+  background-size: 14px 14px;
+}
+.lp .lp-wa .lp-statusbar {
+  background: var(--wa-head);
+  color: var(--wa-head-ink);
+}
+.lp .lp-wa-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 10px;
+  background: var(--wa-head);
+  color: var(--wa-head-ink);
+  flex: none;
+}
+.lp .lp-wa-av {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #9db8c4;
+  display: grid;
+  place-items: center;
+  font: 600 12px/1 var(--lp-font-body);
+  color: #fff;
+  flex: none;
+}
+.lp .lp-wa-title {
+  min-width: 0;
+  flex: 1;
+}
+.lp .lp-wa-title b {
+  display: block;
+  font: 600 15px/1.25 var(--lp-font-body);
+}
+.lp .lp-wa-title span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lp .lp-wa-icons {
+  display: flex;
+  gap: 14px;
+}
+.lp .lp-wa-feed {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 8px 10px 6px;
+}
+.lp .lp-wa-unread {
+  align-self: stretch;
+  text-align: center;
+  background: var(--wa-pill);
+  color: var(--wa-pill-ink);
+  font-size: 11.5px;
+  padding: 4px 10px;
+  margin-block: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 500;
+  box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+}
+.lp .lp-msg {
+  position: relative;
+  max-width: 84%;
+  background: var(--wa-in);
+  border-radius: 0 8px 8px 8px;
+  padding: 5px 8px 6px;
+  font-size: 13.5px;
+  line-height: 1.35;
+  box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+  align-self: flex-start;
+}
+.lp .lp-msg-cont {
+  border-radius: 8px;
+}
+.lp .lp-msg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -7px;
+  border-top: 8px solid var(--wa-in);
+  border-left: 8px solid transparent;
+}
+.lp .lp-msg-cont::before {
+  display: none;
+}
+.lp .lp-msg-out {
+  margin-right: 4px;
+  align-self: flex-end;
+  background: var(--wa-out);
+  border-radius: 8px 0 8px 8px;
+}
+.lp .lp-msg-out::before {
+  left: auto;
+  right: -7px;
+  border-top-color: var(--wa-out);
+  border-left: 0;
+  border-right: 8px solid transparent;
+}
+.lp .lp-msg b {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 1px;
+}
+.lp .lp-msg time {
+  float: right;
+  margin: 6px 0 -4px 10px;
+  font-size: 10.5px;
+  color: var(--wa-meta);
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+.lp .lp-tick {
+  color: var(--wa-tick);
+}
+.lp .lp-wa-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px 16px;
+  flex: none;
+}
+.lp .lp-wa-input span {
+  flex: 1;
+  background: var(--wa-input);
+  border-radius: 999px;
+  padding: 9px 14px;
+  font-size: 13.5px;
+  color: var(--wa-meta);
+}
+.lp .lp-wa-input i {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #00a884;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+/* ── 1. The batch group ───────────────────────────────────────────────────────────────────────── */
+.lp .lp-problem {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+.lp .lp-duo {
+  position: relative;
+  height: 700px;
+  width: 620px;
+  justify-self: center;
+}
+.lp .lp-duo-1,
+.lp .lp-duo-2 {
+  position: absolute;
+  inset: 0;
+}
+.lp .lp-duo-2 {
+  z-index: 2;
+}
+.lp .lp-duo-1 .lp-phone {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: rotate(-4deg);
+}
+.lp .lp-duo-2 .lp-phone {
+  position: absolute;
+  right: 0;
+  top: 70px;
+  transform: rotate(3deg);
+}
+
+/* ── 2. Destinations ──────────────────────────────────────────────────────────────────────────── */
+.lp .lp-where {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 88px);
+  align-items: center;
+}
+.lp .lp-board {
+  background: var(--lp-board);
+  color: var(--lp-board-ink);
+  border-radius: 24px;
+  padding: 24px clamp(18px, 3vw, 32px) 12px;
+  box-shadow: var(--lp-shadow-sm);
+  font-family: var(--lp-font-mono);
+  border: 1px solid var(--lp-board-line);
+}
+.lp .lp-board-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lp-board-quiet);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--lp-board-line);
+}
+.lp .lp-board-clock {
+  font-variant-numeric: tabular-nums;
+  color: var(--lp-accent);
+  letter-spacing: 0.08em;
+}
+.lp .lp-board-row {
+  display: grid;
+  grid-template-columns: 4.2em minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--lp-board-line);
+}
+.lp .lp-board-row:last-child {
+  border-bottom: 0;
+}
+.lp .lp-board-code {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--lp-accent);
+}
+.lp .lp-board-name {
+  font-family: var(--lp-font-body);
+  font-size: 15.5px;
+  line-height: 1.35;
+}
+.lp .lp-board-kind {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lp-board-quiet);
+}
+
+/* ── 3. How it works: the one contrast band ───────────────────────────────────────────────────── */
+.lp .lp-band {
+  background: var(--lp-band);
+  color: var(--lp-band-ink);
+  border-block: 1px solid var(--lp-band-border);
+}
+.lp .lp-band .lp-h2 {
+  color: var(--lp-band-ink);
+}
+.lp .lp-how {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 96px);
+}
+.lp .lp-steps {
+  position: relative;
+  margin-top: 24px;
+}
+.lp .lp-step {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  position: relative;
+}
+.lp .lp-step-n {
+  font: 600 14px/1 var(--lp-font-body);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  color: var(--lp-band-quiet);
+  transition: color 0.3s;
+}
+.lp .lp-step .lp-h3 {
+  font-size: clamp(21px, 2vw, 26px);
+  color: var(--lp-band-ink);
+}
+.lp .lp-step > p {
+  color: var(--lp-band-text);
+  max-width: 40ch;
+}
+.lp .lp-tap-hint {
+  margin-top: 22px;
+  font-size: 14px;
+  color: var(--lp-band-quiet);
+  text-align: center;
+  min-height: 1.6em;
+}
+
+/* Pinned layout: one phone stays in place while the steps scroll past */
+.lp .lp-how-pinned .lp-steps {
+  padding-left: 32px;
+}
+.lp .lp-track {
+  position: absolute;
+  left: 6px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--lp-band-line);
+  border-radius: 2px;
+}
+.lp .lp-track b {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: calc(var(--lp-progress, 0) * 100%);
+  background: var(--lp-accent);
+  border-radius: 2px;
+  transition: height 0.5s var(--lp-ease);
+}
+.lp .lp-how-pinned .lp-step {
+  min-height: 72vh;
+  align-content: center;
+}
+.lp .lp-how-pinned .lp-step[data-step="0"] {
+  min-height: 52vh;
+  align-content: start;
+  padding-top: 6vh;
+}
+/* The last step leaves room below it, so the phone is still fully in view when step 3 is active */
+.lp .lp-how-pinned .lp-step[data-step="2"] {
+  min-height: 100vh;
+  align-content: start;
+  padding-top: 32vh;
+}
+.lp .lp-how-pinned .lp-step::before {
+  content: "";
+  position: absolute;
+  left: -32px;
+  top: calc(50% - 7px);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--lp-band);
+  border: 2px solid var(--lp-band-line);
+  transition: border-color 0.3s, background-color 0.3s;
+}
+.lp .lp-how-pinned .lp-step[data-step="0"]::before {
+  top: calc(6vh + 14px);
+}
+.lp .lp-how-pinned .lp-step[data-step="2"]::before {
+  top: calc(32vh + 4px);
+}
+.lp .lp-how-pinned .lp-step-active .lp-step-n {
+  color: var(--lp-accent);
+}
+.lp .lp-how-pinned .lp-step-active::before {
+  border-color: var(--lp-accent);
+  background: var(--lp-accent);
+}
+.lp .lp-pin-col {
+  position: relative;
+}
+.lp .lp-pin-phone {
+  position: sticky;
+  top: max(84px, calc(50vh - 330px));
+  display: grid;
+  justify-items: center;
+  padding-top: 6vh;
+}
+.lp .lp-screens {
+  height: 628px;
+}
+.lp .lp-screens > .lp-screen {
+  position: absolute;
+  inset: 9px;
+  height: auto;
+  opacity: 0;
+  transition: opacity 0.45s var(--lp-ease);
+}
+.lp .lp-screens > .lp-screen-on {
+  opacity: 1;
+}
+.lp .lp-chip-float {
+  position: absolute;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--lp-toast);
+  color: var(--lp-toast-ink);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: var(--lp-shadow-sm);
+  white-space: nowrap;
+}
+.lp .lp-ok {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.lp .lp-signed {
+  left: -44px;
+  top: 228px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s, transform 0.4s var(--lp-ease);
+}
+.lp .lp-signed[data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Real screenshots inside a phone screen */
+.lp .lp-shot {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.lp .lp-shot img {
+  display: none;
+  width: 100%;
+}
+.lp .lp-shot .lp-shot-l {
+  display: var(--lp-show-l);
+}
+.lp .lp-shot .lp-shot-d {
+  display: var(--lp-show-d);
+}
+.lp .lp-shot-cover img {
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.lp .lp-shot-top img {
+  height: auto;
+}
+
+/* Stacked layout: phones, short screens and Motion OFF */
+.lp .lp-how-stacked {
+  grid-template-columns: minmax(0, 1fr);
+}
+.lp .lp-how-stacked .lp-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+.lp .lp-how-stacked .lp-step-n {
+  color: var(--lp-accent);
+}
+.lp .lp-step-visual {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  margin-top: 18px;
+  zoom: 0.78;
+}
+/* Line the three columns up row by row (number, title, text, phone), whatever the text lengths */
+@media (min-width: 901px) {
+  .lp .lp-how-stacked .lp-steps {
+    grid-template-rows: auto auto auto 1fr;
+    row-gap: 0;
+  }
+  .lp .lp-how-stacked .lp-step {
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+    row-gap: 12px;
+  }
+}
+@media (max-width: 900px) {
+  .lp .lp-how-stacked .lp-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 56px;
+  }
+  .lp .lp-step-visual {
+    zoom: 0.86;
+  }
+  .lp .lp-signed {
+    left: -12px;
+  }
+}
+.lp[data-motion="off"] .lp-band *,
+.lp[data-motion="off"] .lp-band *::before {
+  transition-duration: 0s !important;
+}
+
+/* ── 4. Nobody going yet, and the small stuff ─────────────────────────────────────────────────── */
+.lp .lp-early {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 88px);
+  align-items: center;
+}
+.lp .lp-early-vis {
+  position: relative;
+  justify-self: center;
+}
+.lp .lp-notif {
+  right: -70px;
+  bottom: 120px;
+  gap: 10px;
+  padding: 10px 16px 10px 12px;
+}
+.lp .lp-notif-bell {
+  position: relative;
+  display: grid;
+}
+.lp .lp-notif-bell em {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--lp-accent);
+  box-shadow: 0 0 0 2px var(--lp-toast);
+}
+.lp .lp-bento {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: clamp(56px, 6.5vw, 88px);
+}
+.lp .lp-tile {
+  background: var(--lp-tint);
+  border-radius: 24px;
+  padding: 26px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.lp .lp-tile > p {
+  color: var(--lp-text);
+  font-size: 16px;
+}
+.lp .lp-tile-vis {
+  position: relative;
+  height: 170px;
+  margin-bottom: 14px;
+  border-radius: 16px;
+  background: var(--lp-tint-2);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  overflow: hidden;
+  padding: 16px;
+}
+.lp .lp-linkchip {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--lp-bg);
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: 13px/1.2 var(--lp-font-mono);
+  color: var(--lp-ink);
+  box-shadow: var(--lp-shadow-sm);
+  cursor: pointer;
+  text-align: left;
+}
+.lp .lp-linkchip svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.lp .lp-linkchip span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lp .lp-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  background: var(--lp-toast);
+  color: var(--lp-toast-ink);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.lp .lp-seats {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+.lp .lp-seat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--lp-bg);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--lp-text);
+  box-shadow: var(--lp-shadow-sm);
+}
+.lp .lp-seat-row strong {
+  color: var(--lp-ink);
+  font-variant-numeric: tabular-nums;
+}
+.lp .lp-dots {
+  display: flex;
+  gap: 6px;
+}
+.lp .lp-dots i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--lp-accent);
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+.lp .lp-dots i.lp-taken {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--lp-quiet);
+}
+.lp .lp-nudge {
+  font-size: 12.5px;
+  line-height: 1.4;
+  border-radius: 12px;
+  padding: 9px 12px;
+  background: var(--lp-nudge-bg);
+  color: var(--lp-nudge-fg);
+  border: 1px solid var(--lp-nudge-border);
+}
+.lp .lp-home {
+  display: grid;
+  grid-template-columns: repeat(4, 46px);
+  gap: 14px 16px;
+  justify-content: center;
+}
+.lp .lp-home i {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--lp-tint-3);
+  opacity: 0.55;
+}
+.lp .lp-home-me {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--lp-shadow-sm);
+  position: relative;
+}
+.lp .lp-home-me::after {
+  content: "IITransit";
+  position: absolute;
+  top: 52px;
+  font: 500 11px/1 var(--lp-font-body);
+  color: var(--lp-ink);
+  white-space: nowrap;
+}
+
+/* ── 5. FAQ ───────────────────────────────────────────────────────────────────────────────────── */
+.lp .lp-faq-band {
+  background: var(--lp-tint);
+}
+.lp .lp-faq {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: start;
+}
+.lp .lp-faq-copy {
+  align-content: start;
+}
+.lp .lp-faq details {
+  border-bottom: 1px solid var(--lp-line);
+}
+.lp .lp-faq details:first-of-type {
+  border-top: 1px solid var(--lp-line);
+}
+.lp .lp-faq summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+  font: 550 18px/1.4 var(--lp-font-head);
+  letter-spacing: -0.005em;
+  color: var(--lp-ink);
+}
+.lp .lp-faq summary::-webkit-details-marker {
+  display: none;
+}
+.lp .lp-faq summary::after {
+  content: "";
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid var(--lp-quiet);
+  border-bottom: 2px solid var(--lp-quiet);
+  transform: rotate(45deg) translate(-3px, -3px);
+  transition: transform 0.25s var(--lp-ease);
+}
+.lp .lp-faq details[open] summary::after {
+  transform: rotate(225deg) translate(-3px, -3px);
+}
+.lp .lp-faq details p {
+  padding: 0 32px 22px 0;
+  color: var(--lp-text);
+  max-width: 60ch;
+}
+
+/* ── 6. Closing ───────────────────────────────────────────────────────────────────────────────── */
+.lp .lp-cta {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+}
+.lp .lp-cta .lp-lede {
+  max-width: none;
+}
+.lp .lp-road {
+  position: relative;
+  width: min(620px, 100%);
+  height: 112px;
+}
+.lp .lp-road-line {
+  position: absolute;
+  left: 0;
+  right: 36px;
+  bottom: 16px;
+  height: 4px;
+  background-image: radial-gradient(circle, var(--lp-tint-3) 2px, transparent 2.5px);
+  background-size: 14px 4px;
+}
+.lp .lp-road-pin {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  width: 34px;
+  height: 44px;
+}
+.lp .lp-road-car {
+  position: absolute;
+  left: 34%;
+  bottom: 8px;
+  width: 172px;
+}
+.lp .lp-road-car svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.lp .lp-btn-big {
+  padding: 18px 40px;
+  font-size: 19px;
+}
+
+@media (max-width: 1040px) {
+  .lp .lp-early,
+  .lp .lp-faq {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lp .lp-early .lp-copy {
+    order: -1;
+  }
+  .lp .lp-notif {
+    right: -20px;
+  }
+}
+@media (max-width: 900px) {
+  .lp .lp-bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 620px) {
+  .lp .lp-early-vis {
+    zoom: 0.8;
+  }
+  .lp .lp-notif {
+    right: -8px;
+    bottom: 90px;
+  }
+  .lp .lp-road-car {
+    width: 132px;
+    left: 22%;
+  }
+}
+
+/* Each part's own moment (Motion ON): starting state while waiting, then it plays once */
+.lp[data-motion="on"] .lp-wait .lp-notif {
+  opacity: 0;
+}
+.lp[data-motion="on"] .lp-play .lp-notif {
+  animation: lp-pop-in 0.45s var(--lp-ease) 0.9s both;
+}
+.lp[data-motion="on"] .lp-play .lp-notif-bell svg {
+  transform-origin: 50% 10%;
+  animation: lp-ring 0.9s ease-in-out 1.35s;
+}
+.lp[data-motion="on"] .lp-wait .lp-toast {
+  opacity: 0;
+}
+.lp[data-motion="on"] .lp-play .lp-toast {
+  animation: lp-toast-in 0.35s var(--lp-ease) 0.9s both;
+}
+.lp[data-motion="on"] .lp-toast[data-replay] {
+  animation: lp-toast-in 0.35s var(--lp-ease) both;
+}
+.lp[data-motion="on"] .lp-wait .lp-nudge {
+  opacity: 0;
+}
+.lp[data-motion="on"] .lp-play .lp-nudge {
+  animation: lp-rise 0.4s var(--lp-ease) 1.9s both;
+}
+.lp[data-motion="on"] .lp-wait .lp-road-car,
+.lp[data-motion="on"] .lp-wait .lp-road-pin {
+  opacity: 0;
+}
+.lp[data-motion="on"] .lp-play .lp-road-car {
+  animation: lp-drive 1.6s var(--lp-ease) 0.2s both;
+}
+.lp[data-motion="on"] .lp-play .lp-road-pin {
+  animation: lp-drop 0.5s var(--lp-ease) 1.4s both;
+}
+@keyframes lp-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lp-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+@keyframes lp-ring {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(14deg);
+  }
+  40% {
+    transform: rotate(-11deg);
+  }
+  60% {
+    transform: rotate(7deg);
+  }
+  80% {
+    transform: rotate(-4deg);
+  }
+}
+@keyframes lp-drive {
+  from {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes lp-drop {
+  from {
+    transform: translateY(-18px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────────────────────────── */
+.lp .lp-footer {
+  padding-block: 8px 28px;
+  padding-bottom: max(28px, env(safe-area-inset-bottom, 0px));
+}
+.lp .lp-foot-route {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin-bottom: 40px;
+}
+.lp .lp-foot-route span {
+  flex: 1;
+  height: 4px;
+  margin-bottom: 4px;
+  background-image: radial-gradient(circle, var(--lp-tint-3) 2px, transparent 2.5px);
+  background-size: 14px 4px;
+}
+.lp .lp-foot-route svg {
+  width: 20px;
+  height: 26px;
+  flex: none;
+}
+.lp .lp-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 32px clamp(48px, 7vw, 96px);
+}
+.lp .lp-foot-brand {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.lp .lp-foot-brand p {
+  color: var(--lp-text);
+}
+.lp .lp-foot-col {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  justify-items: start;
+}
+.lp .lp-foot-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lp-quiet);
+  margin-bottom: 8px;
+}
+.lp .lp-foot-col a:not(.lp-btn) {
+  text-decoration: none;
+  color: var(--lp-text);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.lp .lp-foot-col a:not(.lp-btn):hover {
+  color: var(--lp-ink);
+}
+.lp .lp-foot-open {
+  padding: 9px 16px;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.lp .lp-foot-base {
+  grid-column: 1 / -1;
+  padding-top: 22px;
+  border-top: 1px solid var(--lp-line);
+  font-size: 14px;
+  color: var(--lp-quiet);
+}
+
+/* ── Narrow screens ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 1040px) {
+  .lp .lp-problem,
+  .lp .lp-where {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lp .lp-problem .lp-copy {
+    order: -1;
+  }
+  .lp .lp-duo {
+    zoom: 0.86;
+  }
+}
+@media (max-width: 620px) {
+  .lp .lp-sheet-wrap,
+  .lp .lp-footer {
+    font-size: 16px;
+  }
+  .lp .lp-duo {
+    zoom: 0.56;
+  }
+  .lp .lp-board-row {
+    grid-template-columns: 3.6em minmax(0, 1fr);
+  }
+  .lp .lp-board-kind {
+    display: none;
+  }
+  .lp .lp-foot {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .lp .lp-foot-brand {
+    grid-column: 1 / -1;
+  }
+  .lp .lp-topbar .lp-label {
+    display: none;
+  }
+}
+@media (max-width: 380px) {
+  .lp .lp-duo {
+    zoom: 0.51;
+  }
+}
+
+/* ── Motion ───────────────────────────────────────────────────────────────────────────────────────
+ * The page is complete without any of this. useLandingMotion adds:
+ *   lp-pre   on [data-reveal] still below the screen (removed when it scrolls in: fade up)
+ *   lp-wait  on [data-play] still below the screen (its starting state)
+ *   lp-play  when it scrolls in (its own moment, then it rests in the final state)
+ * With Motion off nothing is added, and data-motion="off" stops anything already running. */
+.lp[data-motion="on"] .lp-pre {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.lp[data-motion="on"] [data-reveal] {
+  transition: opacity 0.7s var(--lp-ease), transform 0.7s var(--lp-ease);
+  transition-delay: calc(var(--i, 0) * 100ms);
+}
+.lp[data-motion="on"] .lp-pre .lp-hl path,
+.lp[data-motion="on"] .lp-hl.lp-pre path {
+  stroke-dashoffset: 1;
+}
+.lp[data-motion="on"] .lp-hl path {
+  transition: stroke-dashoffset 0.8s var(--lp-ease) 0.45s;
+}
+/* Second phone settles in after the chat */
+.lp[data-motion="on"] .lp-duo-2.lp-pre {
+  transform: translate(30px, 30px) rotate(4deg);
+}
+.lp[data-motion="on"] .lp-duo-2 {
+  transition-delay: 0.85s;
+  transition-duration: 0.8s;
+}
+/* The chat fills in */
+.lp[data-motion="on"] .lp-wait .lp-msg,
+.lp[data-motion="on"] .lp-wait .lp-wa-unread {
+  opacity: 0;
+}
+.lp[data-motion="on"] .lp-play .lp-msg,
+.lp[data-motion="on"] .lp-play .lp-wa-unread {
+  animation: lp-rise 0.45s var(--lp-ease) both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+@keyframes lp-rise {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+/* The departures board flips in, row by row */
+.lp[data-motion="on"] .lp-board.lp-play .lp-board-row {
+  animation: lp-flap 0.5s var(--lp-ease) both;
+  animation-delay: calc(var(--i, 0) * 110ms + 0.15s);
+}
+@keyframes lp-flap {
+  from {
+    transform: perspective(500px) rotateX(-70deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.lp[data-motion="off"] .lp-sheet *,
+.lp[data-motion="off"] .lp-sheet *::before,
+.lp[data-motion="off"] .lp-sheet *::after {
+  animation: none !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp .lp-topbar {
+    transition: none;
+  }
+}
+
+/* Anchor targets clear the fixed top bar */
+.lp .lp-sheet [id] {
+  scroll-margin-top: 72px;
+}

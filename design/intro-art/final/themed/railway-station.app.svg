@@ -1,0 +1,64 @@
+<svg class="it-art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 410" width="620" height="410" fill="none" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">Bhubaneswar railway station</title>
+  <desc id="dsc">Simplified hand-drawn generic railway station: a station building with a pitched roof and a clock tower, a platform canopy with a departure board, a name board reading BBS, all standing on a raised platform, and a length of track in the foreground.</desc>
+
+  <g stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- ============ PLATFORM (behind everything standing on it) ============ -->
+    <g id="station-platform">
+      <path class="f-slab" id="station-platform-slab" d="M 0 300 L 620 300 L 620 322 L 0 322 Z"/>
+      <path class="s-muted" id="station-platform-top" d="M 0 300 L 620 300" stroke-width="5"/>
+      <path class="s-muted" id="station-platform-edge" d="M 0 322 L 620 322" stroke-width="7"/>
+    </g>
+
+    <!-- ============ STATION BUILDING ============ -->
+    <g id="station-building">
+      <path class="f-wall s-ink" id="station-building-walls" d="M 30 160 L 250 160 L 250 300 L 30 300 Z" stroke-width="11"/>
+      <path class="f-ledge s-ink" id="station-roof" d="M 12 160 L 62 110 L 218 110 L 268 160 Z" stroke-width="11"/>
+      <path class="s-muted" id="station-building-band" d="M 30 214 L 250 214" stroke-width="6"/>
+    </g>
+
+    <!-- ============ CLOCK TOWER ============ -->
+    <g id="station-clock-tower">
+      <path class="f-wall-hi s-ink" id="station-tower-shaft" d="M 110 48 L 170 48 L 170 110 L 110 110 Z" stroke-width="11"/>
+      <path class="f-ledge s-ink" id="station-tower-cap" d="M 100 48 L 140 12 L 180 48 Z" stroke-width="11"/>
+      <circle class="f-wall-hi s-ink" id="station-clock" cx="140" cy="78" r="17" stroke-width="8"/>
+      <path class="s-ink" id="station-clock-hands" d="M 140 78 L 140 66 M 140 78 L 149 78" stroke-width="6"/>
+    </g>
+
+    <!-- ============ PLATFORM CANOPY ============ -->
+    <g id="station-canopy">
+      <path class="f-ledge s-ink" id="station-roof-canopy" d="M 248 174 L 260 148 L 454 148 L 466 174 Z" stroke-width="11"/>
+      <path class="f-wall s-ink" id="station-canopy-posts" d="M 276 174 L 290 174 L 290 300 L 276 300 Z M 336 174 L 350 174 L 350 300 L 336 300 Z M 396 174 L 410 174 L 410 300 L 396 300 Z M 450 174 L 464 174 L 464 300 L 450 300 Z" stroke-width="7"/>
+      <path class="s-ink" id="station-board-hangers" d="M 336 174 L 336 192 M 414 174 L 414 192" stroke-width="6"/>
+      <rect class="f-deep s-ink" id="station-departure-board" x="330" y="192" width="90" height="34" rx="7" stroke-width="7"/>
+      <path class="s-window" id="station-departure-board-lines" d="M 344 203 L 406 203 M 344 215 L 380 215" stroke-width="7"/>
+    </g>
+
+    <!-- ============ NAME BOARD ============ -->
+    <g id="station-sign">
+      <path class="f-wall s-ink" id="station-sign-posts" d="M 486 136 L 500 136 L 500 300 L 486 300 Z M 576 136 L 590 136 L 590 300 L 576 300 Z" stroke-width="7"/>
+      <rect class="f-wall-hi s-ink" id="station-sign-board" x="468" y="86" width="142" height="50" rx="11" stroke-width="7"/>
+      <!-- "BBS" in block letters, drawn as strokes so no font is needed -->
+      <path class="s-ink" id="station-sign-text" d="M 498.5 97 L 498.5 125 M 498.5 97 L 509.5 97 A 7 7 0 0 1 509.5 111 L 498.5 111 M 498.5 111 L 510.5 111 A 7 7 0 0 1 510.5 125 L 498.5 125 M 529.5 97 L 529.5 125 M 529.5 97 L 540.5 97 A 7 7 0 0 1 540.5 111 L 529.5 111 M 529.5 111 L 541.5 111 A 7 7 0 0 1 541.5 125 L 529.5 125 M 578.5 101.5 C 576.5 98.5 573.5 97 570.0 97 C 564.5 97 561.5 100 561.5 104 C 561.5 108.5 565.5 110 570.0 111 C 575.0 112 579.5 114 579.5 118.5 C 579.5 122.5 575.5 125 570.0 125 C 566.0 125 562.5 123.5 560.5 120.5" stroke-width="6"/>
+    </g>
+
+    <!-- ============ FACADE DETAILS ============ -->
+    <g id="station-windows">
+      <path class="f-accent" id="station-windows-upper" d="M 44 178 L 72 178 L 72 208 L 44 208 Z M 84 178 L 106 178 L 106 208 L 84 208 Z M 174 178 L 196 178 L 196 208 L 174 208 Z M 208 178 L 236 178 L 236 208 L 208 208 Z"/>
+      <path class="f-window" id="station-windows-lower" d="M 44 248 L 72 248 L 72 278 L 44 278 Z M 84 248 L 106 248 L 106 278 L 84 278 Z M 174 248 L 196 248 L 196 278 L 174 278 Z M 208 248 L 236 248 L 236 278 L 208 278 Z"/>
+    </g>
+
+    <!-- ============ ENTRANCE ============ -->
+    <g id="station-entrance">
+      <path class="f-deep s-ink" id="station-entrance-door" d="M 116 300 L 116 246 A 24 24 0 0 1 164 246 L 164 300 Z" stroke-width="7"/>
+      <path class="f-recess s-ink" id="station-entrance-step" d="M 104 300 L 176 300 L 176 312 L 104 312 Z" stroke-width="7"/>
+    </g>
+
+    <!-- ============ TRACK ============ -->
+    <g id="station-track">
+      <path class="s-muted" id="station-sleepers" d="M 24 352 L 24 378 M 64 352 L 64 378 M 104 352 L 104 378 M 144 352 L 144 378 M 184 352 L 184 378 M 224 352 L 224 378 M 264 352 L 264 378 M 304 352 L 304 378 M 344 352 L 344 378 M 384 352 L 384 378 M 424 352 L 424 378 M 464 352 L 464 378 M 504 352 L 504 378 M 544 352 L 544 378 M 584 352 L 584 378" stroke-width="7"/>
+      <path class="s-accent" id="station-rails" d="M 0 352 L 620 352 M 0 378 L 620 378" stroke-width="6"/>
+    </g>
+  </g>
+</svg>

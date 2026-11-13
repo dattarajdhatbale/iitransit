@@ -2,12 +2,37 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Apply the saved theme before first paint (same rule as src/theme.ts).
+      try {
+        if (localStorage.getItem("theme") !== "light") document.documentElement.classList.add("dark-mode");
+      } catch (e) {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
+    <style>
+      /* index.css paints <body> dark navy in every theme. In light mode, start from the app's light
+         background instead, so pages don't flash dark before React renders. */
+      html:not(.dark-mode) body { background-color: #d8cfe3; }
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <title>IITransit</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>IITransit · Ride sharing for IIT Bhubaneswar</title>
+    <meta name="description" content="Share cabs and autos with fellow IIT Bhubaneswar students. Find a ride to the station or airport, or post your own, instead of searching WhatsApp groups." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="IITransit" />
+    <meta property="og:title" content="IITransit · Find your ride-mates at IIT Bhubaneswar" />
+    <meta property="og:description" content="Split the ride. Save the fare. Find or post a shared auto or cab to the station, airport or bus stand." />
+    <meta property="og:url" content="https://iitransit.vercel.app/" />
+    <meta property="og:image" content="https://iitransit.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Three students share one car from the IIT Bhubaneswar main building to Bhubaneswar railway station." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="IITransit · Find your ride-mates at IIT Bhubaneswar" />
+    <meta name="twitter:description" content="Split the ride. Save the fare. Find or post a shared auto or cab to the station, airport or bus stand." />
+    <meta name="twitter:image" content="https://iitransit.vercel.app/og-image.png" />
     <!-- Firebase Auth loads Google Sign-In internally — no manual script needed here -->
   </head>
   <body>
